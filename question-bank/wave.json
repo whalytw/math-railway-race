@@ -1,0 +1,218 @@
+[
+  {
+    "level": 1,
+    "prompt": "y = 1 sin x + 2 cos x，x = 0 時，y 是多少？",
+    "answer": 2,
+    "hint": "代 sin 0 = 0、cos 0 = 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 2 sin x + 2 cos x，x = 0 時，y 是多少？",
+    "answer": 2,
+    "hint": "代 sin 0 = 0、cos 0 = 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 3 sin x + 2 cos x，x = 0 時，y 是多少？",
+    "answer": 2,
+    "hint": "代 sin 0 = 0、cos 0 = 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 4 sin x + 2 cos x，x = 0 時，y 是多少？",
+    "answer": 2,
+    "hint": "代 sin 0 = 0、cos 0 = 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 5 sin x + 2 cos x，x = 0 時，y 是多少？",
+    "answer": 2,
+    "hint": "代 sin 0 = 0、cos 0 = 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 6 sin x + 2 cos x，x = 0 時，y 是多少？",
+    "answer": 2,
+    "hint": "代 sin 0 = 0、cos 0 = 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 1 sin x + cos x，x = π/2 時，y 是多少？",
+    "answer": 1,
+    "hint": "代 sin(π/2) = 1、cos(π/2) = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 2 sin x + cos x，x = π/2 時，y 是多少？",
+    "answer": 2,
+    "hint": "代 sin(π/2) = 1、cos(π/2) = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 3 sin x + cos x，x = π/2 時，y 是多少？",
+    "answer": 3,
+    "hint": "代 sin(π/2) = 1、cos(π/2) = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 4 sin x + cos x，x = π/2 時，y 是多少？",
+    "answer": 4,
+    "hint": "代 sin(π/2) = 1、cos(π/2) = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 5 sin x + cos x，x = π/2 時，y 是多少？",
+    "answer": 5,
+    "hint": "代 sin(π/2) = 1、cos(π/2) = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 6 sin x + cos x，x = π/2 時，y 是多少？",
+    "answer": 6,
+    "hint": "代 sin(π/2) = 1、cos(π/2) = 0。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 3 sin x + 4 cos x + 1 的最大值是多少？",
+    "answer": 6,
+    "hint": "先用 √(3²+4²) 求振幅。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 3 sin x + 4 cos x + 2 的最大值是多少？",
+    "answer": 7,
+    "hint": "先用 √(3²+4²) 求振幅。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 3 sin x + 4 cos x + 3 的最大值是多少？",
+    "answer": 8,
+    "hint": "先用 √(3²+4²) 求振幅。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 3 sin x + 4 cos x + 4 的最大值是多少？",
+    "answer": 9,
+    "hint": "先用 √(3²+4²) 求振幅。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 3 sin x + 4 cos x + 5 的最大值是多少？",
+    "answer": 10,
+    "hint": "先用 √(3²+4²) 求振幅。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 3 sin x + 4 cos x + 6 的最大值是多少？",
+    "answer": 11,
+    "hint": "先用 √(3²+4²) 求振幅。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 1 sin x + 1 cos x 的振幅是幾個 √2？",
+    "answer": 1,
+    "hint": "兩個係數平方相加後開根號。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 2 sin x + 2 cos x 的振幅是幾個 √2？",
+    "answer": 2,
+    "hint": "兩個係數平方相加後開根號。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 3 sin x + 3 cos x 的振幅是幾個 √2？",
+    "answer": 3,
+    "hint": "兩個係數平方相加後開根號。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 4 sin x + 4 cos x 的振幅是幾個 √2？",
+    "answer": 4,
+    "hint": "兩個係數平方相加後開根號。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 5 sin x + 5 cos x 的振幅是幾個 √2？",
+    "answer": 5,
+    "hint": "兩個係數平方相加後開根號。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 6 sin x + 6 cos x 的振幅是幾個 √2？",
+    "answer": 6,
+    "hint": "兩個係數平方相加後開根號。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 3 sin x − 4 cos x 的最大值是多少？",
+    "answer": 5,
+    "hint": "提出公因數，再利用 3、4、5 直角三角形。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 6 sin x − 8 cos x 的最大值是多少？",
+    "answer": 10,
+    "hint": "提出公因數，再利用 3、4、5 直角三角形。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 9 sin x − 12 cos x 的最大值是多少？",
+    "answer": 15,
+    "hint": "提出公因數，再利用 3、4、5 直角三角形。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 12 sin x − 16 cos x 的最大值是多少？",
+    "answer": 20,
+    "hint": "提出公因數，再利用 3、4、5 直角三角形。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 15 sin x − 20 cos x 的最大值是多少？",
+    "answer": 25,
+    "hint": "提出公因數，再利用 3、4、5 直角三角形。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 18 sin x − 24 cos x 的最大值是多少？",
+    "answer": 30,
+    "hint": "提出公因數，再利用 3、4、5 直角三角形。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 4 sin x − 3 cos x + 1 的最大值與最小值之和是多少？",
+    "answer": 2,
+    "hint": "兩個極值關於中線對稱。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 4 sin x − 3 cos x + 2 的最大值與最小值之和是多少？",
+    "answer": 4,
+    "hint": "兩個極值關於中線對稱。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 4 sin x − 3 cos x + 3 的最大值與最小值之和是多少？",
+    "answer": 6,
+    "hint": "兩個極值關於中線對稱。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 4 sin x − 3 cos x + 4 的最大值與最小值之和是多少？",
+    "answer": 8,
+    "hint": "兩個極值關於中線對稱。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 4 sin x − 3 cos x + 5 的最大值與最小值之和是多少？",
+    "answer": 10,
+    "hint": "兩個極值關於中線對稱。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 4 sin x − 3 cos x + 6 的最大值與最小值之和是多少？",
+    "answer": 12,
+    "hint": "兩個極值關於中線對稱。"
+  }
+]

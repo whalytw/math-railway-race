@@ -1,0 +1,218 @@
+[
+  {
+    "level": 1,
+    "prompt": "log₂ 2 是多少？",
+    "answer": 1,
+    "hint": "找 2 的幾次方等於真數。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ 4 是多少？",
+    "answer": 2,
+    "hint": "找 2 的幾次方等於真數。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ 8 是多少？",
+    "answer": 3,
+    "hint": "找 2 的幾次方等於真數。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ 16 是多少？",
+    "answer": 4,
+    "hint": "找 2 的幾次方等於真數。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ 32 是多少？",
+    "answer": 5,
+    "hint": "找 2 的幾次方等於真數。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ 64 是多少？",
+    "answer": 6,
+    "hint": "找 2 的幾次方等於真數。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ x = 1，把 x 寫成 10 的冪，指數是多少？",
+    "answer": 1,
+    "hint": "將對數式改寫為指數式。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ x = 2，把 x 寫成 10 的冪，指數是多少？",
+    "answer": 2,
+    "hint": "將對數式改寫為指數式。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ x = 3，把 x 寫成 10 的冪，指數是多少？",
+    "answer": 3,
+    "hint": "將對數式改寫為指數式。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ x = 4，把 x 寫成 10 的冪，指數是多少？",
+    "answer": 4,
+    "hint": "將對數式改寫為指數式。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ x = 5，把 x 寫成 10 的冪，指數是多少？",
+    "answer": 5,
+    "hint": "將對數式改寫為指數式。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ x = 6，把 x 寫成 10 的冪，指數是多少？",
+    "answer": 6,
+    "hint": "將對數式改寫為指數式。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₂ 2 + log₂ 4 是多少？",
+    "answer": 3,
+    "hint": "同底對數可分別求值再相加。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₂ 4 + log₂ 4 是多少？",
+    "answer": 4,
+    "hint": "同底對數可分別求值再相加。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₂ 8 + log₂ 4 是多少？",
+    "answer": 5,
+    "hint": "同底對數可分別求值再相加。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₂ 16 + log₂ 4 是多少？",
+    "answer": 6,
+    "hint": "同底對數可分別求值再相加。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₂ 32 + log₂ 4 是多少？",
+    "answer": 7,
+    "hint": "同底對數可分別求值再相加。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₂ 64 + log₂ 4 是多少？",
+    "answer": 8,
+    "hint": "同底對數可分別求值再相加。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₂(1/2) 是多少？",
+    "answer": -1,
+    "hint": "小於 1 的真數對應負指數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₂(1/4) 是多少？",
+    "answer": -2,
+    "hint": "小於 1 的真數對應負指數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₂(1/8) 是多少？",
+    "answer": -3,
+    "hint": "小於 1 的真數對應負指數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₂(1/16) 是多少？",
+    "answer": -4,
+    "hint": "小於 1 的真數對應負指數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₂(1/32) 是多少？",
+    "answer": -5,
+    "hint": "小於 1 的真數對應負指數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₂(1/64) 是多少？",
+    "answer": -6,
+    "hint": "小於 1 的真數對應負指數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(2 × 8) − log₂ 4 是多少？",
+    "answer": 2,
+    "hint": "乘積化為和，商化為差。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(4 × 8) − log₂ 4 是多少？",
+    "answer": 3,
+    "hint": "乘積化為和，商化為差。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(8 × 8) − log₂ 4 是多少？",
+    "answer": 4,
+    "hint": "乘積化為和，商化為差。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(16 × 8) − log₂ 4 是多少？",
+    "answer": 5,
+    "hint": "乘積化為和，商化為差。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(32 × 8) − log₂ 4 是多少？",
+    "answer": 6,
+    "hint": "乘積化為和，商化為差。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(64 × 8) − log₂ 4 是多少？",
+    "answer": 7,
+    "hint": "乘積化為和，商化為差。"
+  },
+  {
+    "level": 3,
+    "prompt": "已知 log₃ A = 1。log₃(A²/3) 是多少？",
+    "answer": 1,
+    "hint": "平方讓對數加倍，除以 3 再減去 1。"
+  },
+  {
+    "level": 3,
+    "prompt": "已知 log₃ A = 2。log₃(A²/3) 是多少？",
+    "answer": 3,
+    "hint": "平方讓對數加倍，除以 3 再減去 1。"
+  },
+  {
+    "level": 3,
+    "prompt": "已知 log₃ A = 3。log₃(A²/3) 是多少？",
+    "answer": 5,
+    "hint": "平方讓對數加倍，除以 3 再減去 1。"
+  },
+  {
+    "level": 3,
+    "prompt": "已知 log₃ A = 4。log₃(A²/3) 是多少？",
+    "answer": 7,
+    "hint": "平方讓對數加倍，除以 3 再減去 1。"
+  },
+  {
+    "level": 3,
+    "prompt": "已知 log₃ A = 5。log₃(A²/3) 是多少？",
+    "answer": 9,
+    "hint": "平方讓對數加倍，除以 3 再減去 1。"
+  },
+  {
+    "level": 3,
+    "prompt": "已知 log₃ A = 6。log₃(A²/3) 是多少？",
+    "answer": 11,
+    "hint": "平方讓對數加倍，除以 3 再減去 1。"
+  }
+]

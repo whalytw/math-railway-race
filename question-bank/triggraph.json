@@ -1,0 +1,218 @@
+[
+  {
+    "level": 1,
+    "prompt": "y = 1 sin x 的振幅是多少？",
+    "answer": 1,
+    "hint": "振幅取正弦係數的絕對值。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 2 sin x 的振幅是多少？",
+    "answer": 2,
+    "hint": "振幅取正弦係數的絕對值。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 3 sin x 的振幅是多少？",
+    "answer": 3,
+    "hint": "振幅取正弦係數的絕對值。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 4 sin x 的振幅是多少？",
+    "answer": 4,
+    "hint": "振幅取正弦係數的絕對值。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 5 sin x 的振幅是多少？",
+    "answer": 5,
+    "hint": "振幅取正弦係數的絕對值。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 6 sin x 的振幅是多少？",
+    "answer": 6,
+    "hint": "振幅取正弦係數的絕對值。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = cos x + 1，當 x = 0 時，y 是多少？",
+    "answer": 2,
+    "hint": "cos 0 = 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = cos x + 2，當 x = 0 時，y 是多少？",
+    "answer": 3,
+    "hint": "cos 0 = 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = cos x + 3，當 x = 0 時，y 是多少？",
+    "answer": 4,
+    "hint": "cos 0 = 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = cos x + 4，當 x = 0 時，y 是多少？",
+    "answer": 5,
+    "hint": "cos 0 = 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = cos x + 5，當 x = 0 時，y 是多少？",
+    "answer": 6,
+    "hint": "cos 0 = 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = cos x + 6，當 x = 0 時，y 是多少？",
+    "answer": 7,
+    "hint": "cos 0 = 1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 2 sin x + 1 的最小值是多少？",
+    "answer": -1,
+    "hint": "sin x 最小為 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 2 sin x + 2 的最小值是多少？",
+    "answer": 0,
+    "hint": "sin x 最小為 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 2 sin x + 3 的最小值是多少？",
+    "answer": 1,
+    "hint": "sin x 最小為 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 2 sin x + 4 的最小值是多少？",
+    "answer": 2,
+    "hint": "sin x 最小為 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 2 sin x + 5 的最小值是多少？",
+    "answer": 3,
+    "hint": "sin x 最小為 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 2 sin x + 6 的最小值是多少？",
+    "answer": 4,
+    "hint": "sin x 最小為 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = sin(x/1) 的最小正週期是幾個 π？",
+    "answer": 2,
+    "hint": "將基本週期 2π 除以 x 的係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = sin(x/2) 的最小正週期是幾個 π？",
+    "answer": 4,
+    "hint": "將基本週期 2π 除以 x 的係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = sin(x/3) 的最小正週期是幾個 π？",
+    "answer": 6,
+    "hint": "將基本週期 2π 除以 x 的係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = sin(x/4) 的最小正週期是幾個 π？",
+    "answer": 8,
+    "hint": "將基本週期 2π 除以 x 的係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = sin(x/5) 的最小正週期是幾個 π？",
+    "answer": 10,
+    "hint": "將基本週期 2π 除以 x 的係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = sin(x/6) 的最小正週期是幾個 π？",
+    "answer": 12,
+    "hint": "將基本週期 2π 除以 x 的係數。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 1 cos(2x) − 1 的最大值與最小值相差多少？",
+    "answer": 2,
+    "hint": "波峰與波谷的落差是振幅的兩倍。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 2 cos(2x) − 1 的最大值與最小值相差多少？",
+    "answer": 4,
+    "hint": "波峰與波谷的落差是振幅的兩倍。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 3 cos(2x) − 1 的最大值與最小值相差多少？",
+    "answer": 6,
+    "hint": "波峰與波谷的落差是振幅的兩倍。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 4 cos(2x) − 1 的最大值與最小值相差多少？",
+    "answer": 8,
+    "hint": "波峰與波谷的落差是振幅的兩倍。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 5 cos(2x) − 1 的最大值與最小值相差多少？",
+    "answer": 10,
+    "hint": "波峰與波谷的落差是振幅的兩倍。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 6 cos(2x) − 1 的最大值與最小值相差多少？",
+    "answer": 12,
+    "hint": "波峰與波谷的落差是振幅的兩倍。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = tan(x/1) 的最小正週期是幾個 π？",
+    "answer": 1,
+    "hint": "正切函數的基本週期是 π。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = tan(x/2) 的最小正週期是幾個 π？",
+    "answer": 2,
+    "hint": "正切函數的基本週期是 π。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = tan(x/3) 的最小正週期是幾個 π？",
+    "answer": 3,
+    "hint": "正切函數的基本週期是 π。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = tan(x/4) 的最小正週期是幾個 π？",
+    "answer": 4,
+    "hint": "正切函數的基本週期是 π。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = tan(x/5) 的最小正週期是幾個 π？",
+    "answer": 5,
+    "hint": "正切函數的基本週期是 π。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = tan(x/6) 的最小正週期是幾個 π？",
+    "answer": 6,
+    "hint": "正切函數的基本週期是 π。"
+  }
+]

@@ -1,0 +1,218 @@
+[
+  {
+    "level": 1,
+    "prompt": "f(x) = 1x + 1。f′(x) 是多少？",
+    "answer": 1,
+    "hint": "一次函數的導數是斜率。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 2x + 1。f′(x) 是多少？",
+    "answer": 2,
+    "hint": "一次函數的導數是斜率。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 3x + 1。f′(x) 是多少？",
+    "answer": 3,
+    "hint": "一次函數的導數是斜率。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 4x + 1。f′(x) 是多少？",
+    "answer": 4,
+    "hint": "一次函數的導數是斜率。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 5x + 1。f′(x) 是多少？",
+    "answer": 5,
+    "hint": "一次函數的導數是斜率。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 6x + 1。f′(x) 是多少？",
+    "answer": 6,
+    "hint": "一次函數的導數是斜率。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 1 是常數函數。f′(2) 是多少？",
+    "answer": 0,
+    "hint": "常數的變化率為零。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 2 是常數函數。f′(2) 是多少？",
+    "answer": 0,
+    "hint": "常數的變化率為零。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 3 是常數函數。f′(2) 是多少？",
+    "answer": 0,
+    "hint": "常數的變化率為零。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 4 是常數函數。f′(2) 是多少？",
+    "answer": 0,
+    "hint": "常數的變化率為零。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 5 是常數函數。f′(2) 是多少？",
+    "answer": 0,
+    "hint": "常數的變化率為零。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 6 是常數函數。f′(2) 是多少？",
+    "answer": 0,
+    "hint": "常數的變化率為零。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = x² + 1x。求 f′(1)。",
+    "answer": 3,
+    "hint": "先求導得 2x 加上一次項係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = x² + 2x。求 f′(1)。",
+    "answer": 4,
+    "hint": "先求導得 2x 加上一次項係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = x² + 3x。求 f′(1)。",
+    "answer": 5,
+    "hint": "先求導得 2x 加上一次項係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = x² + 4x。求 f′(1)。",
+    "answer": 6,
+    "hint": "先求導得 2x 加上一次項係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = x² + 5x。求 f′(1)。",
+    "answer": 7,
+    "hint": "先求導得 2x 加上一次項係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = x² + 6x。求 f′(1)。",
+    "answer": 8,
+    "hint": "先求導得 2x 加上一次項係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 1x²，圖形在 x = 1 的切線斜率是多少？",
+    "answer": 2,
+    "hint": "用導數值求切線斜率。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x²，圖形在 x = 1 的切線斜率是多少？",
+    "answer": 4,
+    "hint": "用導數值求切線斜率。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 3x²，圖形在 x = 1 的切線斜率是多少？",
+    "answer": 6,
+    "hint": "用導數值求切線斜率。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 4x²，圖形在 x = 1 的切線斜率是多少？",
+    "answer": 8,
+    "hint": "用導數值求切線斜率。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 5x²，圖形在 x = 1 的切線斜率是多少？",
+    "answer": 10,
+    "hint": "用導數值求切線斜率。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 6x²，圖形在 x = 1 的切線斜率是多少？",
+    "answer": 12,
+    "hint": "用導數值求切線斜率。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x³ − 1x。求 f′(2)。",
+    "answer": 11,
+    "hint": "微分後為 3x² 減去一次項係數。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x³ − 2x。求 f′(2)。",
+    "answer": 10,
+    "hint": "微分後為 3x² 減去一次項係數。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x³ − 3x。求 f′(2)。",
+    "answer": 9,
+    "hint": "微分後為 3x² 減去一次項係數。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x³ − 4x。求 f′(2)。",
+    "answer": 8,
+    "hint": "微分後為 3x² 減去一次項係數。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x³ − 5x。求 f′(2)。",
+    "answer": 7,
+    "hint": "微分後為 3x² 減去一次項係數。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x³ − 6x。求 f′(2)。",
+    "answer": 6,
+    "hint": "微分後為 3x² 減去一次項係數。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = (x + 1)²。當 x = 1 時的瞬時變化率是多少？",
+    "answer": 4,
+    "hint": "可先展開再微分，也可求出導數 2(x + n)。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = (x + 2)²。當 x = 1 時的瞬時變化率是多少？",
+    "answer": 6,
+    "hint": "可先展開再微分，也可求出導數 2(x + n)。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = (x + 3)²。當 x = 1 時的瞬時變化率是多少？",
+    "answer": 8,
+    "hint": "可先展開再微分，也可求出導數 2(x + n)。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = (x + 4)²。當 x = 1 時的瞬時變化率是多少？",
+    "answer": 10,
+    "hint": "可先展開再微分，也可求出導數 2(x + n)。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = (x + 5)²。當 x = 1 時的瞬時變化率是多少？",
+    "answer": 12,
+    "hint": "可先展開再微分，也可求出導數 2(x + n)。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = (x + 6)²。當 x = 1 時的瞬時變化率是多少？",
+    "answer": 14,
+    "hint": "可先展開再微分，也可求出導數 2(x + n)。"
+  }
+]

@@ -1,0 +1,218 @@
+[
+  {
+    "level": 1,
+    "prompt": "f(x) = x + 1，求 f(2)。",
+    "answer": 3,
+    "hint": "用 2 取代 x。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = x + 2，求 f(2)。",
+    "answer": 4,
+    "hint": "用 2 取代 x。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = x + 3，求 f(2)。",
+    "answer": 5,
+    "hint": "用 2 取代 x。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = x + 4，求 f(2)。",
+    "answer": 6,
+    "hint": "用 2 取代 x。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = x + 5，求 f(2)。",
+    "answer": 7,
+    "hint": "用 2 取代 x。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = x + 6，求 f(2)。",
+    "answer": 8,
+    "hint": "用 2 取代 x。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 1 − x，求 f(0)。",
+    "answer": 1,
+    "hint": "將 x 換成 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 2 − x，求 f(0)。",
+    "answer": 2,
+    "hint": "將 x 換成 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 3 − x，求 f(0)。",
+    "answer": 3,
+    "hint": "將 x 換成 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 4 − x，求 f(0)。",
+    "answer": 4,
+    "hint": "將 x 換成 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 5 − x，求 f(0)。",
+    "answer": 5,
+    "hint": "將 x 換成 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 6 − x，求 f(0)。",
+    "answer": 6,
+    "hint": "將 x 換成 0。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = x + 1、g(x) = 2x，求 f(g(2))。",
+    "answer": 5,
+    "hint": "先算內層 g(2)。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = x + 2、g(x) = 2x，求 f(g(2))。",
+    "answer": 6,
+    "hint": "先算內層 g(2)。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = x + 3、g(x) = 2x，求 f(g(2))。",
+    "answer": 7,
+    "hint": "先算內層 g(2)。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = x + 4、g(x) = 2x，求 f(g(2))。",
+    "answer": 8,
+    "hint": "先算內層 g(2)。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = x + 5、g(x) = 2x，求 f(g(2))。",
+    "answer": 9,
+    "hint": "先算內層 g(2)。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = x + 6、g(x) = 2x，求 f(g(2))。",
+    "answer": 10,
+    "hint": "先算內層 g(2)。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x + 1。若 f(a) = 3，a 是多少？",
+    "answer": 1,
+    "hint": "從輸出值反推輸入值。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x + 1。若 f(a) = 5，a 是多少？",
+    "answer": 2,
+    "hint": "從輸出值反推輸入值。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x + 1。若 f(a) = 7，a 是多少？",
+    "answer": 3,
+    "hint": "從輸出值反推輸入值。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x + 1。若 f(a) = 9，a 是多少？",
+    "answer": 4,
+    "hint": "從輸出值反推輸入值。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x + 1。若 f(a) = 11，a 是多少？",
+    "answer": 5,
+    "hint": "從輸出值反推輸入值。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x + 1。若 f(a) = 13，a 是多少？",
+    "answer": 6,
+    "hint": "從輸出值反推輸入值。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x + 1、g(x) = x²，求 g(f(1))。",
+    "answer": 4,
+    "hint": "先做加法，才將結果平方。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x + 1、g(x) = x²，求 g(f(2))。",
+    "answer": 9,
+    "hint": "先做加法，才將結果平方。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x + 1、g(x) = x²，求 g(f(3))。",
+    "answer": 16,
+    "hint": "先做加法，才將結果平方。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x + 1、g(x) = x²，求 g(f(4))。",
+    "answer": 25,
+    "hint": "先做加法，才將結果平方。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x + 1、g(x) = x²，求 g(f(5))。",
+    "answer": 36,
+    "hint": "先做加法，才將結果平方。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x + 1、g(x) = x²，求 g(f(6))。",
+    "answer": 49,
+    "hint": "先做加法，才將結果平方。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = 2x − 1，求 f⁻¹(3)。",
+    "answer": 2,
+    "hint": "解 2x − n = 題目的輸出值。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = 2x − 2，求 f⁻¹(4)。",
+    "answer": 3,
+    "hint": "解 2x − n = 題目的輸出值。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = 2x − 3，求 f⁻¹(5)。",
+    "answer": 4,
+    "hint": "解 2x − n = 題目的輸出值。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = 2x − 4，求 f⁻¹(6)。",
+    "answer": 5,
+    "hint": "解 2x − n = 題目的輸出值。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = 2x − 5，求 f⁻¹(7)。",
+    "answer": 6,
+    "hint": "解 2x − n = 題目的輸出值。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = 2x − 6，求 f⁻¹(8)。",
+    "answer": 7,
+    "hint": "解 2x − n = 題目的輸出值。"
+  }
+]

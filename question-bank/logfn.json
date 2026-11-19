@@ -1,0 +1,218 @@
+[
+  {
+    "level": 1,
+    "prompt": "f(x) = log₂ x + 1，求 f(1)。",
+    "answer": 1,
+    "hint": "任何允許的底數都有 log 1 = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = log₂ x + 2，求 f(1)。",
+    "answer": 2,
+    "hint": "任何允許的底數都有 log 1 = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = log₂ x + 3，求 f(1)。",
+    "answer": 3,
+    "hint": "任何允許的底數都有 log 1 = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = log₂ x + 4，求 f(1)。",
+    "answer": 4,
+    "hint": "任何允許的底數都有 log 1 = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = log₂ x + 5，求 f(1)。",
+    "answer": 5,
+    "hint": "任何允許的底數都有 log 1 = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = log₂ x + 6，求 f(1)。",
+    "answer": 6,
+    "hint": "任何允許的底數都有 log 1 = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = log₂(x − 1) 的鉛直漸近線是 x 等於多少？",
+    "answer": 1,
+    "hint": "找使真數趨近 0 的邊界。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = log₂(x − 2) 的鉛直漸近線是 x 等於多少？",
+    "answer": 2,
+    "hint": "找使真數趨近 0 的邊界。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = log₂(x − 3) 的鉛直漸近線是 x 等於多少？",
+    "answer": 3,
+    "hint": "找使真數趨近 0 的邊界。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = log₂(x − 4) 的鉛直漸近線是 x 等於多少？",
+    "answer": 4,
+    "hint": "找使真數趨近 0 的邊界。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = log₂(x − 5) 的鉛直漸近線是 x 等於多少？",
+    "answer": 5,
+    "hint": "找使真數趨近 0 的邊界。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = log₂(x − 6) 的鉛直漸近線是 x 等於多少？",
+    "answer": 6,
+    "hint": "找使真數趨近 0 的邊界。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = log₂(x − 1) 的定義域中，最小整數是多少？",
+    "answer": 2,
+    "hint": "真數必須大於 0。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = log₂(x − 2) 的定義域中，最小整數是多少？",
+    "answer": 3,
+    "hint": "真數必須大於 0。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = log₂(x − 3) 的定義域中，最小整數是多少？",
+    "answer": 4,
+    "hint": "真數必須大於 0。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = log₂(x − 4) 的定義域中，最小整數是多少？",
+    "answer": 5,
+    "hint": "真數必須大於 0。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = log₂(x − 5) 的定義域中，最小整數是多少？",
+    "answer": 6,
+    "hint": "真數必須大於 0。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = log₂(x − 6) 的定義域中，最小整數是多少？",
+    "answer": 7,
+    "hint": "真數必須大於 0。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = log₂ x − 1 與 x 軸交於何處？請選 x 坐標。",
+    "answer": 2,
+    "hint": "令 y = 0，再改寫成指數式。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = log₂ x − 2 與 x 軸交於何處？請選 x 坐標。",
+    "answer": 4,
+    "hint": "令 y = 0，再改寫成指數式。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = log₂ x − 3 與 x 軸交於何處？請選 x 坐標。",
+    "answer": 8,
+    "hint": "令 y = 0，再改寫成指數式。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = log₂ x − 4 與 x 軸交於何處？請選 x 坐標。",
+    "answer": 16,
+    "hint": "令 y = 0，再改寫成指數式。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = log₂ x − 5 與 x 軸交於何處？請選 x 坐標。",
+    "answer": 32,
+    "hint": "令 y = 0，再改寫成指數式。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = log₂ x − 6 與 x 軸交於何處？請選 x 坐標。",
+    "answer": 64,
+    "hint": "令 y = 0，再改寫成指數式。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(x − 1) = 2，x 是多少？",
+    "answer": 5,
+    "hint": "真數必須是 2 的平方。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(x − 2) = 2，x 是多少？",
+    "answer": 6,
+    "hint": "真數必須是 2 的平方。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(x − 3) = 2，x 是多少？",
+    "answer": 7,
+    "hint": "真數必須是 2 的平方。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(x − 4) = 2，x 是多少？",
+    "answer": 8,
+    "hint": "真數必須是 2 的平方。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(x − 5) = 2，x 是多少？",
+    "answer": 9,
+    "hint": "真數必須是 2 的平方。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(x − 6) = 2，x 是多少？",
+    "answer": 10,
+    "hint": "真數必須是 2 的平方。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(x + 1) < 2 且 x 為整數，x 的最大值是多少？",
+    "answer": 2,
+    "hint": "底數大於 1，故真數須介於 0 與 4。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(x + 2) < 2 且 x 為整數，x 的最大值是多少？",
+    "answer": 1,
+    "hint": "底數大於 1，故真數須介於 0 與 4。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(x + 3) < 2 且 x 為整數，x 的最大值是多少？",
+    "answer": 0,
+    "hint": "底數大於 1，故真數須介於 0 與 4。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(x + 4) < 2 且 x 為整數，x 的最大值是多少？",
+    "answer": -1,
+    "hint": "底數大於 1，故真數須介於 0 與 4。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(x + 5) < 2 且 x 為整數，x 的最大值是多少？",
+    "answer": -2,
+    "hint": "底數大於 1，故真數須介於 0 與 4。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂(x + 6) < 2 且 x 為整數，x 的最大值是多少？",
+    "answer": -3,
+    "hint": "底數大於 1，故真數須介於 0 與 4。"
+  }
+]

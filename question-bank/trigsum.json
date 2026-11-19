@@ -1,0 +1,218 @@
+[
+  {
+    "level": 1,
+    "prompt": "sin 10° cos 10° + cos 10° sin 10° = sin θ。用和角公式合併，θ 是幾度？",
+    "answer": 20,
+    "hint": "sin(A + B) 的兩項之間是加號。"
+  },
+  {
+    "level": 1,
+    "prompt": "sin 20° cos 10° + cos 20° sin 10° = sin θ。用和角公式合併，θ 是幾度？",
+    "answer": 30,
+    "hint": "sin(A + B) 的兩項之間是加號。"
+  },
+  {
+    "level": 1,
+    "prompt": "sin 30° cos 10° + cos 30° sin 10° = sin θ。用和角公式合併，θ 是幾度？",
+    "answer": 40,
+    "hint": "sin(A + B) 的兩項之間是加號。"
+  },
+  {
+    "level": 1,
+    "prompt": "sin 40° cos 10° + cos 40° sin 10° = sin θ。用和角公式合併，θ 是幾度？",
+    "answer": 50,
+    "hint": "sin(A + B) 的兩項之間是加號。"
+  },
+  {
+    "level": 1,
+    "prompt": "sin 50° cos 10° + cos 50° sin 10° = sin θ。用和角公式合併，θ 是幾度？",
+    "answer": 60,
+    "hint": "sin(A + B) 的兩項之間是加號。"
+  },
+  {
+    "level": 1,
+    "prompt": "sin 60° cos 10° + cos 60° sin 10° = sin θ。用和角公式合併，θ 是幾度？",
+    "answer": 70,
+    "hint": "sin(A + B) 的兩項之間是加號。"
+  },
+  {
+    "level": 1,
+    "prompt": "cos 15° cos 5° + sin 15° sin 5° = cos θ。用差角公式合併，θ 是幾度？",
+    "answer": 10,
+    "hint": "cos(A − B) 的展開式中間是加號。"
+  },
+  {
+    "level": 1,
+    "prompt": "cos 25° cos 5° + sin 25° sin 5° = cos θ。用差角公式合併，θ 是幾度？",
+    "answer": 20,
+    "hint": "cos(A − B) 的展開式中間是加號。"
+  },
+  {
+    "level": 1,
+    "prompt": "cos 35° cos 5° + sin 35° sin 5° = cos θ。用差角公式合併，θ 是幾度？",
+    "answer": 30,
+    "hint": "cos(A − B) 的展開式中間是加號。"
+  },
+  {
+    "level": 1,
+    "prompt": "cos 45° cos 5° + sin 45° sin 5° = cos θ。用差角公式合併，θ 是幾度？",
+    "answer": 40,
+    "hint": "cos(A − B) 的展開式中間是加號。"
+  },
+  {
+    "level": 1,
+    "prompt": "cos 55° cos 5° + sin 55° sin 5° = cos θ。用差角公式合併，θ 是幾度？",
+    "answer": 50,
+    "hint": "cos(A − B) 的展開式中間是加號。"
+  },
+  {
+    "level": 1,
+    "prompt": "cos 65° cos 5° + sin 65° sin 5° = cos θ。用差角公式合併，θ 是幾度？",
+    "answer": 60,
+    "hint": "cos(A − B) 的展開式中間是加號。"
+  },
+  {
+    "level": 2,
+    "prompt": "A + B = 90°。1(sin A cos B + cos A sin B) 是多少？",
+    "answer": 1,
+    "hint": "先合併成 sin(A + B)。"
+  },
+  {
+    "level": 2,
+    "prompt": "A + B = 90°。2(sin A cos B + cos A sin B) 是多少？",
+    "answer": 2,
+    "hint": "先合併成 sin(A + B)。"
+  },
+  {
+    "level": 2,
+    "prompt": "A + B = 90°。3(sin A cos B + cos A sin B) 是多少？",
+    "answer": 3,
+    "hint": "先合併成 sin(A + B)。"
+  },
+  {
+    "level": 2,
+    "prompt": "A + B = 90°。4(sin A cos B + cos A sin B) 是多少？",
+    "answer": 4,
+    "hint": "先合併成 sin(A + B)。"
+  },
+  {
+    "level": 2,
+    "prompt": "A + B = 90°。5(sin A cos B + cos A sin B) 是多少？",
+    "answer": 5,
+    "hint": "先合併成 sin(A + B)。"
+  },
+  {
+    "level": 2,
+    "prompt": "A + B = 90°。6(sin A cos B + cos A sin B) 是多少？",
+    "answer": 6,
+    "hint": "先合併成 sin(A + B)。"
+  },
+  {
+    "level": 2,
+    "prompt": "A − B = 60°。2(cos A cos B + sin A sin B) 是多少？",
+    "answer": 1,
+    "hint": "先合併成 cos(A − B)，再用特殊角。"
+  },
+  {
+    "level": 2,
+    "prompt": "A − B = 60°。4(cos A cos B + sin A sin B) 是多少？",
+    "answer": 2,
+    "hint": "先合併成 cos(A − B)，再用特殊角。"
+  },
+  {
+    "level": 2,
+    "prompt": "A − B = 60°。6(cos A cos B + sin A sin B) 是多少？",
+    "answer": 3,
+    "hint": "先合併成 cos(A − B)，再用特殊角。"
+  },
+  {
+    "level": 2,
+    "prompt": "A − B = 60°。8(cos A cos B + sin A sin B) 是多少？",
+    "answer": 4,
+    "hint": "先合併成 cos(A − B)，再用特殊角。"
+  },
+  {
+    "level": 2,
+    "prompt": "A − B = 60°。10(cos A cos B + sin A sin B) 是多少？",
+    "answer": 5,
+    "hint": "先合併成 cos(A − B)，再用特殊角。"
+  },
+  {
+    "level": 2,
+    "prompt": "A − B = 60°。12(cos A cos B + sin A sin B) 是多少？",
+    "answer": 6,
+    "hint": "先合併成 cos(A − B)，再用特殊角。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 120°。2(cos A cos B − sin A sin B) 是多少？",
+    "answer": -1,
+    "hint": "cos 120° = −1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 120°。4(cos A cos B − sin A sin B) 是多少？",
+    "answer": -2,
+    "hint": "cos 120° = −1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 120°。6(cos A cos B − sin A sin B) 是多少？",
+    "answer": -3,
+    "hint": "cos 120° = −1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 120°。8(cos A cos B − sin A sin B) 是多少？",
+    "answer": -4,
+    "hint": "cos 120° = −1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 120°。10(cos A cos B − sin A sin B) 是多少？",
+    "answer": -5,
+    "hint": "cos 120° = −1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 120°。12(cos A cos B − sin A sin B) 是多少？",
+    "answer": -6,
+    "hint": "cos 120° = −1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A − B = −30°。2(sin A cos B − cos A sin B) 是多少？",
+    "answer": -1,
+    "hint": "先合併成 sin(A − B)，留意負角的符號。"
+  },
+  {
+    "level": 3,
+    "prompt": "A − B = −30°。4(sin A cos B − cos A sin B) 是多少？",
+    "answer": -2,
+    "hint": "先合併成 sin(A − B)，留意負角的符號。"
+  },
+  {
+    "level": 3,
+    "prompt": "A − B = −30°。6(sin A cos B − cos A sin B) 是多少？",
+    "answer": -3,
+    "hint": "先合併成 sin(A − B)，留意負角的符號。"
+  },
+  {
+    "level": 3,
+    "prompt": "A − B = −30°。8(sin A cos B − cos A sin B) 是多少？",
+    "answer": -4,
+    "hint": "先合併成 sin(A − B)，留意負角的符號。"
+  },
+  {
+    "level": 3,
+    "prompt": "A − B = −30°。10(sin A cos B − cos A sin B) 是多少？",
+    "answer": -5,
+    "hint": "先合併成 sin(A − B)，留意負角的符號。"
+  },
+  {
+    "level": 3,
+    "prompt": "A − B = −30°。12(sin A cos B − cos A sin B) 是多少？",
+    "answer": -6,
+    "hint": "先合併成 sin(A − B)，留意負角的符號。"
+  }
+]

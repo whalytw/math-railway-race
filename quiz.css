@@ -1,0 +1,23 @@
+body {--team:#88dece;--deck:clamp(225px,34vh,310px)}
+.scope-card {padding:15px;background:#e4ece0;border:1px solid #cad7c6;border-radius:8px}
+.scope-card button,#teacher footer button:last-child,#again {border:0;background:#1b5044;color:white;border-radius:6px;padding:11px 16px;font-weight:700}
+.scope-card p {font-size:13px;line-height:1.65;margin:8px 0 0;color:#3a5b50}
+#course-intro {font-size:15px;line-height:1.6;color:#4b6559}.extras{margin:18px 0}.extras>summary{padding:14px 0;border-block:1px solid #ccd3c2;cursor:pointer;font-weight:650}
+#teacher{width:min(580px,94vw);max-height:90vh;border:1px solid #b0c1ac;border-radius:14px;padding:24px;background:#faf9f0;color:#163e35;overflow:auto}
+#teacher::backdrop{background:#18382fc9}#teacher h2{margin:0 0 18px;font-size:26px}#teacher h3{font-size:16px;margin:14px 0 8px}
+.teacher-fields,.teacher-caps{display:flex;gap:14px}.teacher-fields label,.teacher-caps label{flex:1;min-width:0;font-size:13px;font-weight:bold}#teacher select,#teacher input[type=number]{display:block;width:100%;min-height:42px;margin-top:5px;padding:6px;border:1px solid #b9cabb;border-radius:4px;background:#fff}
+#teacher button{touch-action:manipulation}.unit-head{display:flex;align-items:center;gap:8px}.unit-head h3{margin-right:auto}.unit-head button,#teacher footer button:first-child{border:1px solid #b9cabb;background:#f0f4e8;color:#173f34;padding:8px;border-radius:4px}
+#units{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;margin-bottom:14px}#units label{display:flex;align-items:center;gap:7px;line-height:1.35;min-height:40px;border-radius:4px;padding:5px;font-size:14px}#units label:has(:checked){background:#dfeadc}#units input{accent-color:#285f4c}#teacher footer{display:flex;justify-content:flex-end;gap:8px}#teacher p{font-size:13px;line-height:1.5}#settings-error{color:#aa3a23}
+#game-hud .run-brand,#game-hud .timer-panel,#game-hud .route-panel,#game-hud .telemetry-panel,#game-hud .physics-tools,#game-hud .station-toast,#game-hud .camera-controls,#game-hud .camera-hint,#game-hud .speed-panel,#game-hud .throttle-panel,#game-hud .feature-status,#game-hud .fleet-status,#game-hud .bottom-actions small{display:none}
+#game-hud .bottom-actions{top:10px;bottom:auto;left:12px;right:auto;transform:none;display:flex;gap:6px}
+#game-hud .fps-panel{left:auto;right:64px;top:10px;bottom:auto}
+#game-hud .fullscreen-button{top:10px;right:12px;bottom:auto}
+#quiz-grid{position:fixed;z-index:3;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(var(--lanes,3),minmax(0,1fr));height:var(--deck);background:#0c201e;pointer-events:auto;color:#f5f5eb}
+.quiz-card{min-width:0;display:flex;flex-direction:column;gap:5px;padding:9px clamp(8px,1.1vw,20px);border-top:4px solid var(--team);border-inline-end:3px solid #83978d;touch-action:none;user-select:none;overflow:auto;overscroll-behavior:contain}
+.quiz-card:last-child{border-inline-end:0}.quiz-card header,.q-info,.hint-row{display:flex;align-items:center;gap:6px;justify-content:space-between}.quiz-card header{font-size:clamp(12px,1vw,17px);color:var(--team)}.meter{font-variant-numeric:tabular-nums}
+.progress{height:3px;flex:none;background:#354a45}.progress i{display:block;height:100%;background:var(--team)}.q-info{font-size:clamp(12px,1vw,16px);color:#c1d4c8}.clock{color:#ffe5a1;white-space:nowrap}
+.prompt{font-size:clamp(17px,1.4vw,26px);font-weight:650;line-height:1.35;margin:1px 0;flex:1}
+.answers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.answers button,.hint-row button{touch-action:none;min-height:46px;border:1px solid #759087;border-radius:6px;background:#f4f5eb;color:#193e35;font-weight:bold;font-size:clamp(19px,1.65vw,29px)}.answers button:active{background:var(--team)}.hint-row{justify-content:flex-start;align-items:center;min-height:42px}.hint-row button{font-size:13px;min-height:44px;background:#233e38;color:white;flex:none}.hint-row button:disabled{opacity:.55}.note{font-size:clamp(12px,1.05vw,17px);line-height:1.3;color:#e7e9d5}
+#game-hud .race-results{z-index:5;top:12%;width:min(380px,88vw);pointer-events:auto}#again{margin-top:8px} [hidden]{display:none!important}
+@media(max-height:660px){body{--deck:210px}.quiz-card{gap:2px;padding-block:6px}.intro{margin:14px 0}}
+@media(max-width:680px){.quiz-card{padding-inline:4px}.quiz-card header{flex-wrap:wrap}.answers{grid-template-columns:repeat(2,1fr)}body{--deck:48vh}.hint-row{flex-wrap:wrap}#units{grid-template-columns:1fr}}

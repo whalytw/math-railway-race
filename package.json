@@ -1,0 +1,11 @@
+{
+  "name": "math-railway-race",
+  "version": "14.0.0",
+  "private": true,
+  "type": "module",
+  "description": "五冊高中數學心算鐵道競速",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/quiz.test.mjs"
+  }
+}

@@ -1,0 +1,218 @@
+[
+  {
+    "level": 1,
+    "prompt": "x + y = 4，y = 3，x 是多少？",
+    "answer": 1,
+    "hint": "代入已知的 y。"
+  },
+  {
+    "level": 1,
+    "prompt": "x + y = 5，y = 3，x 是多少？",
+    "answer": 2,
+    "hint": "代入已知的 y。"
+  },
+  {
+    "level": 1,
+    "prompt": "x + y = 6，y = 3，x 是多少？",
+    "answer": 3,
+    "hint": "代入已知的 y。"
+  },
+  {
+    "level": 1,
+    "prompt": "x + y = 7，y = 3，x 是多少？",
+    "answer": 4,
+    "hint": "代入已知的 y。"
+  },
+  {
+    "level": 1,
+    "prompt": "x + y = 8，y = 3，x 是多少？",
+    "answer": 5,
+    "hint": "代入已知的 y。"
+  },
+  {
+    "level": 1,
+    "prompt": "x + y = 9，y = 3，x 是多少？",
+    "answer": 6,
+    "hint": "代入已知的 y。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 1，2x − y = 0，y 是多少？",
+    "answer": 2,
+    "hint": "把 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 2，2x − y = 0，y 是多少？",
+    "answer": 4,
+    "hint": "把 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 3，2x − y = 0，y 是多少？",
+    "answer": 6,
+    "hint": "把 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 4，2x − y = 0，y 是多少？",
+    "answer": 8,
+    "hint": "把 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 5，2x − y = 0，y 是多少？",
+    "answer": 10,
+    "hint": "把 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 6，2x − y = 0，y 是多少？",
+    "answer": 12,
+    "hint": "把 x 代入第二式。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 4，x − y = -2，x 是多少？",
+    "answer": 1,
+    "hint": "兩式相加消去 y。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 5，x − y = -1，x 是多少？",
+    "answer": 2,
+    "hint": "兩式相加消去 y。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 6，x − y = 0，x 是多少？",
+    "answer": 3,
+    "hint": "兩式相加消去 y。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 7，x − y = 1，x 是多少？",
+    "answer": 4,
+    "hint": "兩式相加消去 y。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 8，x − y = 2，x 是多少？",
+    "answer": 5,
+    "hint": "兩式相加消去 y。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 9，x − y = 3，x 是多少？",
+    "answer": 6,
+    "hint": "兩式相加消去 y。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = x + 1，x + y = 3，y 是多少？",
+    "answer": 2,
+    "hint": "以 x + 1 取代 y，再回代。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = x + 1，x + y = 5，y 是多少？",
+    "answer": 3,
+    "hint": "以 x + 1 取代 y，再回代。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = x + 1，x + y = 7，y 是多少？",
+    "answer": 4,
+    "hint": "以 x + 1 取代 y，再回代。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = x + 1，x + y = 9，y 是多少？",
+    "answer": 5,
+    "hint": "以 x + 1 取代 y，再回代。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = x + 1，x + y = 11，y 是多少？",
+    "answer": 6,
+    "hint": "以 x + 1 取代 y，再回代。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = x + 1，x + y = 13，y 是多少？",
+    "answer": 7,
+    "hint": "以 x + 1 取代 y，再回代。"
+  },
+  {
+    "level": 3,
+    "prompt": "2x + y = 5，x − y = -2，x 是多少？",
+    "answer": 1,
+    "hint": "兩式相加得到 3x。"
+  },
+  {
+    "level": 3,
+    "prompt": "2x + y = 7，x − y = -1，x 是多少？",
+    "answer": 2,
+    "hint": "兩式相加得到 3x。"
+  },
+  {
+    "level": 3,
+    "prompt": "2x + y = 9，x − y = 0，x 是多少？",
+    "answer": 3,
+    "hint": "兩式相加得到 3x。"
+  },
+  {
+    "level": 3,
+    "prompt": "2x + y = 11，x − y = 1，x 是多少？",
+    "answer": 4,
+    "hint": "兩式相加得到 3x。"
+  },
+  {
+    "level": 3,
+    "prompt": "2x + y = 13，x − y = 2，x 是多少？",
+    "answer": 5,
+    "hint": "兩式相加得到 3x。"
+  },
+  {
+    "level": 3,
+    "prompt": "2x + y = 15，x − y = 3，x 是多少？",
+    "answer": 6,
+    "hint": "兩式相加得到 3x。"
+  },
+  {
+    "level": 3,
+    "prompt": "2x + y = 4，x + 2y = 5，求 x + y。",
+    "answer": 3,
+    "hint": "將兩式相加後兩邊同除以 3。"
+  },
+  {
+    "level": 3,
+    "prompt": "2x + y = 6，x + 2y = 6，求 x + y。",
+    "answer": 4,
+    "hint": "將兩式相加後兩邊同除以 3。"
+  },
+  {
+    "level": 3,
+    "prompt": "2x + y = 8，x + 2y = 7，求 x + y。",
+    "answer": 5,
+    "hint": "將兩式相加後兩邊同除以 3。"
+  },
+  {
+    "level": 3,
+    "prompt": "2x + y = 10，x + 2y = 8，求 x + y。",
+    "answer": 6,
+    "hint": "將兩式相加後兩邊同除以 3。"
+  },
+  {
+    "level": 3,
+    "prompt": "2x + y = 12，x + 2y = 9，求 x + y。",
+    "answer": 7,
+    "hint": "將兩式相加後兩邊同除以 3。"
+  },
+  {
+    "level": 3,
+    "prompt": "2x + y = 14，x + 2y = 10，求 x + y。",
+    "answer": 8,
+    "hint": "將兩式相加後兩邊同除以 3。"
+  }
+]
