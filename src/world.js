@@ -939,7 +939,7 @@ export function createAtmosphere(scene, renderer) {
   sun.shadow.bias = -0.00012; sun.shadow.normalBias = 0.04;
   const skyMaterial = new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false,
-    uniforms: { top: { value: new THREE.Color('#1275d6') }, bottom: { value: new THREE.Color('#86cffa') } },
+    uniforms: { top: { value: new THREE.Color('#1275d6') }, bottom: { value: new THREE.Color('#a6d9f6') } },
     vertexShader: 'varying vec3 vDirection; void main(){vDirection=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
     fragmentShader: 'varying vec3 vDirection;uniform vec3 top;uniform vec3 bottom;void main(){float h=normalize(vDirection).y;gl_FragColor=vec4(mix(bottom,top,smoothstep(-.05,.45,h)),1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}'
   });
@@ -948,7 +948,7 @@ export function createAtmosphere(scene, renderer) {
   const envScene = new THREE.Scene(); const envSky = new THREE.Mesh(new THREE.SphereGeometry(100, 16, 12), skyMaterial); envScene.add(envSky);
   const pmrem = new THREE.PMREMGenerator(renderer); const environment = pmrem.fromScene(envScene, 0.04, 0.1, 200);
   scene.environment = environment.texture; scene.environmentIntensity = 0.55; envSky.geometry.dispose(); pmrem.dispose();
-  let outsideFog = new THREE.Color('#c7d5c2');
+  const outsideFog = new THREE.Color('#c7d5c2');
   const lightOffset = new THREE.Vector3(-100, 170, 70), lightZ = lightOffset.clone().normalize();
   const lightX = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), lightZ).normalize();
   const lightY = new THREE.Vector3().crossVectors(lightZ, lightX), focus = new THREE.Vector3();
@@ -977,10 +977,10 @@ export function createAtmosphere(scene, renderer) {
     }
     sharedFrame = frame;
   }
-  return { sun, hemi, sky, environment, setBiomes(a, b, mixture) {
-    const fog = new THREE.Color('#a6d9f6');
-    skyMaterial.uniforms.bottom.value.copy(fog); scene.fog = new THREE.Fog(fog, 170, 600);
-    outsideFog.copy(fog);
+  return { sun, hemi, sky, environment, setTerrainHaze(color) {
+    // Match the biome haze used by the mountain backdrop at the terrain draw distance.
+    outsideFog.copy(color);
+    scene.fog = new THREE.Fog(outsideFog, 170, 600);
   }, setShadowProfile(profile) {
     shadowSettings = profile; setShadowFrame(null);
   }, setShadowFrame,

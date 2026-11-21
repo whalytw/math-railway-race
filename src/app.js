@@ -1,7 +1,7 @@
 import {setupQuestions, startQuestions, drawQuestions} from './quiz-ui.js?v=16';
 import { COAST_SECONDS } from './quiz-race.js?v=16';
 import * as THREE from 'three';
-import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=16';
+import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=16.1';
 import { createPhysics, stepPhysics, FIXED_STEP, clamp, lerp, wrap, resolveBiomes, randomGenerator, nextStation, biomeMix, createElevationProfile, leverReference, leverForSpeed, RATED_POWER, CART_MASS, MAX_GRADE, MIN_VERTICAL_RADIUS } from './core.js?v=13.0.0';
 import { riverProfile, riverPoint } from './route-features.js?v=13.0.0';
 import { copyMotion, interpolateMotion, zoomView, anchorCamera, partitionViewports } from './presentation.js?v=13.0.0';
@@ -344,7 +344,7 @@ async function loadWorld(config, showLoading = true) {
     renderer.renderLists.dispose();
     renderer.shadowMap.enabled = config.shadows || config.sceneryShadows;
     atmosphere.setShadowProfile(world.shadowProfile);
-    atmosphere.setBiomes(config.biomeA, config.biomeB, config.biomeMix);
+    atmosphere.setTerrainHaze(world.skyColor());
     resetCameras(); titleTime = 0; resize();
     return true;
   } catch (error) { nextWorld.dispose(); throw error; }
