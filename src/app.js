@@ -1,6 +1,6 @@
-import {setupQuestions, startQuestions, drawQuestions} from './quiz-ui.js?v=14';
+import {setupQuestions, startQuestions, drawQuestions} from './quiz-ui.js?v=15';
 import * as THREE from 'three';
-import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=13.0.0';
+import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=15';
 import { createPhysics, stepPhysics, FIXED_STEP, clamp, lerp, wrap, resolveBiomes, randomGenerator, nextStation, biomeMix, createElevationProfile, leverReference, leverForSpeed, RATED_POWER, CART_MASS, MAX_GRADE, MIN_VERTICAL_RADIUS } from './core.js?v=13.0.0';
 import { riverProfile, riverPoint } from './route-features.js?v=13.0.0';
 import { copyMotion, interpolateMotion, zoomView, anchorCamera, partitionViewports } from './presentation.js?v=13.0.0';
@@ -514,14 +514,13 @@ function installControls() {
     
     
     if (event.code === 'KeyP' || event.code === 'Escape') { event.preventDefault(); if (!event.repeat) pauseGame(); }
-    if (event.code === 'KeyC' && !event.repeat) setCamera(cameraMode === 'chase' ? 'cab' : cameraMode === 'cab' ? 'overview' : 'chase');
   });
   document.querySelectorAll('[data-camera]').forEach(button => button.addEventListener('click', () => setCamera(button.dataset.camera)));
   $('preview-camera').addEventListener('click', () => { cameraMode = cameraMode === 'overview' ? 'chase' : 'overview'; resetCameras(); });
   const canvas = $('scene');
-  canvas.addEventListener('pointerdown', event => { if (mode === 'paused') return; canvas.setPointerCapture(event.pointerId); dragging = { type: 'camera', x: event.clientX, y: event.clientY }; });
+  canvas.addEventListener('pointerdown', event => { if (mode !== 'title') return; canvas.setPointerCapture(event.pointerId); dragging = { type: 'camera', x: event.clientX, y: event.clientY }; });
   canvas.addEventListener('pointermove', event => {
-    if (dragging?.type !== 'camera') return;
+    if (mode !== 'title' || dragging?.type !== 'camera') return;
     if (cameraMode === 'cab') {
       cabYaw += (event.clientX - dragging.x) * 0.005;
       cabPitch = clamp(cabPitch - (event.clientY - dragging.y) * 0.004, -1.25, 1.25);
@@ -533,7 +532,7 @@ function installControls() {
   });
   canvas.addEventListener('pointerup', () => dragging = null); canvas.addEventListener('pointercancel', () => dragging = null); canvas.addEventListener('lostpointercapture', () => dragging = null);
   canvas.addEventListener('wheel', event => {
-    if (!['running', 'finished', 'title'].includes(mode) || cameraMode === 'overview') return;
+    if (mode !== 'title' || cameraMode === 'overview') return;
     event.preventDefault();
     const next = zoomView(cameraMode, orbitDistance, event.deltaY, mode === 'title');
     orbitDistance = next.distance;
@@ -558,6 +557,7 @@ function installControls() {
   $('scene').addEventListener('webglcontextlost', event => { event.preventDefault(); if (mode === 'running') pauseGame(true); showError(new Error('GPU 渲染內容已中斷。請降低物件數、解析度或陰影設定後重新載入。')); });
 }
 function setCamera(next, snap = true) {
+  if (mode !== 'title' && next !== 'chase') return;
   cameraMode = next; if (snap) resetCameras(); visibilityElapsed = 100;
   if (next === 'cab') { orbitDistance = 0; if (snap) { cabYaw = 0; cabPitch = 0; } }
   else if (next === 'chase' && snap && orbitDistance < 7) orbitDistance = 18;
@@ -606,7 +606,7 @@ function updateCamera(view, dt, snap = false) {
     desiredCamera.copy(eyePosition); lookTarget.copy(eyePosition).addScaledVector(viewDirection, 45);
     targetFov = 72; camera.far = 18000;
   } else {
-    const angle = p.yaw + orbitYaw + (mode === 'title' ? 0.58 : 0.20);
+    const angle = p.yaw + orbitYaw + (mode === 'title' ? 0.58 : 0);
     const distance = orbitDistance;
     desiredCamera.set(cart.x - Math.sin(angle) * distance, cart.y + 3.6 + Math.sin(orbitPitch) * distance * 0.8, cart.z - Math.cos(angle) * distance);
     const ahead = rig.track.sample(distanceAlong + 8);
@@ -804,7 +804,7 @@ function recordMetrics(dt) {
     const ordered = [...frameSamples].sort((a, b) => b - a);
     const worstCount = Math.max(1, Math.ceil(ordered.length * 0.01));
     const low = 1000 / (ordered.slice(0, worstCount).reduce((a, b) => a + b, 0) / worstCount);
-    $('fps').textContent = fps.toFixed(0); $('frame-time').textContent = `${(1000 / fps).toFixed(1)} ms / frame`;
+    $('fps').textContent = fps.toFixed(0);
     $('low-fps').textContent = low.toFixed(1);
     const info = renderer.info;
     $('draw-calls').textContent = mainPass.calls.toLocaleString();
@@ -866,6 +866,7 @@ function physicsTick() {
     state.throttle = quiz.finished === null ? leverForSpeed(quiz.speed) : 0;
     state.turboKmh = Math.max(0, quiz.speed - 60);
     view.finishTime = quiz.finished;
+    if (previousTier !== quiz.tier && quiz.tier) rig.turbo?.setTier(quiz.tier);
     if (Boolean(previousTier) !== Boolean(quiz.tier)) rig.turbo?.setEnabled(quiz.tier > 0, state.elapsed);
   }
   turboOn = views.some(v => v.quiz.tier > 0);

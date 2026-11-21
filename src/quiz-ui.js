@@ -75,6 +75,9 @@ export function startQuestions(views) {
   const b=books.find(b=>b.id===settings.book);
   const units=shuffle(b.units.filter(u=>settings.units.includes(u.topic))).map(u=>({...u, questions:shuffle(bank[u.topic])}));
   const grid=$('quiz-grid');grid.replaceChildren();grid.style.setProperty('--lanes',views.length);panes=[];
+  const map=$('race-map'), instruments=$('race-instruments');
+  map.replaceChildren(); instruments.replaceChildren();
+  instruments.style.setProperty('--lanes',views.length);
   laneList=views.map((view,i)=>{
     const lane=new QuizLane(units,settings.level,settings.seconds,settings.caps,i);
     const panel=document.createElement('section');panel.abortSignal=bindings.signal;panel.className='quiz-card';
@@ -85,6 +88,20 @@ export function startQuestions(views) {
     for (let j=0;j<4;j++){const btn=document.createElement('button');btn.dataset.action=String(j);panel.querySelector('.answers').append(btn);buttons.push(btn);}
     const part=sel=>panel.querySelector(sel);
     const pane={panel,buttons,revision:-1,prompt:part('.prompt'),unit:part('.unit'),clock:part('.clock'),meter:part('.meter'),bar:part('.progress i'),hint:part('[data-action=hint]'),note:part('.note'),answers:part('.answers')};
+    const team=panel.style.getPropertyValue('--team');
+    const row=document.createElement('div');
+    row.className='map-row'; row.style.setProperty('--team',team);
+    row.innerHTML='<b></b><div class="map-track"><i class="cart-marker"><i></i></i></div>';
+    row.querySelector('b').textContent=String(i+1);
+    pane.marker=row.querySelector('.cart-marker');
+    const vehicle=view.rig.vehicle;
+    pane.marker.style.setProperty('--paint',vehicle.includes('AzureLake')?'#28beb6':vehicle.includes('GoldenOak')?'#ffbb43':'#ec694b');
+    map.append(row);
+    const dash=document.createElement('section');
+    dash.className='race-dash'; dash.style.setProperty('--team',team);
+    dash.innerHTML='<div class="dial elapsed"><small>用時</small><div><b></b> 秒</div></div><div class="dial speed"><em hidden></em><div><b></b> km/h</div></div>';
+    pane.time=dash.querySelector('.elapsed b'); pane.speed=dash.querySelector('.speed b'); pane.jet=dash.querySelector('em');
+    instruments.append(dash);
     panes.push(pane);grid.append(panel);
     bindPress(panel, action=>{if(!isLive() || lane.phase!=='question')return;if(action==='hint')lane.hint();else lane.settle(lane.options[Number(action)]);drawQuestions(views);});
     view.quiz=lane; return lane;
@@ -94,11 +111,19 @@ export function startQuestions(views) {
 export function drawQuestions(views) {
   laneList.forEach((lane,i)=>{
     const p=panes[i], length=views[i].rig.track.length, remaining=Math.max(0,lane.until-lane.clock);
-    p.meter.textContent=Math.round(lane.speed)+' km/h · '+(lane.tier?'JET '+lane.tier+' · '+Math.ceil(Math.max(0,lane.ends.at(-1)-lane.clock))+' 秒':'巡航')+' · '+(lane.distance/1000).toFixed(2)+' / '+(length/1000).toFixed(1)+' km';
+    const progress=Math.min(1,Math.max(0,lane.distance/length));
+    p.marker.style.left=(100*progress)+'%';
+    p.time.textContent=(lane.finished ?? lane.clock).toFixed(1);
+    p.speed.textContent=Math.round(lane.speed);
+    p.jet.hidden=!lane.tier;
+    p.jet.dataset.tier=lane.tier;
+    p.jet.textContent=lane.tier?'JET '+lane.tier+' · '+Math.ceil(Math.max(0,lane.ends.at(-1)-lane.clock))+' 秒':'';
+    p.meter.textContent=(lane.distance/1000).toFixed(2)+' / '+(length/1000).toFixed(1)+' km';
     p.bar.style.width=(100*lane.distance/length)+'%';
     p.clock.textContent=lane.phase==='finished'?'完賽':Math.ceil(remaining)+' 秒';
     if (p.revision===lane.revision) return;
     p.revision=lane.revision;
+    p.panel.dataset.effect=lane.phase==='feedback' ? (lane.feedback.startsWith('答對')?'correct':'miss') : lane.phase;
     p.unit.textContent=lane.number?'第 '+lane.number+' 題 · '+lane.unit:'準備出發';
     p.answers.hidden=lane.phase!=='question';p.hint.hidden=lane.phase!=='question';p.hint.disabled=lane.hinted;
     p.note.textContent='';

@@ -12,12 +12,12 @@ export function createTurboResources(world) {
   flame.rotateX(-Math.PI / 2);
   flame.translate(0, 0, -0.825);
   const bracket = new THREE.BoxGeometry(1, 0.14, 0.38);
-  const blue = new THREE.MeshBasicMaterial({ color: '#208cff', transparent: true, opacity: 0.82, depthWrite: false, toneMapped: false });
-  const cyan = new THREE.MeshBasicMaterial({ color: '#a4faff', toneMapped: false });
+  const flames = [['#278dff','#a0e9ff'],['#ffcc19','#fff5a0'],['#ff449f','#ffc7eb']].map(pair =>
+    pair.map((color,i) => new THREE.MeshBasicMaterial({ color, transparent:true, opacity:i ? 0.78 : 0.55, depthWrite:false, toneMapped:false })));
   const steel = new THREE.MeshStandardMaterial({ color: '#4a575a', roughness: 0.65, metalness: 0.2 });
   world.ownedGeometry.push(flame, bracket);
-  world.ownedMaterials.push(blue, cyan, steel);
-  return { flame, bracket, blue, cyan, steel };
+  world.ownedMaterials.push(...flames.flat(), steel);
+  return { flame, bracket, flames, steel };
 }
 
 export class TurboPair {
@@ -26,6 +26,7 @@ export class TurboPair {
     const radius = Math.max(Math.abs(asset.bounds.min.x), Math.abs(asset.bounds.max.x)) * MODEL_SCALE;
     this.root = new THREE.Group(); this.root.name = 'CartTurbofans'; this.root.visible = false;
     this.cart = cart;
+    this.flames = resources.flames;
     this.cartHalfWidth = cartHalfWidth;
     this.extension = cartHalfWidth + radius + 0.14;
     this.pods = [-1, 1].map(side => {
@@ -38,10 +39,10 @@ export class TurboPair {
       const mixer = new THREE.AnimationMixer(intake);
       const clip = asset.animations.find(action => action.name === 'FanSpin');
       if (clip) mixer.clipAction(clip).play();
-      const exhaust = new THREE.Group(); exhaust.name = 'BlueExhaust';
+      const exhaust = new THREE.Group(); exhaust.name = 'JetExhaust';
       exhaust.position.z = asset.bounds.min.z * MODEL_SCALE + 0.03;
-      const outside = new THREE.Mesh(resources.flame, resources.blue);
-      const core = new THREE.Mesh(resources.flame, resources.cyan); core.scale.set(0.47, 0.47, 0.72);
+      const outside = new THREE.Mesh(resources.flame, this.flames[0][0]);
+      const core = new THREE.Mesh(resources.flame, this.flames[0][1]); core.scale.set(0.47, 0.47, 0.72);
       exhaust.add(outside, core);
       const bracket = new THREE.Mesh(resources.bracket, resources.steel);
       bracket.position.set(-side * (radius + 0.14) / 2, -0.10, 0.12);
@@ -51,6 +52,13 @@ export class TurboPair {
     });
     world.group.add(this.root);
     this.enabled = false; this.changedAt = 0; this.scale = 0; this.startScale = 0;
+  }
+  setTier(tier) {
+    const materials=this.flames[tier-1];
+    for (const {exhaust} of this.pods) {
+      exhaust.children[0].material=materials[0];
+      exhaust.children[1].material=materials[1];
+    }
   }
   setEnabled(enabled, elapsed) {
     if (enabled === this.enabled) return;

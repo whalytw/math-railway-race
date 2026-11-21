@@ -16,8 +16,8 @@
   <link rel="stylesheet" href="./fleet-v11.css?v=13.0.0">
   <link rel="stylesheet" href="./straight-v13.css?v=13.0.0">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
-  <script type="module" src="./src/app.js?v=14.0.0"></script>
-<link rel="stylesheet" href="./quiz.css?v=14"></head>
+  <script type="module" src="./src/app.js?v=15"></script>
+<link rel="stylesheet" href="./quiz.css?v=15"></head>
 <body>
   <canvas id="scene" aria-label="三維軌道與地形場景"></canvas>
   <div class="vignette" aria-hidden="true"></div>
@@ -68,10 +68,10 @@
   </main>
 
   <section id="game-hud" class="game-hud" hidden aria-label="遊戲控制與儀表">
-    <div id="quiz-grid"></div><div id="fleet-status" class="fleet-status" aria-label="三車速度" hidden></div>
+    <div class="course-map"><div class="map-ends"><span>出發</span><span>終點 ⚑</span></div><div id="race-map"></div></div><div id="race-instruments"></div><div id="quiz-grid"></div><div id="fleet-status" class="fleet-status" aria-label="三車速度" hidden></div>
     <div class="run-brand"><span class="brand-mark">╫</span><span>LOOP<small>軌道試驗場</small></span></div>
     <div class="timer-panel"><span>行駛時間</span><strong id="timer">0.0</strong><small>SECONDS</small></div>
-    <div class="fps-panel"><span class="live-dot"></span><strong id="fps">—</strong><span>FPS</span><small id="frame-time">— ms / frame</small></div>
+    <div class="fps-panel"><span class="live-dot"></span><strong id="fps">—</strong><span>FPS</span></div>
     <div class="route-panel"><div class="route-panel-heading"><span id="biome-label">A 森林 → B 湖畔</span><span id="route-label">8.0 KM</span></div><canvas id="minimap" width="500" height="260" aria-label="軌道全圖、地形分布與車站位置"></canvas><div class="map-legend" id="mix-legend"></div><canvas id="elevation-profile" width="500" height="84" aria-label="軌道高度剖面與礦車所在位置"></canvas><div class="elevation-legend"><span id="relief-summary">實際高差 0 m</span><span>縱坡 ≤ 25‰</span></div></div>
     <div class="feature-status" id="feature-status" aria-live="polite">前方地標</div>
     <div class="telemetry-panel" id="telemetry-panel"><div><span>DRAW CALLS</span><b id="draw-calls">—</b></div><div><span>TRIANGLES</span><b id="triangles">—</b></div><div><span>場景實例</span><b id="instances">—</b></div><div><span>地景種類</span><b id="model-variety">—</b></div><div><span>1% LOW FPS</span><b id="low-fps">—</b></div><button id="export-report" type="button" title="下載本次實際量測 JSON">↓ 匯出測試紀錄</button></div>
