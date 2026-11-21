@@ -1,6 +1,7 @@
-import {setupQuestions, startQuestions, drawQuestions} from './quiz-ui.js?v=15';
+import {setupQuestions, startQuestions, drawQuestions} from './quiz-ui.js?v=16';
+import { COAST_SECONDS } from './quiz-race.js?v=16';
 import * as THREE from 'three';
-import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=15';
+import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=16';
 import { createPhysics, stepPhysics, FIXED_STEP, clamp, lerp, wrap, resolveBiomes, randomGenerator, nextStation, biomeMix, createElevationProfile, leverReference, leverForSpeed, RATED_POWER, CART_MASS, MAX_GRADE, MIN_VERTICAL_RADIUS } from './core.js?v=13.0.0';
 import { riverProfile, riverPoint } from './route-features.js?v=13.0.0';
 import { copyMotion, interpolateMotion, zoomView, anchorCamera, partitionViewports } from './presentation.js?v=13.0.0';
@@ -606,23 +607,26 @@ function updateCamera(view, dt, snap = false) {
     desiredCamera.copy(eyePosition); lookTarget.copy(eyePosition).addScaledVector(viewDirection, 45);
     targetFov = 72; camera.far = 18000;
   } else {
-    const angle = p.yaw + orbitYaw + (mode === 'title' ? 0.58 : 0);
-    const distance = orbitDistance;
-    desiredCamera.set(cart.x - Math.sin(angle) * distance, cart.y + 3.6 + Math.sin(orbitPitch) * distance * 0.8, cart.z - Math.cos(angle) * distance);
+    const arrival = view.quiz?.finished != null && mode !== 'title';
+    const turn = arrival ? THREE.MathUtils.smoothstep(view.quiz.coastTime, 0, 4) : 0;
+    const angle = p.yaw + Math.PI * turn + orbitYaw + (mode === 'title' ? 0.58 : 0);
+    const distance = lerp(orbitDistance, 5.8, turn);
+    desiredCamera.set(cart.x - Math.sin(angle) * distance, cart.y + lerp(3.6 + Math.sin(orbitPitch) * distance * 0.8, 2.7, turn), cart.z - Math.cos(angle) * distance);
     const ahead = rig.track.sample(distanceAlong + 8);
     lookTarget.set(ahead.x, ahead.y + 1.4, ahead.z);
+    if (arrival) lookTarget.lerp(eyePosition, turn);
     // Keep the selected animal and cart centred while inspecting them on the title screen.
     if (mode === 'title') lookTarget.set(cart.x, cart.y + 1.55, cart.z);
     const terrainY = world.heightAt(desiredCamera.x, desiredCamera.z); desiredCamera.y = Math.max(desiredCamera.y, terrainY + 2);
     targetFov = 57 + Math.min(6, Math.abs(motion.speed) * 0.13); camera.far = 18000;
-    if (structure) {
+    if (structure && !arrival) {
       const behind = rig.track.sample(distanceAlong - Math.min(7.5, distance)), ahead = rig.track.sample(distanceAlong + 5);
       const sideways = Math.sin(orbitYaw) * 0.62;
       desiredCamera.set(behind.x + behind.nx * sideways, behind.y + 2.28 + Math.sin(orbitPitch) * 0.38, behind.z + behind.nz * sideways);
       lookTarget.set(ahead.x, ahead.y + 1.3, ahead.z); targetFov = 64;
     }
     // Smoothly travel the last seven metres into the driver's eye position.
-    const eyeBlend = 1 - THREE.MathUtils.smoothstep(distance, 0, 7);
+    const eyeBlend = arrival ? 0 : 1 - THREE.MathUtils.smoothstep(distance, 0, 7);
     desiredCamera.lerp(eyePosition, eyeBlend);
     viewDirection.set(p.tx3, p.ty, p.tz3);
     lookTarget.lerp(viewDirection.multiplyScalar(45).add(eyePosition), eyeBlend); targetFov = lerp(targetFov, 72, eyeBlend);
@@ -860,17 +864,21 @@ function physicsTick() {
     state.countdown = Math.max(0, state.countdown - waiting);
     const previousTier = quiz.tier;
     quiz.tick(FIXED_STEP - waiting, rig.track.length);
-    state.distance = rig.departure + quiz.distance;
-    state.odometer = quiz.distance;
+    state.odometer = quiz.distance + quiz.coastDistance;
+    state.distance = rig.departure + state.odometer;
     state.speed = quiz.speed / 3.6;
     state.throttle = quiz.finished === null ? leverForSpeed(quiz.speed) : 0;
     state.turboKmh = Math.max(0, quiz.speed - 60);
     view.finishTime = quiz.finished;
+    if (rig.smile) {
+      rig.smile.visible = quiz.finished !== null;
+      rig.driver.position.y = .45 * THREE.MathUtils.smoothstep(quiz.coastTime, 0, 1.2);
+    }
     if (previousTier !== quiz.tier && quiz.tier) rig.turbo?.setTier(quiz.tier);
     if (Boolean(previousTier) !== Boolean(quiz.tier)) rig.turbo?.setEnabled(quiz.tier > 0, state.elapsed);
   }
   turboOn = views.some(v => v.quiz.tier > 0);
-  if (views.every(view => view.finishTime !== null)) showRaceResults();
+  if (views.every(view => view.quiz.coastTime >= COAST_SECONDS)) showRaceResults();
 }
 function updateCartMotion(alpha) {
   for (const { state, previous, motion, rig } of views) {

@@ -1,6 +1,7 @@
 import { clamp, lerp, MAX_GRADE, MIN_VERTICAL_RADIUS, routeFromPolyline, seedNumber } from './core.js?v=13.0.0';
 
 export const STRAIGHT_LENGTHS = [3, 4, 5, 6, 7, 8, 9, 10];
+export const RUNOUT = 180; // 120 km/h brakes to rest in at most 167 metres.
 const LANE_GAP = 24;
 const HALF_DEPTH = 580;
 const SAMPLES = 4096;
@@ -62,14 +63,21 @@ export function createStraightRoute(length, seed, options = {}) {
     const measuredLength = distances[SAMPLES];
     for (let i = 1; i < SAMPLES; i++) distances[i] *= length / measuredLength;
     distances[SAMPLES] = length;
-    return routeFromPolyline(points, distances, length, squareSize, {
+    const lane = routeFromPolyline(points, distances, length, squareSize, {
       range: Math.max(...points.map(point => point.y)) - Math.min(...points.map(point => point.y)), requested: limit,
     }, { closed: false });
+    const sample = lane.sample;
+    lane.sample = (distance, out) => {
+      const p = sample(distance, out);
+      if (distance > length) p.x += Math.min(RUNOUT, distance - length);
+      return p;
+    };
+    return lane;
   });
   function nearestOnTurn(lane, x, z, maxDistance = 100, out = {}) {
     const { points, distances } = lanes[lane];
-    const longitudinal = clamp(x, startX, -startX);
-    const position = (longitudinal - startX) / horizontalLength * SAMPLES;
+    const longitudinal = clamp(x, startX, -startX + RUNOUT);
+    const position = (Math.min(longitudinal, -startX) - startX) / horizontalLength * SAMPLES;
     const i = Math.min(SAMPLES - 1, Math.floor(position)), f = position - i;
     const a = points[i], b = points[i + 1];
     const distance = Math.hypot(x - longitudinal, z - a.z);

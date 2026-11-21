@@ -2,13 +2,14 @@ import * as THREE from 'three';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { TAU, lerp, clamp, wrap, smoothstep, randomGenerator, stationsFor, biomeMix, trackSegments } from './core.js?v=13.0.0';
 import { createCircuitRoute } from './circuit-route.js?v=13.0.0';
-import { createStraightRoute, straightStations } from './straight-route.js?v=13.0.0';
+import { createStraightRoute, straightStations, RUNOUT } from './straight-route.js?v=16';
 import { sleeperLayout, sleeperFilter, planRouteFeatures, routeStructures, bridgeCoordinates, bridgeGroundHeight } from './route-features.js?v=13.0.0';
 import { buildMountainBackdrop, buildVariedClouds, updateClouds, buildBridgeAndRiver, buildTunnel, buildGirderBridge } from './scenery.js?v=13.0.0';
 import { fitGroundContact, prepareGroundedParts, groundBatchGeometry, renderedGroundHeight } from './grounding.js?v=13.0.0';
 import { planScenery, indexGroundPads, paddedHeight } from './scenery-plan.js?v=13.0.0';
 import { createBiomeLayout } from './biome-blend.js?v=13.0.0';
 import { shadowProfile, keepSceneryShadow } from './shadow-profile.js?v=13.0.0';
+import { buildFans, finishSmile } from './celebration.js?v=16';
 import { createStandingDriver } from './drivers.js?v=13.0.0';
 import { TURBO_ASSET_ID, TurboPair, createTurboResources } from './turbo-visual.js?v=15';
 import { createGroundMaterial, grassHabitatAt, buildGrassCover, buildFarmland, GRASS_NEAR_DISTANCE, GRASS_DRAW_DISTANCE } from './ground-cover.js?v=13.0.0';
@@ -328,7 +329,7 @@ export class RailWorld {
     onProgress(0.87, '建立橋梁、立體交會與隧道…'); await yieldFrame();
     if (this.features.overpass) buildGirderBridge(this, this.features.overpass, this.route.turns - 1);
     buildBridgeAndRiver(this); buildTunnel(this);
-    onProgress(0.94, '建立車站、礦車與遠景…'); await yieldFrame(); this.buildStations(); this.buildCart();
+    onProgress(0.94, '建立車站、礦車與遠景…'); await yieldFrame(); this.buildStations(); buildFans(this); this.buildCart();
     this.createClouds();
     onProgress(1, '旅程準備就緒');
     return this;
@@ -388,8 +389,8 @@ export class RailWorld {
     this.instanceCount += placements.length;
   }
   buildTrack() {
-    const tracks = this.route.lanes ?? [this.route], rails = [];
-    const layout = sleeperLayout(this.route.length, this.config.sleeperSpacing || 0.75, this.config.seed), ties = [], bolts = [];
+    const tracks = this.route.lanes?.map(lane => ({...lane, length:lane.length + RUNOUT})) ?? [this.route], rails = [];
+    const layout = sleeperLayout(tracks[0].length, this.config.sleeperSpacing || 0.75, this.config.seed), ties = [], bolts = [];
     this.sleeperPitch = layout.pitch;
     for (const track of tracks) {
       for (const s of trackSegments(track)) {
@@ -781,6 +782,7 @@ export class RailWorld {
     });
     if (rig.driver) rig.root.remove(rig.driver);
     rig.root.add(next); rig.driver = next;
+    rig.smile = finishSmile(this, next);
     if (rig === this.primaryCart) { this.driver = next; this.config.driver = id; }
     return next;
   }
@@ -807,6 +809,7 @@ export class RailWorld {
   }
   updateEnvironment(dt, speed, frameSeconds) {
     this.environmentElapsed += dt;
+    if (this.cheerClock) this.cheerClock.value = this.environmentElapsed;
     this.updateTrackFilter(speed, frameSeconds);
     updateClouds(this, this.environmentElapsed);
     if (this.grassWind) this.grassWind.value = this.environmentElapsed;
@@ -936,9 +939,9 @@ export function createAtmosphere(scene, renderer) {
   sun.shadow.bias = -0.00012; sun.shadow.normalBias = 0.04;
   const skyMaterial = new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false,
-    uniforms: { top: { value: new THREE.Color('#719bb0') }, bottom: { value: new THREE.Color('#e8e6cc') } },
+    uniforms: { top: { value: new THREE.Color('#1275d6') }, bottom: { value: new THREE.Color('#86cffa') } },
     vertexShader: 'varying vec3 vDirection; void main(){vDirection=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader: 'varying vec3 vDirection;uniform vec3 top;uniform vec3 bottom;void main(){float h=normalize(vDirection).y;gl_FragColor=vec4(mix(bottom,top,smoothstep(-.06,.7,h)),1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}'
+    fragmentShader: 'varying vec3 vDirection;uniform vec3 top;uniform vec3 bottom;void main(){float h=normalize(vDirection).y;gl_FragColor=vec4(mix(bottom,top,smoothstep(-.05,.45,h)),1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}'
   });
   const skyGeometry = new THREE.SphereGeometry(18000, 24, 16), sky = new THREE.Mesh(skyGeometry, skyMaterial);
   sky.frustumCulled = false; sky.renderOrder = -10; scene.add(sky);
@@ -975,8 +978,7 @@ export function createAtmosphere(scene, renderer) {
     sharedFrame = frame;
   }
   return { sun, hemi, sky, environment, setBiomes(a, b, mixture) {
-    const fog = new THREE.Color(0);
-    for(const row of mixture || [{biome:a,percent:50},{biome:b,percent:50}]){ const c=new THREE.Color(PALETTES[row.biome].sky),w=row.percent/100;fog.r+=c.r*w;fog.g+=c.g*w;fog.b+=c.b*w; }
+    const fog = new THREE.Color('#a6d9f6');
     skyMaterial.uniforms.bottom.value.copy(fog); scene.fog = new THREE.Fog(fog, 170, 600);
     outsideFog.copy(fog);
   }, setShadowProfile(profile) {

@@ -1,4 +1,4 @@
-import {DEFAULT_CAPS, QuizLane, shuffle} from './quiz-race.js';
+import {DEFAULT_CAPS, QuizLane, shuffle} from './quiz-race.js?v=16';
 const $ = id => document.getElementById(id);
 const storageKey = 'math-railway-classroom-v1';
 const names = ['基礎', '進階', '挑戰'];
@@ -17,7 +17,7 @@ export async function setupQuestions(live) {
   try { old = JSON.parse(localStorage.getItem(storageKey)) || {}; } catch {}
   const book = books.find(b => b.id === old.book) || books[0];
   const selected = book.units.filter(u => old.units?.includes(u.topic)).map(u => u.topic);
-  settings = {book:book.id, units:selected.length ? selected : [book.units[0].topic], level:[1,2,3].includes(old.level)?old.level:1,
+  settings = {book:book.id, units:selected.length ? selected : [book.units[0].topic],
     seconds:[20,30,45,60].includes(old.seconds)?old.seconds:45, caps:validCaps(old.caps)?old.caps:[...DEFAULT_CAPS]};
   const dialog = $('teacher'), selector = $('book');
   books.forEach(b => selector.add(new Option(b.name + ' · ' + b.source, b.id)));
@@ -30,7 +30,7 @@ export async function setupQuestions(live) {
     }));
   }
   $('settings-open').onclick = () => {
-    selector.value=settings.book; fillTopics(settings.units); $('difficulty').value=settings.level;
+    selector.value=settings.book; fillTopics(settings.units);
     $('time-limit').value=settings.seconds;
     settings.caps.forEach((v,i) => $('cap'+i).value=v);
     $('settings-error').textContent=''; dialog.showModal();
@@ -46,7 +46,7 @@ export async function setupQuestions(live) {
     if (!units.length || !validCaps(caps)) {
       $('settings-error').textContent=!units.length?'請至少勾選一個單元。':'三級速度須逐級增加，介於 61 到 120 km/h。';return;
     }
-    settings={book:selector.value,units,level:Number($('difficulty').value),seconds:Number($('time-limit').value),caps};
+    settings={book:selector.value,units,seconds:Number($('time-limit').value),caps};
     save(); summary(); dialog.close();
   };
   summary();
@@ -55,7 +55,7 @@ function validCaps(c) { return Array.isArray(c) && c.length===3 && c.every((v,i)
 function summary() {
   const b=books.find(b=>b.id===settings.book);
   const units=b.units.filter(u=>settings.units.includes(u.topic));
-  $('scope-summary').textContent=b.name+' · '+units.map(u=>u.label).join('、')+' ｜ '+names[settings.level-1]+' · 每題 '+settings.seconds+' 秒';
+  $('scope-summary').textContent=b.name+' · '+units.map(u=>u.label).join('、')+' ｜ '+'連答自動升級'+' · 每題 '+settings.seconds+' 秒';
 }
 function bindPress(panel, onAction) {
   const active = new Set();
@@ -79,7 +79,7 @@ export function startQuestions(views) {
   map.replaceChildren(); instruments.replaceChildren();
   instruments.style.setProperty('--lanes',views.length);
   laneList=views.map((view,i)=>{
-    const lane=new QuizLane(units,settings.level,settings.seconds,settings.caps,i);
+    const lane=new QuizLane(units,settings.seconds,settings.caps,i);
     const panel=document.createElement('section');panel.abortSignal=bindings.signal;panel.className='quiz-card';
     panel.style.setProperty('--team', ['#88dece','#ffbc80','#a3caff'][i]);
     panel.innerHTML='<header><b class="seat"></b><span class="meter"></span></header><div class="progress"><i></i></div><div class="q-info"><span class="unit"></span><b class="clock"></b></div><p class="prompt"></p><div class="answers"></div><div class="hint-row"><button data-action="hint">提示 −10 秒</button><span class="note"></span></div>';
@@ -124,7 +124,7 @@ export function drawQuestions(views) {
     if (p.revision===lane.revision) return;
     p.revision=lane.revision;
     p.panel.dataset.effect=lane.phase==='feedback' ? (lane.feedback.startsWith('答對')?'correct':'miss') : lane.phase;
-    p.unit.textContent=lane.number?'第 '+lane.number+' 題 · '+lane.unit:'準備出發';
+    p.unit.textContent=lane.number?'第 '+lane.number+' 題 · LV '+lane.level+' '+names[lane.level-1]+' · '+lane.unit:'準備出發';
     p.answers.hidden=lane.phase!=='question';p.hint.hidden=lane.phase!=='question';p.hint.disabled=lane.hinted;
     p.note.textContent='';
     if(lane.phase==='question'){

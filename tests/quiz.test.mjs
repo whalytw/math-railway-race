@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {QuizLane,DEFAULT_CAPS} from '../src/quiz-race.js';
 const json=async f=>JSON.parse(await readFile(new URL('../question-bank/'+f+'.json',import.meta.url)));
 const books=await json('books'), pool=await json('number');
-const newLane=i=>new QuizLane([{label:'數與數線',questions:pool}],1,45,DEFAULT_CAPS,i);
+const newLane=i=>new QuizLane([{label:'數與數線',questions:pool}],45,DEFAULT_CAPS,i);
 const run=(lane,seconds,length=5000)=>{for(let i=0;i<Math.round(seconds*120);i++)lane.tick(1/120,length);};
 test('all 42 book units offer at least twelve distinct prompts at each level',async()=>{
   assert.equal(books.flatMap(b=>b.units).length,42);
@@ -23,4 +23,32 @@ test('three independent lanes, timed queue, tier speeds and feedback',()=>{
 test('boosted rider finishes first and remains at finish',()=>{const fast=newLane(0),slow=newLane(1);
  for(const l of [fast,slow]){run(l,8,3000);if(l===fast)l.settle(l.question.answer);run(l,230,3000);assert.equal(l.distance,3000);assert.equal(l.phase,'finished');}
  assert.ok(fast.finished<slow.finished);
+});
+
+test('next question follows each rider’s streak and timeout resets it', () => {
+  const lane=newLane(0), other=newLane(1);
+  lane.next(); other.next();
+  for (const level of [1,2,3,3]) {
+    lane.settle(lane.question.answer); lane.next();
+    assert.equal(lane.question.level,level);
+    assert.equal(other.question.level,1);
+  }
+  lane.settle(lane.question.answer + 1); lane.next();
+  assert.equal(lane.question.level,1);
+  lane.settle(lane.question.answer); lane.next();
+  lane.settle(lane.question.answer); lane.next();
+  run(lane,45); run(lane,5.01);
+  assert.equal(lane.question.level,1);
+});
+test('coasting preserves crossing time and stops after ten seconds', () => {
+  const lane=newLane(0);
+  while(lane.finished===null) lane.tick(1/120,100);
+  const finish=lane.finished, speed=lane.finishSpeed;
+  assert.ok(speed>0);
+  lane.tick(5-lane.coastTime,100);
+  assert.ok(Math.abs(lane.speed-speed/2)<1e-6);
+  lane.tick(5,100);
+  assert.equal(lane.speed,0);
+  assert.ok(Math.abs(lane.coastDistance-speed*10/7.2)<1e-6);
+  assert.equal(lane.finished,finish); assert.equal(lane.distance,100);
 });

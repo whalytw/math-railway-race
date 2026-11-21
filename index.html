@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="./fleet-v11.css?v=13.0.0">
   <link rel="stylesheet" href="./straight-v13.css?v=13.0.0">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
-  <script type="module" src="./src/app.js?v=15"></script>
+  <script type="module" src="./src/app.js?v=16"></script>
 <link rel="stylesheet" href="./quiz.css?v=15"></head>
 <body>
   <canvas id="scene" aria-label="三維軌道與地形場景"></canvas>
@@ -95,5 +95,5 @@
   <div id="error-overlay" class="error-overlay" hidden><div><h2>暫時無法啟動</h2><p id="error-message"></p><button type="button" id="retry-button">重新載入</button><p class="error-note">請使用最新版 Chrome / Edge，並透過 HTTP 網址開啟。解壓縮後可執行 START_LOCAL.cmd，或部署到 GitHub Pages。</p></div></div>
   <div id="notification" class="notification" role="status" hidden></div>
   <noscript>請啟用 JavaScript，並使用支援 WebGL 2 的瀏覽器開啟本網頁。</noscript>
-<dialog id="teacher"><form id="teacher-form"><h2>教師設定</h2><div class="teacher-fields"><label>冊別<select id="book"></select></label><label>題目難度<select id="difficulty"><option value="1">基礎 · 一步心算</option><option value="2">進階 · 套用觀念</option><option value="3">挑戰 · 兩步推理</option></select></label></div><div class="unit-head"><h3>出題單元</h3><button type="button" id="select-all">全選</button><button type="button" id="select-none">清除</button></div><div id="units"></div><div class="teacher-fields"><label>每題作答時間<select id="time-limit"><option value="20">20 秒</option><option value="30">30 秒</option><option value="45">45 秒</option><option value="60">60 秒</option></select></label></div><h3>三級加速速度（km/h）</h3><div class="teacher-caps"><label>JET 1<input id="cap0" type="number" min="61" max="120" required></label><label>JET 2<input id="cap1" type="number" min="61" max="120" required></label><label>JET 3<input id="cap2" type="number" min="61" max="120" required></label></div><p>每次答對，剩餘秒數接在加速佇列末端。累積一、二、三段以上分別啟用 JET 1、2、3。</p><p id="settings-error" role="alert"></p><footer><button id="cancel-settings" type="button">取消</button><button type="submit">套用範圍</button></footer></form></dialog></body>
+<dialog id="teacher"><form id="teacher-form"><h2>教師設定</h2><div class="teacher-fields"><label>冊別<select id="book"></select></label></div><div class="unit-head"><h3>出題單元</h3><button type="button" id="select-all">全選</button><button type="button" id="select-none">清除</button></div><div id="units"></div><p>每車從第 1 級起步。連答對 2 題，下一題升到第 2 級；連答對 3 題以上升到第 3 級。答錯或逾時，下一題回到第 1 級。</p><div class="teacher-fields"><label>每題作答時間<select id="time-limit"><option value="20">20 秒</option><option value="30">30 秒</option><option value="45">45 秒</option><option value="60">60 秒</option></select></label></div><h3>三級加速速度（km/h）</h3><div class="teacher-caps"><label>JET 1<input id="cap0" type="number" min="61" max="120" required></label><label>JET 2<input id="cap1" type="number" min="61" max="120" required></label><label>JET 3<input id="cap2" type="number" min="61" max="120" required></label></div><p>每次答對，剩餘秒數接在加速佇列末端。累積一、二、三段以上分別啟用 JET 1、2、3。</p><p id="settings-error" role="alert"></p><footer><button id="cancel-settings" type="button">取消</button><button type="submit">套用範圍</button></footer></form></dialog></body>
 </html>

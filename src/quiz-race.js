@@ -1,3 +1,4 @@
+export const COAST_SECONDS = 10;
 export const BASE_SPEED = 60;
 export const DEFAULT_CAPS = [75, 90, 100];
 export function shuffle(items, random = Math.random) {
@@ -11,19 +12,21 @@ export function shuffle(items, random = Math.random) {
 
 // All clocks advance with the race simulation. Pausing the race freezes each lane.
 export class QuizLane {
-  constructor(units, level, seconds, caps, index) {
-    this.units = units; this.level = level; this.limit = seconds; this.caps = caps;
-    this.decks = units.map(u => {
+  constructor(units, seconds, caps, index) {
+    this.units = units; this.level = 1; this.streak = 0; this.limit = seconds; this.caps = caps;
+    this.decks = units.map(u => [1, 2, 3].map(level => {
       const pool = u.questions.filter(q => q.level === level);
       const offset = Math.floor(pool.length / 3) * index;
       return {pool, cards: [...pool.slice(offset), ...pool.slice(0, offset)]};
-    });
+    }));
+    this.coastTime = 0; this.coastDistance = 0; this.finishSpeed = 0;
     this.number = 0; this.correct = 0; this.phase = 'travel'; this.until = 8;
     this.clock = 0; this.ends = []; this.tier = 0; this.speed = 0; this.rate = 12;
     this.revision = 0; this.distance = 0; this.finished = null;
   }
   next() {
-    const i = this.number % this.units.length, deck = this.decks[i];
+    this.level = this.streak >= 3 ? 3 : this.streak >= 2 ? 2 : 1;
+    const i = this.number % this.units.length, deck = this.decks[i][this.level-1];
     if (!deck.cards.length) deck.cards = shuffle(deck.pool);
     this.question = deck.cards.shift(); this.unit = this.units[i].label;
     const {answer} = this.question;
@@ -34,6 +37,7 @@ export class QuizLane {
   settle(choice) {
     if (this.phase !== 'question' || this.finished !== null) return;
     const ok = choice === this.question.answer;
+    this.streak = ok ? this.streak + 1 : 0;
     const bonus = ok ? Math.max(0, this.until - this.clock) : 0;
     if (ok) { this.correct++; this.ends.push((this.ends.at(-1) ?? this.clock) + bonus); }
     this.feedback = ok ? '答對！加速 +' + bonus.toFixed(1) + ' 秒' : (choice === null ? '時間到' : '答錯了') + ' · 正解 ' + this.question.answer;
@@ -44,8 +48,15 @@ export class QuizLane {
     this.hinted = true; this.until -= 10; this.revision++;
     if (this.until <= this.clock) this.settle(null);
   }
+  coast(dt) {
+    this.coastTime = Math.min(COAST_SECONDS, this.coastTime + dt);
+    const fraction = this.coastTime / COAST_SECONDS;
+    this.speed = this.finishSpeed * (1 - fraction);
+    this.coastDistance = (this.finishSpeed + this.speed) * this.coastTime / 7.2;
+  }
   tick(dt, length) {
-    if (this.finished !== null || dt <= 0) return;
+    if (dt <= 0) return;
+    if (this.finished !== null) { this.coast(dt); return; }
     while (this.ends.length && this.ends[0] <= this.clock + 1e-8) this.ends.shift();
     const tier = Math.min(3, this.ends.length);
     const target = tier ? this.caps[tier-1] : BASE_SPEED;
@@ -54,8 +65,10 @@ export class QuizLane {
     const speed = this.speed < target ? Math.min(target, this.speed + this.rate * dt) : Math.max(target, this.speed - 5 * dt);
     const travel = (speed + this.speed) / 7.2 * dt;
     if (this.distance + travel >= length) {
-      this.finished = this.clock + dt * (length-this.distance)/travel;
-      this.phase = 'finished'; this.distance = length; this.speed = 0; this.tier = 0; this.revision++;
+      const crossing = dt * (length-this.distance)/travel;
+      this.finished = this.clock + crossing;
+      this.finishSpeed = this.speed + (speed-this.speed) * crossing/dt;
+      this.phase = 'finished'; this.distance = length; this.coast(dt-crossing); this.tier = 0; this.revision++;
       return;
     }
     this.clock += dt; this.distance += travel; this.speed = speed;
