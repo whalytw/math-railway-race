@@ -6,8 +6,6 @@ const tracks = new Map([
   ["tech-rave-faster", "Tech Rave (Faster)"],
   ["determined-pursuit", "Determined Pursuit"],
   ["battle-rpg-theme", "Battle RPG Theme"],
-  ["8bit-miniboss-battle", "8bit Action Miniboss Battle"],
-  ["8bit-boss-climax", "8bit Action Boss Battle (Climax)"],
   ["retro-level-3", "Retro Game Music Pack · Level 3"],
 ]);
 const effects = {

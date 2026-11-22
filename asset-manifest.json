@@ -1,6 +1,17 @@
 {
   "version": "8.0.0",
   "models": {
+    "CameraDrone": {
+      "id": "CameraDrone",
+      "name": "實況攝影無人機",
+      "url": "assets/models/CameraDrone.glb",
+      "category": "08_Props",
+      "sceneRole": "fixed",
+      "triangles": 822,
+      "bytes": 79612,
+      "meshNodeCount": 6,
+      "scenePack": "Innerscene"
+    },
     "Prop_Aircraft_TurbofanExterior_LowPoly_001": {
       "id": "Prop_Aircraft_TurbofanExterior_LowPoly_001",
       "name": "完整渦扇引擎・輕量旋轉版",

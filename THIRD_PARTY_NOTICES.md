@@ -38,7 +38,7 @@ v7 的草地顏色、短草幾何、河道、田區與隧道山坡由本專案�
 
 ## v19 背景配樂
 
-以下 10 首均使用來源頁上以 CC0 1.0 Universal 發布的版本。音訊轉成 112 kbps 立體聲 MP3，並調整音量以便遊戲播放。 [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)
+以下 8 首均使用來源頁上以 CC0 1.0 Universal 發布的版本。音訊轉成 112 kbps 立體聲 MP3，並調整音量以便遊戲播放。 [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)
 
 | 曲目 | 作者 | 風格 | 原檔 | 專案檔 |
 | --- | --- | --- | --- | --- |
@@ -49,6 +49,10 @@ v7 的草地顏色、短草幾何、河道、田區與隧道山坡由本專案�
 | [Tech Rave (Faster)](https://opengameart.org/content/tech-rave) | Frenchyboy | 快版 Techno | `TechRaveFaster.wav` | `tech-rave-faster.mp3` |
 | [Determined Pursuit](https://opengameart.org/content/determined-pursuit-epic-orchestra-loop) | Emma_MA | 管弦追逐 | `determined_pursuit_loop.wav` | `determined-pursuit.mp3` |
 | [Battle RPG Theme](https://opengameart.org/content/boss-battle-theme) | Cleyton Kauffman | 戰鬥搖滾與管弦 | `CleytonRX - Battle RPG Theme_1.mp3` | `battle-rpg-theme.mp3` |
-| [8bit Action Miniboss Battle](https://opengameart.org/content/8bit-action-miniboss-battle) | MintoDog | 晶片音樂 · 175 BPM | `8bit_action_miniboss_battle_bpm175.mp3` | `8bit-miniboss-battle.mp3` |
-| [8bit Action Boss Battle (Climax)](https://opengameart.org/content/8bit-action-boss-battle) | MintoDog | 晶片音樂 · 185 BPM | `8bit_action_boss_battle_climax_bpm185.mp3` | `8bit-boss-climax.mp3` |
 | [Retro Game Music Pack · Level 3](https://opengameart.org/content/5-chiptunes-action) | Juhani Junkala (SubspaceAudio) | 街機動作 | `Juhani Junkala [Retro Game Music Pack] Level 3.wav` | `retro-level-3.mp3` |
+
+## v20 實況攝影無人機
+
+**Quadcopter with flight electronics**，Innerscene，CC0 1.0 Universal。遊戲版以 Blender 簡化為 822 個三角面，保留四組獨立旋轉的槳葉和可轉向鏡頭。外殼改為淺色並標上橘色馬達環。 [原始模型與授權](https://www.innerscene.com/tools/library/3d-parts/quadcopter-with-flight-electronics-a25968c1)
+
+原檔 quadcopter-original.glb 的 SHA-256 為 24d1ac5804afea4076df2b4bc65ce780764d01619eb5fc08900480471cc43a0d。 [原始 GLB](https://files.innerscene.com/library/quadcopter-with-flight-electronics-a25968c1/7bbe389047145edeb575/quadcopter-original.glb)

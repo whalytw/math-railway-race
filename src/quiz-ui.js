@@ -1,5 +1,5 @@
 import {clearAnswerEffects, showAnswerEffect} from './answer-effects.js?v=19';
-import {playRaceSound} from './race-audio.js?v=19';
+import {playRaceSound} from './race-audio.js?v=20';
 import {DEFAULT_CAPS, QuizLane, shuffle} from './quiz-race.js?v=18';
 const $ = id => document.getElementById(id);
 const storageKey = 'math-railway-classroom-v1';
@@ -22,7 +22,7 @@ export async function setupQuestions(live) {
   settings = {book:book.id, units:selected.length ? selected : [book.units[0].topic],
     seconds:[20,30,45,60].includes(old.seconds)?old.seconds:45, caps:validCaps(old.caps)?old.caps:[...DEFAULT_CAPS]};
   const dialog = $('teacher'), selector = $('book');
-  books.forEach(b => selector.add(new Option(b.name + ' · ' + b.source, b.id)));
+  books.forEach(b => selector.add(new Option(b.name, b.id)));
   function fillTopics(list) {
     const active = books.find(b => b.id === selector.value);
     $('units').replaceChildren(...active.units.map(u => {

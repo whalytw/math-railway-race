@@ -158,3 +158,23 @@ body {--team:#88dece;--deck:50vh}
   background: var(--ink);
   color: var(--paper);
 }
+
+.drone-setting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #e4ece0;
+  color: var(--ink);
+  font-weight: 650;
+  cursor: pointer;
+}
+.drone-setting input {
+  width: 19px;
+  height: 19px;
+  margin: 0;
+  accent-color: var(--ink);
+}

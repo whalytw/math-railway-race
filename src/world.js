@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=20';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { TAU, lerp, clamp, wrap, smoothstep, randomGenerator, stationsFor, biomeMix, trackSegments } from './core.js?v=13.0.0';
 import { createCircuitRoute } from './circuit-route.js?v=17';
@@ -329,7 +330,8 @@ export class RailWorld {
     const vehicles = selections.flatMap(({ vehicle, driver }) => driver ? [vehicle, driver] : [vehicle]);
     const ids = [...this.sceneryPlan.placements.map(p => p.id), ...lakeModels,
       ...this.store.manifest.stationModels, 'Environment_Rail_RailSection_1m_001', 'Environment_Rail_Sleeper_001', 'Environment_Rail_Fastener_001', ...infrastructure,
-      ...vehicles, ...(this.config.playable ? [TURBO_ASSET_ID, GOAL_ARCH] : [])];
+      ...vehicles, ...(this.config.playable ? [TURBO_ASSET_ID, GOAL_ARCH] : []),
+      ...(this.config.playable && this.config.cameraDrone ? [CAMERA_DRONE_ASSET] : [])];
     await this.store.load(ids, (p, id) => onProgress(0.08 + p * 0.32, `讀取 ${this.store.manifest.models[id].name}`));
     onProgress(0.42, this.route.lanes ? '鋪設三條直線賽道…' : '鋪設閉合軌道…'); await yieldFrame(); this.buildTrack();
     onProgress(0.55, `混合 ${this.activeBiomes.length} 種環境地表…`); await yieldFrame(); await this.buildTerrain();

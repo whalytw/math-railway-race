@@ -1,4 +1,4 @@
-import {playRaceSound} from './race-audio.js?v=19';
+import {playRaceSound} from './race-audio.js?v=20';
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const SHAKE_MS = 500;
