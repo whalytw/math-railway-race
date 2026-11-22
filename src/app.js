@@ -1,5 +1,7 @@
-import {setupQuestions, startQuestions, drawQuestions} from './quiz-ui.js?v=17';
-import { COAST_SECONDS } from './quiz-race.js?v=16';
+import {setupQuestions, startQuestions, drawQuestions, stopQuizEffects} from './quiz-ui.js?v=18';
+import {shakeAnswerCamera} from './answer-effects.js?v=18';
+import {setupRaceAudio, prepareRaceAudio, startRaceAudio, playRaceSound, pauseRaceAudio, stopRaceAudio} from './race-audio.js?v=18';
+import { COAST_SECONDS } from './quiz-race.js?v=18';
 import * as THREE from 'three';
 import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=17';
 import { createPhysics, stepPhysics, FIXED_STEP, clamp, lerp, wrap, resolveBiomes, randomGenerator, nextStation, biomeMix, createElevationProfile, leverReference, leverForSpeed, RATED_POWER, CART_MASS, MAX_GRADE, MIN_VERTICAL_RADIUS } from './core.js?v=13.0.0';
@@ -70,7 +72,11 @@ function renderFrame(dt = 0, snap = false) {
   const updateVisibility = visibilityElapsed > 0.18 || snap;
   // The carts and shared landscape update their world matrices once per frame.
   scene.updateMatrixWorld();
-  for (const view of views) updateCamera(view, dt, snap);
+  const now = performance.now();
+  for (const view of views) {
+    updateCamera(view, dt, snap);
+    if (mode === 'running') shakeAnswerCamera(view, now);
+  }
   const shadowsEnabled = world.config.shadows || world.config.sceneryShadows;
   const canShare = allowSharedShadows && shadowsEnabled && split && cameraMode === 'chase' && views.every(view => view.cartVisible);
   sharedShadowFrame = canShare
@@ -352,6 +358,7 @@ async function startGame(event) {
   if (mode !== 'title') return;
   let config;
   try { config = formConfig(); } catch (error) { $('form-error').hidden = false; $('form-error').textContent = error.message; return; }
+  prepareRaceAudio();
   $('form-error').hidden = true; startButton.disabled = true; clearTimeout(previewChangeTimer); savePreferences();
   mode = 'loading'; $('loading-title').textContent = `正在鋪設軌道 · ${courseLabel(config)}`;
   try {
@@ -380,21 +387,27 @@ async function startGame(event) {
     $('relief-summary').textContent = `實際高差 ${elevation.range.toFixed(1)} m / ${elevationLabel}`;
     mode = 'running'; startQuestions(views); setTurbo(false); setCamera('chase'); document.body.dataset.state='running'; resize();
     updateHUD(); renderFrame(0, true);
+    startRaceAudio();
     document.body.dataset.state = 'running'; document.body.dataset.ready = 'true'; document.body.dataset.driver = config.driver;
-  } catch (error) { mode = 'title'; showError(error); }
+  } catch (error) { mode = 'title'; stopRaceAudio(); showError(error); }
   finally { startButton.disabled = false; }
 }
 function pauseGame(force) {
   if (!['running', 'paused'].includes(mode)) return;
   const paused = force ?? mode === 'running';
   mode = paused ? 'paused' : 'running'; lastTime = 0;
-  if (paused) world.updateEnvironment(0, 0, 1 / 60);
+  pauseRaceAudio(paused);
+  if (paused) {
+    stopQuizEffects(views);
+    world.updateEnvironment(0, 0, 1 / 60);
+  }
   $('pause-overlay').hidden = !paused; $('countdown').hidden = paused || physics.countdown <= 0;
   $('pause-label').textContent = paused ? '繼續' : '暫停'; $('pause-icon').textContent = paused ? '▷' : 'Ⅱ';
   document.body.dataset.state = mode;
 }
 async function returnToTitle() {
   if (!['running', 'paused', 'finished'].includes(mode)) return;
+  stopRaceAudio(); stopQuizEffects(views);
   mode = 'loading'; $('scene').style.height='100%'; hud.hidden = true; $('countdown').hidden = true; $('pause-overlay').hidden = true;
   $('loading-title').textContent = '返回軌道試驗場';
   if (selectedDriverChoice() === 'random') titleDriver = null;
@@ -454,6 +467,7 @@ function setDrivingEnabled(enabled) {
 
 function showRaceResults() {
   mode = 'finished'; finishAnimationTime = 0;
+  stopRaceAudio(); stopQuizEffects(views);
   setTurbo(false); setThrottle(0); setDrivingEnabled(false);
   $('pause-overlay').hidden = true;
   $('notification').hidden = true;
@@ -652,6 +666,10 @@ function updateHUD() {
   drawQuestions(views);
   $('countdown').hidden = mode === 'paused' || physics.countdown <= 0;
   if (physics.countdown > 0) $('countdown').querySelector('strong').textContent = Math.ceil(physics.countdown);
+  else if (mode === 'running' && !countdownFinished) {
+    countdownFinished = true;
+    playRaceSound('depart');
+  }
 }
 function drawMinimap() {
   if (!world) return;
@@ -922,7 +940,7 @@ async function boot() {
   const response = await fetch('./asset-manifest.json?v=13.0.0'); if (!response.ok) throw new Error(`找不到資產清單（HTTP ${response.status}）。請完整解壓縮 ZIP。`);
   manifest = await response.json();
   loadingProgress(.02,'初始化本機 Rapier 物理引擎…'); await initRapier();
-  await setupQuestions(()=>mode==='running'); populateForm(); installControls(); $('again').onclick=returnToTitle;
+  await setupQuestions(()=>mode==='running'); setupRaceAudio(); populateForm(); installControls(); $('again').onclick=returnToTitle;
   renderer = new THREE.WebGLRenderer({ canvas: $('scene'), antialias: true, powerPreference: 'high-performance', alpha: false });
   renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -945,7 +963,7 @@ async function boot() {
 
 window.__LOOP_TEST__ = {
   snapshot: () => ({
-    mode, version: '14.0.0', physics: { ...physics }, renderMotion: { ...renderMotion },
+    mode, version: '18.0.0', physics: { ...physics }, renderMotion: { ...renderMotion },
     config: world?.config, biomes: world?.biomeReport, scenery: world?.sceneryStats, rapier: railPhysics?.diagnostics(), turboOn,
     cart: world?.cart?.position.toArray(),
     camera: camera ? { position: camera.position.toArray(), direction: camera.getWorldDirection(new THREE.Vector3()).toArray(),

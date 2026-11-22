@@ -37,16 +37,30 @@ export class QuizLane {
     const {answer} = this.question;
     const wrong = shuffle([-1,1,2,-2,3,-3]).slice(0,this.level + 2).map(d => answer + d);
     this.options = shuffle([answer, ...wrong]); this.hinted = false;
+    this.result = null;
     this.number++; this.phase = 'question'; this.until = this.clock + this.limit; this.revision++;
+  }
+  get boostTier() {
+    if (this.finished !== null) return 0;
+    const firstActive = this.ends.findIndex(end => end > this.clock + 1e-8);
+    return firstActive < 0 ? 0 : Math.min(3, this.ends.length - firstActive);
   }
   settle(choice) {
     if (this.phase !== 'question' || this.finished !== null) return;
     const ok = choice === this.question.answer;
     this.streak = ok ? this.streak + 1 : 0;
     const bonus = ok ? Math.max(0, this.until - this.clock) : 0;
-    if (ok) { this.correct++; this.ends.push((this.ends.at(-1) ?? this.clock) + bonus); }
+    if (ok) {
+      this.correct++;
+      if (bonus > 0) {
+        const tail = Math.max(this.ends.at(-1) ?? this.clock, this.clock);
+        this.ends.push(tail + bonus);
+      }
+    }
+    this.result = {choice, ok, bonus, tier: this.boostTier};
     this.feedback = ok ? '答對！加速 +' + bonus.toFixed(1) + ' 秒' : (choice === null ? '時間到' : '答錯了') + ' · 正解 ' + this.question.answer;
     this.phase = 'feedback'; this.until = this.clock + 5; this.revision++;
+    return this.result;
   }
   hint() {
     if (this.phase !== 'question' || this.hinted) return;

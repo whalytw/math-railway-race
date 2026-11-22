@@ -21,3 +21,19 @@ v7 的草地顏色、短草幾何、河道、田區與隧道山坡由本專案�
 ## v11 渦輪
 
 遊戲使用 GameAssets 收錄的 `Prop_Aircraft_TurbofanExterior_LowPoly_001.glb`。模型衍生自 Innerscene 發布的 CC0 1.0 Turbofan Exterior Assembly，包含 8,612 個三角形和旋轉扇葉動畫。來源紀錄與授權全文收在 `assets/licenses/Innerscene_Turbofan/`。 [Innerscene 原始模型](https://www.innerscene.com/tools/library/3d-parts/turbofan-exterior-assembly-f68ba851)
+
+## v18 音樂與音效
+
+**Kenney Interface Sounds 1.0**，Kenney，CC0 1.0 Universal。來源檔為作者在 OpenGameArt 發布的版本。選用的音效轉成單聲道 WAV 供瀏覽器播放。 [Kenney 原始素材頁](https://kenney.nl/assets/interface-sounds) · [OpenGameArt 發布頁](https://opengameart.org/content/interface-sounds)
+
+| 遊戲用途 | 原檔 | 專案檔 |
+| --- | --- | --- |
+| 答對 | `confirmation_001.ogg` | `correct.wav` |
+| 答錯 | `error_001.ogg` | `wrong.wav` |
+| 加速星星抵達 | `pluck_001.ogg` | `charge.wav` |
+| 出發 | `confirmation_003.ogg` | `depart.wav` |
+| 個人完賽 | `confirmation_002.ogg` | `finish.wav` |
+
+原作者的授權註記收錄於 `assets/licenses/Kenney_InterfaceSounds/License.txt`。
+
+**本遊戲原創配樂**「晨光鐵道」、「礦場搖擺」與「山脊追風」在 `assets/audio/`，由原創旋律與合成樂器製作。對這三首配樂適用的著作權與相關權利，依 CC0 1.0 Universal 提供。 [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)

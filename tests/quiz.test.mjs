@@ -55,3 +55,21 @@ test('coasting preserves crossing time and stops after ten seconds', () => {
   assert.ok(Math.abs(lane.coastDistance-speed*10/7.2)<1e-6);
   assert.equal(lane.finished,finish); assert.equal(lane.distance,100);
 });
+
+test('answer feedback reports the boost awarded immediately and ignores expired segments', () => {
+  const lane = newLane(0);
+  for (const tier of [1, 2, 3, 3]) {
+    lane.next();
+    const result = lane.settle(lane.question.answer);
+    assert.equal(result.tier, tier);
+    assert.equal(result.bonus, 45);
+    assert.equal(lane.boostTier, tier);
+    assert.ok(result.ok);
+  }
+  lane.clock = lane.ends.at(-1);
+  lane.next();
+  const result = lane.settle(lane.question.answer);
+  assert.equal(result.tier, 1);
+  assert.equal(lane.ends.at(-1), lane.clock + 45);
+  assert.equal(lane.settle(lane.question.answer), undefined);
+});

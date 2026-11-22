@@ -1,4 +1,6 @@
-import {DEFAULT_CAPS, QuizLane, shuffle} from './quiz-race.js?v=17';
+import {clearAnswerEffects, showAnswerEffect} from './answer-effects.js?v=18';
+import {playRaceSound} from './race-audio.js?v=18';
+import {DEFAULT_CAPS, QuizLane, shuffle} from './quiz-race.js?v=18';
 const $ = id => document.getElementById(id);
 const storageKey = 'math-railway-classroom-v1';
 const names = ['基礎', '進階', '挑戰'];
@@ -57,16 +59,17 @@ function summary() {
   const units=b.units.filter(u=>settings.units.includes(u.topic));
   $('scope-summary').textContent=b.name+' · '+units.map(u=>u.label).join('、')+' ｜ '+'連答自動升級'+' · 每題 '+settings.seconds+' 秒';
 }
-function bindPress(panel, onAction) {
+function bindPress(panel, onAction, signal) {
   const active = new Set();
   const button = e => e.target.closest('button[data-action]');
   panel.addEventListener('pointerdown', e => {
     const b=button(e); if (!b || b.disabled || e.button!==0 || active.has(e.pointerId)) return;
-    e.preventDefault(); active.add(e.pointerId); panel.setPointerCapture(e.pointerId); onAction(b.dataset.action);
+    e.preventDefault(); active.add(e.pointerId); panel.setPointerCapture(e.pointerId); onAction(b);
   });
   for (const type of ['pointerup','pointercancel','lostpointercapture']) panel.addEventListener(type,e=>active.delete(e.pointerId));
-  window.addEventListener('blur',()=>active.clear(),{signal:panel.abortSignal});
-  panel.addEventListener('click',e=>{ const b=button(e); if(b&&!b.disabled && (e.detail===0 || !window.PointerEvent)) onAction(b.dataset.action); });
+  window.addEventListener('blur', () => active.clear(), {signal});
+  document.addEventListener('visibilitychange', () => { if (document.hidden) active.clear(); }, {signal});
+  panel.addEventListener('click',e=>{ const b=button(e); if(b&&!b.disabled && (e.detail===0 || !window.PointerEvent)) onAction(b); });
   panel.oncontextmenu=e=>e.preventDefault();
 }
 let bindings;
@@ -75,17 +78,18 @@ export function startQuestions(views) {
   const b=books.find(b=>b.id===settings.book);
   const units=shuffle(b.units.filter(u=>settings.units.includes(u.topic))).map(u=>({...u, questions:shuffle(bank[u.topic])}));
   const grid=$('quiz-grid');grid.replaceChildren();grid.style.setProperty('--lanes',views.length);panes=[];
-  const map=$('race-map'), instruments=$('race-instruments');
-  map.replaceChildren(); instruments.replaceChildren();
+  const map=$('race-map'), instruments=$('race-instruments'), effectsGrid=$('quiz-effects');
+  map.replaceChildren(); instruments.replaceChildren(); effectsGrid.replaceChildren();
   instruments.style.setProperty('--lanes',views.length);
+  effectsGrid.style.setProperty('--lanes',views.length);
   laneList=views.map((view,i)=>{
     const historyKey = 'rail-quiz-recent:' + i;
     let recent = {};
     try { recent = JSON.parse(sessionStorage.getItem(historyKey)) || {}; } catch {}
     const lane=new QuizLane(units,settings.seconds,settings.caps,i,recent);
-    const panel=document.createElement('section');panel.abortSignal=bindings.signal;panel.className='quiz-card';
+    const panel=document.createElement('section');panel.className='quiz-card';
     panel.style.setProperty('--team', ['#88dece','#ffbc80','#a3caff'][i]);
-    panel.innerHTML='<header><b class="seat"></b><span class="meter"></span></header><div class="progress"><i></i></div><div class="q-info"><span class="unit"></span><b class="clock"></b></div><p class="prompt"></p><div class="answers"></div><div class="hint-row"><button data-action="hint">提示 −10 秒</button><span class="note"></span></div>';
+    panel.innerHTML='<header><b class="seat"></b><span class="meter"></span></header><div class="progress"><i></i></div><div class="q-info"><span class="unit"></span><b class="clock"></b></div><p class="prompt" aria-live="polite"></p><div class="answers"></div><div class="hint-row"><button data-action="hint">提示 −10 秒</button><span class="note"></span></div>';
     panel.querySelector('.seat').textContent=['一號車','二號車','三號車'][i];
     const buttons=[];
     for (let j=0;j<6;j++){const btn=document.createElement('button');btn.dataset.action=String(j);panel.querySelector('.answers').append(btn);buttons.push(btn);}
@@ -102,15 +106,31 @@ export function startQuestions(views) {
     map.append(row);
     const dash=document.createElement('section');
     dash.className='race-dash'; dash.style.setProperty('--team',team);
-    dash.innerHTML='<div class="dial elapsed"><small>用時</small><div><b></b> 秒</div></div><div class="dial speed"><em hidden></em><div><b></b> km/h</div></div>';
+    dash.innerHTML='<div class="dial elapsed"><small>用時</small><div><b></b> 秒</div></div><div class="dial speed"><em hidden>JET <span class="jet-level"></span> · <span class="jet-time"></span> 秒</em><div><b></b> km/h</div></div>';
     pane.time=dash.querySelector('.elapsed b'); pane.speed=dash.querySelector('.speed b'); pane.jet=dash.querySelector('em');
+    pane.jetLevel=dash.querySelector('.jet-level'); pane.jetTime=dash.querySelector('.jet-time');
+    pane.effects=document.createElement('div');
+    effectsGrid.append(pane.effects);
     instruments.append(dash);
     panes.push(pane);grid.append(panel);
-    bindPress(panel, action=>{if(!isLive() || lane.phase!=='question')return;if(action==='hint')lane.hint();else lane.settle(lane.options[Number(action)]);drawQuestions(views);});
+    bindPress(panel, button => {
+      if (!isLive() || lane.phase !== 'question') return;
+      const action = button.dataset.action;
+      if (action === 'hint') {
+        lane.hint();
+        drawQuestions(views);
+        return;
+      }
+      const result = lane.settle(lane.options[Number(action)]);
+      drawQuestions(views);
+      if (result) showAnswerEffect(pane, view, button, result, i, views.length);
+    }, bindings.signal);
     view.quiz=lane; return lane;
   });
   drawQuestions(views);
 }
+export function stopQuizEffects(views) { clearAnswerEffects(panes, views); }
+
 export function drawQuestions(views) {
   laneList.forEach((lane,i)=>{
     const p=panes[i], length=views[i].rig.raceLength, remaining=Math.max(0,lane.until-lane.clock);
@@ -118,17 +138,34 @@ export function drawQuestions(views) {
     p.marker.style.left=(100*progress)+'%';
     p.time.textContent=(lane.finished ?? lane.clock).toFixed(1);
     p.speed.textContent=Math.round(lane.speed);
-    p.jet.hidden=!lane.tier;
-    p.jet.dataset.tier=lane.tier;
-    p.jet.textContent=lane.tier?'JET '+lane.tier+' · '+Math.ceil(Math.max(0,lane.ends.at(-1)-lane.clock))+' 秒':'';
+    const tier = lane.boostTier;
+    p.jet.hidden = !tier;
+    if (tier) {
+      const seconds = String(Math.ceil(Math.max(0, lane.ends.at(-1) - lane.clock)));
+      if (p.jet.dataset.tier !== String(tier)) {
+        p.jet.dataset.tier = tier;
+        p.jetLevel.textContent = tier;
+      }
+      if (p.jetTime.textContent !== seconds) p.jetTime.textContent = seconds;
+    }
     p.meter.textContent=(lane.distance/1000).toFixed(2)+' / '+(length/1000).toFixed(1)+' km';
     p.bar.style.width=(100*lane.distance/length)+'%';
     p.clock.textContent=lane.phase==='finished'?'完賽':Math.ceil(remaining)+' 秒';
     if (p.revision===lane.revision) return;
     p.revision=lane.revision;
-    p.panel.dataset.effect=lane.phase==='feedback' ? (lane.feedback.startsWith('答對')?'correct':'miss') : lane.phase;
+    p.panel.dataset.effect=lane.phase==='feedback' ? (lane.result.ok?'correct':'miss') : lane.phase;
     p.unit.textContent=lane.number?'第 '+lane.number+' 題 · LV '+lane.level+' '+names[lane.level-1]+' · '+lane.unit:'準備出發';
-    p.answers.hidden=lane.phase!=='question';p.hint.hidden=lane.phase!=='question';p.hint.disabled=lane.hinted;
+    const asking = lane.phase === 'question';
+    const submitted = lane.phase === 'feedback' && lane.result.choice !== null;
+    p.answers.hidden = !asking && !submitted;
+    p.hint.hidden = !asking;
+    p.hint.disabled = lane.hinted;
+    p.buttons.forEach((button, index) => {
+      button.setAttribute('aria-disabled', String(!asking));
+      if (submitted && lane.options[index] === lane.result.choice) {
+        button.dataset.mark = lane.result.ok ? 'correct' : 'wrong';
+      } else delete button.dataset.mark;
+    });
     p.note.textContent='';
     if(lane.phase==='question'){
       if (p.lastNumber !== lane.number) {
@@ -146,6 +183,7 @@ export function drawQuestions(views) {
     }else if(lane.phase==='feedback'){
       p.prompt.textContent=lane.feedback;p.note.textContent=lane.question.hint+'　下一題即將進站。';
     }else if(lane.phase==='finished'){
+      playRaceSound('finish', i, views.length);
       p.prompt.textContent='抵達終點 · '+lane.finished.toFixed(2)+' 秒';p.note.textContent='本場答對 '+lane.correct+' 題';
     }else p.prompt.textContent='出發後第 8 秒出題';
   });
