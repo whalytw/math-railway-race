@@ -1,5 +1,7 @@
 import * as THREE from 'three';
-import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=20';
+import { BIPLANE_ASSET } from './airshow.js?v=21';
+import { SUN_OFFSET } from './aircraft-shadow.js?v=21';
+import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=21';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { TAU, lerp, clamp, wrap, smoothstep, randomGenerator, stationsFor, biomeMix, trackSegments } from './core.js?v=13.0.0';
 import { createCircuitRoute } from './circuit-route.js?v=17';
@@ -331,7 +333,8 @@ export class RailWorld {
     const ids = [...this.sceneryPlan.placements.map(p => p.id), ...lakeModels,
       ...this.store.manifest.stationModels, 'Environment_Rail_RailSection_1m_001', 'Environment_Rail_Sleeper_001', 'Environment_Rail_Fastener_001', ...infrastructure,
       ...vehicles, ...(this.config.playable ? [TURBO_ASSET_ID, GOAL_ARCH] : []),
-      ...(this.config.playable && this.config.cameraDrone ? [CAMERA_DRONE_ASSET] : [])];
+      ...(this.config.playable && this.config.cameraDrone ? [CAMERA_DRONE_ASSET] : []),
+      ...(this.config.playable && this.config.airshowPlane ? [BIPLANE_ASSET] : [])];
     await this.store.load(ids, (p, id) => onProgress(0.08 + p * 0.32, `讀取 ${this.store.manifest.models[id].name}`));
     onProgress(0.42, this.route.lanes ? '鋪設三條直線賽道…' : '鋪設閉合軌道…'); await yieldFrame(); this.buildTrack();
     onProgress(0.55, `混合 ${this.activeBiomes.length} 種環境地表…`); await yieldFrame(); await this.buildTerrain();
@@ -984,7 +987,7 @@ export function createAtmosphere(scene, renderer) {
   const pmrem = new THREE.PMREMGenerator(renderer); const environment = pmrem.fromScene(envScene, 0.04, 0.1, 200);
   scene.environment = environment.texture; scene.environmentIntensity = 0.55; envSky.geometry.dispose(); pmrem.dispose();
   const outsideFog = new THREE.Color('#c7d5c2');
-  const lightOffset = new THREE.Vector3(-100, 170, 70), lightZ = lightOffset.clone().normalize();
+  const lightOffset = new THREE.Vector3(...SUN_OFFSET), lightZ = lightOffset.clone().normalize();
   const lightX = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), lightZ).normalize();
   const lightY = new THREE.Vector3().crossVectors(lightZ, lightX), focus = new THREE.Vector3();
   const shadowTargets = [null, null];

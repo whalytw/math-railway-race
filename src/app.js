@@ -3,9 +3,10 @@ import {shakeAnswerCamera} from './answer-effects.js?v=20';
 import {setupRaceAudio, prepareRaceAudio, startRaceAudio, playRaceSound, pauseRaceAudio, stopRaceAudio} from './race-audio.js?v=20';
 import { COAST_SECONDS } from './quiz-race.js?v=18';
 import * as THREE from 'three';
-import { CameraDrone } from './camera-drone.js?v=20';
-import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=20';
-import { createPhysics, stepPhysics, FIXED_STEP, clamp, lerp, wrap, resolveBiomes, randomGenerator, nextStation, biomeMix, createElevationProfile, leverReference, leverForSpeed, RATED_POWER, CART_MASS, MAX_GRADE, MIN_VERTICAL_RADIUS } from './core.js?v=13.0.0';
+import { Airshow } from './airshow.js?v=21';
+import { CameraDrone } from './camera-drone.js?v=21';
+import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=21';
+import { createPhysics, stepPhysics, FIXED_STEP, DEPARTURE_COUNTDOWN, clamp, lerp, wrap, resolveBiomes, randomGenerator, nextStation, biomeMix, createElevationProfile, leverReference, leverForSpeed, RATED_POWER, CART_MASS, MAX_GRADE, MIN_VERTICAL_RADIUS } from './core.js?v=13.0.0';
 import { riverProfile, riverPoint } from './route-features.js?v=13.0.0';
 import { copyMotion, interpolateMotion, zoomView, anchorCamera, partitionViewports } from './presentation.js?v=13.0.0';
 import { DENSITY_OPTIONS, SCENERY_VERSION } from './scenery-plan.js?v=13.0.0';
@@ -17,7 +18,13 @@ import { FLYOVER_RAIL_SEPARATION, turnIndexAt } from './circuit-route.js?v=13.0.
 import { checkRaceBoundary, raceStandings } from './straight-race.js?v=13.0.0';
 
 const $ = id => document.getElementById(id);
-const GAME_VERSION = '20.0.0';
+const GAME_VERSION = '21.0.0';
+const flightSettings = {
+  'camera-drone': 'cameraDrone',
+  'drone-shadow': 'droneShadow',
+  'airshow-plane': 'airshowPlane',
+  'plane-shadow': 'planeShadow',
+};
 let renderer, scene, camera, atmosphere, manifest, store, world;
 let mode = 'loading', physics = createPhysics(), cameraMode = 'chase', buildEpoch = 0;
 let accumulator = 0, lastTime = 0, hudElapsed = 0, visibilityElapsed = 0, titleTime = 0;
@@ -63,6 +70,7 @@ function setupViews(playable) {
     const state = createPhysics(); state.distance = rig.departure;
     const engine = playable ? new RapierRailPhysics(rig.track, { state }) : null;
     const camera = new THREE.PerspectiveCamera(57, 1, 0.12, 18000);
+    camera.layers.enable(index + 1);
     const drone = playable && world.config.cameraDrone ? new CameraDrone(world, index, camera) : null;
     return {
       rig, state, engine, previous: copyMotion(state), motion: copyMotion(state), snapped: false, finishTime: null,
@@ -71,6 +79,7 @@ function setupViews(playable) {
       colour: world.carts.length === 1 ? '#c26d40' : cartColours[index], main: {}, shadows: {}, cartVisible: true,
     };
   });
+  world.airshow = playable && world.config.airshowPlane ? new Airshow(world) : null;
   const main = views[Math.floor(views.length / 2)];
   physics = main.state; renderMotion = main.motion; camera = main.camera; railPhysics = main.engine;
 }
@@ -85,6 +94,7 @@ function renderFrame(dt = 0, snap = false) {
   const updateVisibility = visibilityElapsed > 0.18 || snap;
   // Update airframes and carts before the shared scene's single matrix update.
   for (const view of views) view.drone?.update(world, view);
+  world.airshow?.draw(Math.max(0, physics.elapsed - DEPARTURE_COUNTDOWN), renderer.domElement.height);
   scene.updateMatrixWorld();
   const now = performance.now();
   for (const view of views) {
@@ -228,7 +238,7 @@ function formConfig() {
   const leading = fleet?.[1] ?? { vehicle: selectedVehicle(), driver: titleDriverId(), driverChoice: selectedDriverChoice() };
   return { biomeMix, biomeA: biomeMix[0].biome, biomeB: biomeMix[1]?.biome || biomeMix[0].biome, ...course,
     stations: Number($('station-count').value), ...leading, fleet, playable: true,
-    cameraDrone: $('camera-drone').checked,
+    ...Object.fromEntries(Object.entries(flightSettings).map(([id, name]) => [name, $(id).checked])),
     density: Number($('density').value), viewDistance: Number($('view-distance').value), resolution: Number($('resolution').value),
     shadows: $('shadows').value === 'on', sceneryShadows: $('scenery-shadows').value === 'on', shadowQuality: $('shadow-quality').value,
     elevationLimit: Number($('elevation-limit').value),
@@ -236,7 +246,7 @@ function formConfig() {
 }
 function savePreferences() {
   try {
-    const values = { 'camera-drone': $('camera-drone').checked };
+    const values = Object.fromEntries(Object.keys(flightSettings).map(id => [id, $(id).checked]));
     for (const id of ['route-mode', 'race-length', 'track-turns', 'station-count', 'elevation-limit', 'density', 'view-distance', 'resolution', 'shadows', 'scenery-shadows', 'shadow-quality', 'features', 'skyline', 'sleeper-filter', 'sleeper-spacing', 'seed', 'driver-select']) values[id] = $(id).value;
     for (const { vehicle, driver } of fleetFields) { values[vehicle.id] = vehicle.value; values[driver.id] = driver.value; }
     values.vehicle = selectedVehicle(); values.biomeMix = mixControls.value(); localStorage.setItem(preferencesKey, JSON.stringify(values));
@@ -253,7 +263,7 @@ function restorePreferences() {
     }
     for (const [id, value] of Object.entries(values)) {
       if (id === 'biomeMix') mixControls.set(value);
-      else if (id === 'camera-drone' && typeof value === 'boolean') $(id).checked = value;
+      else if (Object.hasOwn(flightSettings, id) && typeof value === 'boolean') $(id).checked = value;
       else if (id === 'vehicle') { const input = [...document.querySelectorAll('input[name="vehicle"]')].find(el => el.value === value); if (input) input.checked = true; }
       else if ($(id) && (id === 'seed' || [...$(id).options].some(option => option.value === value))) $(id).value = value;
     }
@@ -489,6 +499,7 @@ function setDrivingEnabled(enabled) {
 
 function showRaceResults() {
   mode = 'finished'; finishAnimationTime = 0;
+  world.airshow?.clear();
   stopRaceAudio(); stopQuizEffects(views);
   setTurbo(false); setThrottle(0); setDrivingEnabled(false);
   $('pause-overlay').hidden = true;
@@ -915,6 +926,7 @@ function physicsTick() {
     if (Boolean(previousTier) !== Boolean(quiz.tier)) rig.turbo?.setEnabled(quiz.tier > 0, state.elapsed);
   }
   turboOn = views.some(v => v.quiz.tier > 0);
+  world.airshow?.updateRace(views, physics.elapsed - DEPARTURE_COUNTDOWN);
   if (views.every(view => view.quiz.coastTime >= COAST_SECONDS)) showRaceResults();
 }
 function updateCartMotion(alpha) {
@@ -959,7 +971,7 @@ function frame(time) {
 
 async function boot() {
   if (location.protocol === 'file:') throw new Error('請透過 HTTP 開啟此專案：執行 START_LOCAL.cmd 後前往 http://127.0.0.1:4173，或使用 GitHub Pages 網址。');
-  const response = await fetch('./asset-manifest.json?v=20'); if (!response.ok) throw new Error(`找不到資產清單（HTTP ${response.status}）。請完整解壓縮 ZIP。`);
+  const response = await fetch('./asset-manifest.json?v=21'); if (!response.ok) throw new Error(`找不到資產清單（HTTP ${response.status}）。請完整解壓縮 ZIP。`);
   manifest = await response.json();
   loadingProgress(.02,'初始化本機 Rapier 物理引擎…'); await initRapier();
   await setupQuestions(()=>mode==='running'); setupRaceAudio(); populateForm(); installControls(); $('again').onclick=returnToTitle;

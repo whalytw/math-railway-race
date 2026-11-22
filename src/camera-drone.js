@@ -1,3 +1,4 @@
+import {AircraftShadow} from './aircraft-shadow.js?v=21';
 import * as THREE from 'three';
 import {clamp, lerp, randomGenerator, smoothstep} from './core.js?v=13.0.0';
 
@@ -30,6 +31,8 @@ export class CameraDrone {
     });
     camera.layers.enable(layer);
     world.group.add(this.root);
+    this.shadow = world.config.droneShadow ? new AircraftShadow(world, 2.10, 1.90) : null;
+    this.shadow?.mesh.layers.set(layer);
 
     this.random = randomGenerator(world.config.seed + ':camera-drone:' + index);
     this.startSide = index === 0 ? 1 : -1;
@@ -47,6 +50,7 @@ export class CameraDrone {
   update(world, view) {
     const {quiz, rig, motion, state} = view;
     this.root.visible = false;
+    this.shadow?.hide();
     if (quiz.finished !== null) return;
 
     const time = quiz.clock;
@@ -103,5 +107,6 @@ export class CameraDrone {
       rotor.rotation.y = state.elapsed * (i % 2 ? -51 : 51) + i * 0.8;
     }
     this.root.visible = true;
+    this.shadow?.update(world, this.root.position, p.yaw);
   }
 }

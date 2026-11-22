@@ -1,6 +1,17 @@
 {
   "version": "8.0.0",
   "models": {
+    "AirshowBiplane": {
+      "id": "AirshowBiplane",
+      "name": "嘉年華雙翼飛機",
+      "url": "assets/models/AirshowBiplane.glb",
+      "category": "08_Props",
+      "sceneRole": "fixed",
+      "triangles": 2942,
+      "bytes": 320932,
+      "meshNodeCount": 3,
+      "scenePack": "Grab3D"
+    },
     "CameraDrone": {
       "id": "CameraDrone",
       "name": "實況攝影無人機",

@@ -16,14 +16,14 @@
   <link rel="stylesheet" href="./fleet-v11.css?v=13.0.0">
   <link rel="stylesheet" href="./straight-v13.css?v=13.0.0">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
-  <script type="module" src="./src/app.js?v=20"></script>
-<link rel="stylesheet" href="./quiz.css?v=20"></head>
+  <script type="module" src="./src/app.js?v=21"></script>
+<link rel="stylesheet" href="./quiz.css?v=21"></head>
 <body>
   <canvas id="scene" aria-label="三維軌道與地形場景"></canvas>
   <div class="vignette" aria-hidden="true"></div>
   <main id="title-screen" class="title-screen">
     <section class="setup-panel">
-      <header class="brand"><span class="brand-mark" aria-hidden="true">╫</span><span>LOOP<span class="brand-small">軌道試驗場</span></span><span class="edition">課堂競速<br>V20.0</span></header>
+      <header class="brand"><span class="brand-mark" aria-hidden="true">╫</span><span>LOOP<span class="brand-small">軌道試驗場</span></span><span class="edition">課堂競速<br>V21.0</span></header>
       <div class="intro"><h1>數學鐵道<br><b id="course-headline">心算競速</b></h1><p id="course-intro"></p></div>
       <form id="setup-form"><div class="scope-card"><button type="button" id="settings-open">教師設定 · 選題範圍</button><p id="scope-summary"></p></div>
         <div class="route-fields">
@@ -57,7 +57,13 @@
         <details class="stress-settings"><summary><span>畫面效能設定</span><span class="detail-hint" id="preset-hint">入門 / 1,000 物件</span></summary><div class="settings-grid"><label>場景物件數<select id="density" aria-label="場景物件數"><option value="1000" selected>入門 · 1,000</option><option value="2000">輕量 · 2,000</option><option value="8000">標準 · 8,000</option><option value="20000">加壓 · 20,000</option><option value="50000">極限 · 50,000</option></select></label><label>可視距離<select id="view-distance" aria-label="可視距離"><option value="300" selected>300 公尺</option><option value="550">550 公尺</option><option value="900">900 公尺</option><option value="1400">1,400 公尺</option></select></label><label>渲染解析度<select id="resolution" aria-label="渲染解析度"><option value="0.75" selected>0.75× · 省電</option><option value="1">1× · 標準</option><option value="1.5">1.5× · 精細</option><option value="2">2× · 高負載</option></select></label><label>車輛與設施陰影<select id="shadows" aria-label="車輛與設施陰影"><option value="off" selected>關閉 · 效能優先</option><option value="on">開啟 · 畫質優先</option></select></label><label>地景物件陰影<select id="scenery-shadows" aria-label="地景物件陰影"><option value="off" selected>關閉 · 效能優先</option><option value="on">開啟 · 樹木、岩石、山體</option></select></label><label>陰影品質<select id="shadow-quality" aria-label="陰影品質"><option value="near" selected>近景優先</option><option value="wide">廣域高畫質</option></select></label><label class="seed-field">地圖種子<input id="seed" aria-label="地圖種子" placeholder="留空，每次產生新路線" maxlength="40" autocomplete="off"></label></div><p>11 段物件數可選，包含 5,000 與 12,000。數量指地景實例，並非模型種類；不含鐵軌與固定設施。相同種子可重現配置，提高密度會增加自然景物，聚落與地標維持限量。兩類陰影可獨立開關。近景優先集中繪製礦車周圍的陰影，廣域高畫質可用於比較。</p></details>
         <details class="landscape-settings"><summary>景觀與高速畫面<span>遠山 · 雲層 · 橋隧</span></summary><div class="settings-grid"><label>橋隧與河谷<select id="features" aria-label="橋隧與河谷"><option value="on" selected>開啟 · 沿線橋隧</option><option value="off">關閉</option></select></label><label>遠山與動態雲<select id="skyline" aria-label="遠山與動態雲"><option value="on" selected>開啟</option><option value="off">關閉</option></select></label><label>高速枕木過濾<select id="sleeper-filter" aria-label="高速枕木過濾"><option value="on" selected>自動 · 降低倒行錯覺</option><option value="off">關閉 · 原始細節</option></select></label><label>枕木平均間距<select id="sleeper-spacing" aria-label="枕木平均間距"><option value="0.6">0.60 公尺</option><option value="0.75" selected>0.75 公尺</option><option value="0.9">0.90 公尺</option></select></label></div><p>橋、隧道與跨線高架橋會標示在小地圖。高速過濾只作用於枕木，儀表與場景維持清晰。</p></details>
         </details><p id="form-error" class="form-error" role="alert" hidden></p>
-        <label class="drone-setting"><input id="camera-drone" type="checkbox" checked>實況攝影無人機</label>
+        <fieldset class="flight-settings">
+          <legend>動態點綴</legend>
+          <label><input id="camera-drone" type="checkbox" checked>實況攝影無人機</label>
+          <label><input id="drone-shadow" type="checkbox" checked>無人機陰影</label>
+          <label><input id="airshow-plane" type="checkbox" checked>雙翼飛機表演</label>
+          <label><input id="plane-shadow" type="checkbox" checked>飛機陰影</label>
+        </fieldset>
         <details class="audio-settings">
           <summary>音樂與音效</summary>
           <div class="settings-grid">

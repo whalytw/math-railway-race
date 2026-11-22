@@ -56,3 +56,9 @@ v7 的草地顏色、短草幾何、河道、田區與隧道山坡由本專案�
 **Quadcopter with flight electronics**，Innerscene，CC0 1.0 Universal。遊戲版以 Blender 簡化為 822 個三角面，保留四組獨立旋轉的槳葉和可轉向鏡頭。外殼改為淺色並標上橘色馬達環。 [原始模型與授權](https://www.innerscene.com/tools/library/3d-parts/quadcopter-with-flight-electronics-a25968c1)
 
 原檔 quadcopter-original.glb 的 SHA-256 為 24d1ac5804afea4076df2b4bc65ce780764d01619eb5fc08900480471cc43a0d。 [原始 GLB](https://files.innerscene.com/library/quadcopter-with-flight-electronics-a25968c1/7bbe389047145edeb575/quadcopter-original.glb)
+
+## v21 雙翼飛機
+
+**Biplane**，Grab3D，CC0 1.0 Universal。原始 GLB 有 19,942 個三角面。遊戲版以 Blender 減至 2,942 個三角面，保留原色與螺旋槳旋轉軸，調整為起飛後的姿態，加入下層機翼兩處發煙定位點。 [原始模型與授權](https://grab3d.com/models/vehicles/biplane/)
+
+原始 biplane.glb 的 SHA-256 為 4dda6beabb3c0a587dbd7d28c9dbabaf39f23f263fd9c79156715213961386c9。 [原始 GLB](https://grab3d.com/dl/biplane/biplane.glb)
