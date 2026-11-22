@@ -214,5 +214,437 @@
     "prompt": "A − B = −30°。12(sin A cos B − cos A sin B) 是多少？",
     "answer": -6,
     "hint": "先合併成 sin(A − B)，留意負角的符號。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 5° cos 12° + cos 5° sin 12°，得到 sin 幾度？",
+    "answer": 17,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 5° cos 3° + cos 5° sin 3°，得到 sin 幾度？",
+    "answer": 8,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 15° cos 6° + cos 15° sin 6°，得到 sin 幾度？",
+    "answer": 21,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 20° cos 3° + cos 20° sin 3°，得到 sin 幾度？",
+    "answer": 23,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 40° cos 3° + cos 40° sin 3°，得到 sin 幾度？",
+    "answer": 43,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 15° cos 3° + cos 15° sin 3°，得到 sin 幾度？",
+    "answer": 18,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 10° cos 6° + cos 10° sin 6°，得到 sin 幾度？",
+    "answer": 16,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 5° cos 9° + cos 5° sin 9°，得到 sin 幾度？",
+    "answer": 14,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 15° cos 12° + cos 15° sin 12°，得到 sin 幾度？",
+    "answer": 27,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 15° cos 9° + cos 15° sin 9°，得到 sin 幾度？",
+    "answer": 24,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 5° cos 6° + cos 5° sin 6°，得到 sin 幾度？",
+    "answer": 11,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 30° cos 9° + cos 30° sin 9°，得到 sin 幾度？",
+    "answer": 39,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 20° cos 6° + cos 20° sin 6°，得到 sin 幾度？",
+    "answer": 26,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 40° cos 6° + cos 40° sin 6°，得到 sin 幾度？",
+    "answer": 46,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 25° cos 12° + cos 25° sin 12°，得到 sin 幾度？",
+    "answer": 37,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 25° cos 3° + cos 25° sin 3°，得到 sin 幾度？",
+    "answer": 28,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 10° cos 3° + cos 10° sin 3°，得到 sin 幾度？",
+    "answer": 13,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 20° cos 9° + cos 20° sin 9°，得到 sin 幾度？",
+    "answer": 29,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 10° cos 12° + cos 10° sin 12°，得到 sin 幾度？",
+    "answer": 22,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 30° cos 12° + cos 30° sin 12°，得到 sin 幾度？",
+    "answer": 42,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 40° cos 9° + cos 40° sin 9°，得到 sin 幾度？",
+    "answer": 49,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 10° cos 9° + cos 10° sin 9°，得到 sin 幾度？",
+    "answer": 19,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 35° cos 9° + cos 35° sin 9°，得到 sin 幾度？",
+    "answer": 44,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 1,
+    "prompt": "用和角公式合併 sin 30° cos 6° + cos 30° sin 6°，得到 sin 幾度？",
+    "answer": 36,
+    "hint": "和角公式把兩個角相加。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 59°、B = 14°。14 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 7,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 69°、B = 24°。16 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 8,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 77°、B = 32°。16 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 8,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 57°、B = 12°。8 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 4,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 60°、B = 15°。10 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 5,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 57°、B = 12°。12 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 6,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 65°、B = 20°。10 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 5,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 48°、B = 3°。2 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 1,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 61°、B = 16°。8 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 4,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 73°、B = 28°。14 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 7,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 53°、B = 8°。4 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 2,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 55°、B = 10°。10 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 5,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 61°、B = 16°。16 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 8,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 54°、B = 9°。6 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 3,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 66°、B = 21°。14 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 7,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 48°、B = 3°。6 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 3,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 49°、B = 4°。8 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 4,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 51°、B = 6°。6 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 3,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 47°、B = 2°。2 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 1,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 51°、B = 6°。12 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 6,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 57°、B = 12°。6 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 3,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 69°、B = 24°。12 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 6,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 47°、B = 2°。4 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 2,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 2,
+    "prompt": "A = 52°、B = 7°。14 × (cos A cos B + sin A sin B)² 是多少？",
+    "answer": 7,
+    "hint": "括號是 cos(A − B)，cos²45° 等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。4(cos A cos B − sin A sin B) + 3 是多少？",
+    "answer": 5,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。10(cos A cos B − sin A sin B) + 3 是多少？",
+    "answer": 8,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。14(cos A cos B − sin A sin B) + 4 是多少？",
+    "answer": 11,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。10(cos A cos B − sin A sin B) + 2 是多少？",
+    "answer": 7,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。10(cos A cos B − sin A sin B) + 1 是多少？",
+    "answer": 6,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。6(cos A cos B − sin A sin B) + 4 是多少？",
+    "answer": 7,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。12(cos A cos B − sin A sin B) + 2 是多少？",
+    "answer": 8,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。2(cos A cos B − sin A sin B) + 4 是多少？",
+    "answer": 5,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。14(cos A cos B − sin A sin B) + 1 是多少？",
+    "answer": 8,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。16(cos A cos B − sin A sin B) + 3 是多少？",
+    "answer": 11,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。10(cos A cos B − sin A sin B) + 4 是多少？",
+    "answer": 9,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。2(cos A cos B − sin A sin B) + 1 是多少？",
+    "answer": 2,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。4(cos A cos B − sin A sin B) + 1 是多少？",
+    "answer": 3,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。6(cos A cos B − sin A sin B) + 3 是多少？",
+    "answer": 6,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。8(cos A cos B − sin A sin B) + 3 是多少？",
+    "answer": 7,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。14(cos A cos B − sin A sin B) + 3 是多少？",
+    "answer": 10,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。8(cos A cos B − sin A sin B) + 1 是多少？",
+    "answer": 5,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。6(cos A cos B − sin A sin B) + 2 是多少？",
+    "answer": 5,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。2(cos A cos B − sin A sin B) + 3 是多少？",
+    "answer": 4,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。16(cos A cos B − sin A sin B) + 4 是多少？",
+    "answer": 12,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。6(cos A cos B − sin A sin B) + 1 是多少？",
+    "answer": 4,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。12(cos A cos B − sin A sin B) + 4 是多少？",
+    "answer": 10,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。14(cos A cos B − sin A sin B) + 2 是多少？",
+    "answer": 9,
+    "hint": "括號是 cos 60°，等於 1/2。"
+  },
+  {
+    "level": 3,
+    "prompt": "A + B = 60°。16(cos A cos B − sin A sin B) + 2 是多少？",
+    "answer": 10,
+    "hint": "括號是 cos 60°，等於 1/2。"
   }
 ]

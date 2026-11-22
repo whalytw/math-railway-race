@@ -12,12 +12,14 @@ export function shuffle(items, random = Math.random) {
 
 // All clocks advance with the race simulation. Pausing the race freezes each lane.
 export class QuizLane {
-  constructor(units, seconds, caps, index) {
+  constructor(units, seconds, caps, index, recent = {}) {
     this.units = units; this.level = 1; this.streak = 0; this.limit = seconds; this.caps = caps;
     this.decks = units.map(u => [1, 2, 3].map(level => {
       const pool = u.questions.filter(q => q.level === level);
       const offset = Math.floor(pool.length / 3) * index;
-      return {pool, cards: [...pool.slice(offset), ...pool.slice(0, offset)]};
+      const rotated = [...pool.slice(offset), ...pool.slice(0, offset)];
+      const seen = new Set(recent[u.topic + '/' + level] ?? []);
+      return {pool, cards: [...rotated.filter(q => !seen.has(q.prompt)), ...rotated.filter(q => seen.has(q.prompt))]};
     }));
     this.coastTime = 0; this.coastDistance = 0; this.finishSpeed = 0;
     this.number = 0; this.correct = 0; this.phase = 'travel'; this.until = 8;
@@ -27,10 +29,13 @@ export class QuizLane {
   next() {
     this.level = this.streak >= 3 ? 3 : this.streak >= 2 ? 2 : 1;
     const i = this.number % this.units.length, deck = this.decks[i][this.level-1];
-    if (!deck.cards.length) deck.cards = shuffle(deck.pool);
-    this.question = deck.cards.shift(); this.unit = this.units[i].label;
+    if (!deck.cards.length) {
+      deck.cards = shuffle(deck.pool);
+      if (deck.cards.length > 1 && deck.cards[0] === deck.last) deck.cards.push(deck.cards.shift());
+    }
+    this.question = deck.last = deck.cards.shift(); this.topic = this.units[i].topic; this.unit = this.units[i].label;
     const {answer} = this.question;
-    const wrong = shuffle([-1,1,2,-2,3,-3]).slice(0,3).map(d => answer + d);
+    const wrong = shuffle([-1,1,2,-2,3,-3]).slice(0,this.level + 2).map(d => answer + d);
     this.options = shuffle([answer, ...wrong]); this.hinted = false;
     this.number++; this.phase = 'question'; this.until = this.clock + this.limit; this.revision++;
   }

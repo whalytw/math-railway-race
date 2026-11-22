@@ -1,11 +1,11 @@
-import {DEFAULT_CAPS, QuizLane, shuffle} from './quiz-race.js?v=16';
+import {DEFAULT_CAPS, QuizLane, shuffle} from './quiz-race.js?v=17';
 const $ = id => document.getElementById(id);
 const storageKey = 'math-railway-classroom-v1';
 const names = ['基礎', '進階', '挑戰'];
 let books, bank, settings, panes = [], laneList = [], isLive;
 function save() { try { localStorage.setItem(storageKey, JSON.stringify(settings)); } catch {} }
 async function json(file) {
-  const response = await fetch('./question-bank/' + file + '.json');
+  const response = await fetch('./question-bank/' + file + '.json?v=17');
   if (!response.ok) throw new Error('題庫載入失敗：' + file);
   return response.json();
 }
@@ -79,15 +79,18 @@ export function startQuestions(views) {
   map.replaceChildren(); instruments.replaceChildren();
   instruments.style.setProperty('--lanes',views.length);
   laneList=views.map((view,i)=>{
-    const lane=new QuizLane(units,settings.seconds,settings.caps,i);
+    const historyKey = 'rail-quiz-recent:' + i;
+    let recent = {};
+    try { recent = JSON.parse(sessionStorage.getItem(historyKey)) || {}; } catch {}
+    const lane=new QuizLane(units,settings.seconds,settings.caps,i,recent);
     const panel=document.createElement('section');panel.abortSignal=bindings.signal;panel.className='quiz-card';
     panel.style.setProperty('--team', ['#88dece','#ffbc80','#a3caff'][i]);
     panel.innerHTML='<header><b class="seat"></b><span class="meter"></span></header><div class="progress"><i></i></div><div class="q-info"><span class="unit"></span><b class="clock"></b></div><p class="prompt"></p><div class="answers"></div><div class="hint-row"><button data-action="hint">提示 −10 秒</button><span class="note"></span></div>';
     panel.querySelector('.seat').textContent=['一號車','二號車','三號車'][i];
     const buttons=[];
-    for (let j=0;j<4;j++){const btn=document.createElement('button');btn.dataset.action=String(j);panel.querySelector('.answers').append(btn);buttons.push(btn);}
+    for (let j=0;j<6;j++){const btn=document.createElement('button');btn.dataset.action=String(j);panel.querySelector('.answers').append(btn);buttons.push(btn);}
     const part=sel=>panel.querySelector(sel);
-    const pane={panel,buttons,revision:-1,prompt:part('.prompt'),unit:part('.unit'),clock:part('.clock'),meter:part('.meter'),bar:part('.progress i'),hint:part('[data-action=hint]'),note:part('.note'),answers:part('.answers')};
+    const pane={panel,buttons,recent,historyKey,lastNumber:0,revision:-1,prompt:part('.prompt'),unit:part('.unit'),clock:part('.clock'),meter:part('.meter'),bar:part('.progress i'),hint:part('[data-action=hint]'),note:part('.note'),answers:part('.answers')};
     const team=panel.style.getPropertyValue('--team');
     const row=document.createElement('div');
     row.className='map-row'; row.style.setProperty('--team',team);
@@ -110,7 +113,7 @@ export function startQuestions(views) {
 }
 export function drawQuestions(views) {
   laneList.forEach((lane,i)=>{
-    const p=panes[i], length=views[i].rig.track.length, remaining=Math.max(0,lane.until-lane.clock);
+    const p=panes[i], length=views[i].rig.raceLength, remaining=Math.max(0,lane.until-lane.clock);
     const progress=Math.min(1,Math.max(0,lane.distance/length));
     p.marker.style.left=(100*progress)+'%';
     p.time.textContent=(lane.finished ?? lane.clock).toFixed(1);
@@ -128,7 +131,17 @@ export function drawQuestions(views) {
     p.answers.hidden=lane.phase!=='question';p.hint.hidden=lane.phase!=='question';p.hint.disabled=lane.hinted;
     p.note.textContent='';
     if(lane.phase==='question'){
-      p.prompt.textContent=lane.question.prompt;p.buttons.forEach((btn,j)=>btn.textContent=lane.options[j]);
+      if (p.lastNumber !== lane.number) {
+        const key = lane.topic + '/' + lane.level;
+        p.recent[key] = [...(p.recent[key] ?? []).filter(text => text !== lane.question.prompt), lane.question.prompt].slice(-12);
+        p.lastNumber = lane.number;
+        try { sessionStorage.setItem(p.historyKey, JSON.stringify(p.recent)); } catch {}
+      }
+      p.prompt.textContent=lane.question.prompt;p.answers.style.setProperty('--choices', lane.options.length);
+      p.buttons.forEach((btn,j) => {
+        btn.hidden = j >= lane.options.length;
+        btn.textContent = btn.hidden ? '' : lane.options[j];
+      });
       if(lane.hinted)p.note.textContent=lane.question.hint;
     }else if(lane.phase==='feedback'){
       p.prompt.textContent=lane.feedback;p.note.textContent=lane.question.hint+'　下一題即將進站。';

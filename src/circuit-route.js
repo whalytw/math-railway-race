@@ -1,4 +1,4 @@
-import { TAU, MAX_GRADE, MIN_VERTICAL_RADIUS, clamp, lerp, wrap, smoothstep, randomGenerator, createRoute, routeFromPolyline } from './core.js?v=13.0.0';
+import { TAU, MAX_GRADE, MIN_VERTICAL_RADIUS, clamp, lerp, wrap, smoothstep, randomGenerator, createRoute, routeFromPolyline } from './core.js?v=17';
 
 export const FLYOVER_RAIL_SEPARATION = 6.2;
 const STATION_HALF_LENGTH = 32;
@@ -25,7 +25,7 @@ function riseBetween(s, start, end, height, ease) {
 export function createCircuitRoute(length, seed, options = {}) {
   const turns = options.turns ?? 1, stationCount = options.stations ?? 3, requested = options.elevationLimit ?? 0;
   if (![1, 2, 3].includes(turns)) throw new Error('請選擇 1～3 圈軌道。');
-  if (!(length >= 5000 && length <= 15000) || ![2, 3].includes(stationCount) || !(requested >= 0 && requested <= 500)) throw new Error('軌道路長、車站數或起伏上限超出設定範圍。');
+  if (!(length >= 4000 && length <= 15000) || ![2, 3].includes(stationCount) || !(requested >= 0 && requested <= 500)) throw new Error('軌道路長、車站數或起伏上限超出設定範圍。');
   if (turns === 1) return { ...createRoute(length, seed, 8192, options), turns, turnStarts: [0], crossings: [], overpass: null };
 
   const random = randomGenerator(`${seed}:circuit`);
@@ -35,7 +35,9 @@ export function createCircuitRoute(length, seed, options = {}) {
   const exchangeStart = exchangeCentre - exchangeWidth / 2, exchangeEnd = exchangeCentre + exchangeWidth / 2;
   const hillPhase = stationCount === 3 ? 0.515 + random() * 0.047 : 0.623 + random() * 0.023;
   const hillGap = turns === 3 && random() < 0.5 ? 1 : 0;
-  const stationPhases = stationCount === 3 ? [0, 1 / 3, 2 / 3] : [0, 0.5];
+  // Leave room for the grade-separated crossing on the shortest three-turn circuit.
+  const middleStation = length === 4000 && turns === 3 ? 0.50 : 1 / 3;
+  const stationPhases = stationCount === 3 ? [0, middleStation, 2 / 3] : [0, 0.5];
 
   const count = 3072, samples = count * turns;
   function basePosition(u) {

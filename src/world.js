@@ -1,15 +1,15 @@
 import * as THREE from 'three';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { TAU, lerp, clamp, wrap, smoothstep, randomGenerator, stationsFor, biomeMix, trackSegments } from './core.js?v=13.0.0';
-import { createCircuitRoute } from './circuit-route.js?v=13.0.0';
-import { createStraightRoute, straightStations, RUNOUT } from './straight-route.js?v=16';
-import { sleeperLayout, sleeperFilter, planRouteFeatures, routeStructures, bridgeCoordinates, bridgeGroundHeight } from './route-features.js?v=13.0.0';
+import { createCircuitRoute } from './circuit-route.js?v=17';
+import { createStraightRoute, straightStations } from './straight-route.js?v=17';
+import { sleeperLayout, sleeperFilter, planRouteFeatures, routeStructures, bridgeCoordinates, bridgeGroundHeight } from './route-features.js?v=17';
 import { buildMountainBackdrop, buildVariedClouds, updateClouds, buildBridgeAndRiver, buildTunnel, buildGirderBridge } from './scenery.js?v=13.0.0';
 import { fitGroundContact, prepareGroundedParts, groundBatchGeometry, renderedGroundHeight } from './grounding.js?v=13.0.0';
-import { planScenery, indexGroundPads, paddedHeight } from './scenery-plan.js?v=13.0.0';
+import { planScenery, indexGroundPads, paddedHeight } from './scenery-plan.js?v=17';
 import { createBiomeLayout } from './biome-blend.js?v=13.0.0';
 import { shadowProfile, keepSceneryShadow } from './shadow-profile.js?v=13.0.0';
-import { buildFans, finishSmile } from './celebration.js?v=16';
+import { buildFans, buildGoals, GOAL_ARCH, finishSmile } from './celebration.js?v=17';
 import { createStandingDriver } from './drivers.js?v=13.0.0';
 import { TURBO_ASSET_ID, TurboPair, createTurboResources } from './turbo-visual.js?v=15';
 import { createGroundMaterial, grassHabitatAt, buildGrassCover, buildFarmland, GRASS_NEAR_DISTANCE, GRASS_DRAW_DISTANCE } from './ground-cover.js?v=13.0.0';
@@ -113,10 +113,18 @@ export class RailWorld {
     this.scene = scene; this.store = store; this.config = config;
     this.shadowProfile = shadowProfile(config);
     const createLayout = config.routeMode === 'straight' ? createStraightRoute : createCircuitRoute;
-    this.route = createLayout(config.length * 1000, config.seed, { elevationLimit: config.elevationLimit, stations: config.stations, turns: config.turns });
-    this.stations = this.route.lanes ? straightStations(this.route, config.stations) : stationsFor(this.route, config.stations);
+    this.route = createLayout((config.length + 1) * 1000, config.seed, { elevationLimit: config.elevationLimit, stations: config.stations, turns: config.turns });
+    this.stations = this.route.lanes ? straightStations(this.route, config.stations, config.length * 1000) : stationsFor(this.route, config.stations);
     this.stationPasses = this.stations.flatMap(s => s.passes ?? [s]).sort((a, b) => a.distance - b.distance);
-    this.features = config.features ? planRouteFeatures(this.route, this.stations, config.seed) : { bridge: null, tunnel: null };
+    const raceMetres = config.length * 1000;
+    const finishZones = this.route.lanes
+      ? this.route.lanes.map(track => ({...track.sample(raceMetres), distance: raceMetres}))
+      : this.route.turnStarts.map(start => {
+        const distance = wrap(start + raceMetres, this.route.length);
+        return {...this.route.sample(distance), distance};
+      });
+    this.finishZones = finishZones;
+    this.features = config.features ? planRouteFeatures(this.route, this.stations, config.seed, finishZones) : { bridge: null, tunnel: null };
     const { overpass, crossings } = this.route;
     if (overpass) {
       this.features.overpass = overpass;
@@ -321,7 +329,7 @@ export class RailWorld {
     const vehicles = selections.flatMap(({ vehicle, driver }) => driver ? [vehicle, driver] : [vehicle]);
     const ids = [...this.sceneryPlan.placements.map(p => p.id), ...lakeModels,
       ...this.store.manifest.stationModels, 'Environment_Rail_RailSection_1m_001', 'Environment_Rail_Sleeper_001', 'Environment_Rail_Fastener_001', ...infrastructure,
-      ...vehicles, ...(this.config.playable ? [TURBO_ASSET_ID] : [])];
+      ...vehicles, ...(this.config.playable ? [TURBO_ASSET_ID, GOAL_ARCH] : [])];
     await this.store.load(ids, (p, id) => onProgress(0.08 + p * 0.32, `讀取 ${this.store.manifest.models[id].name}`));
     onProgress(0.42, this.route.lanes ? '鋪設三條直線賽道…' : '鋪設閉合軌道…'); await yieldFrame(); this.buildTrack();
     onProgress(0.55, `混合 ${this.activeBiomes.length} 種環境地表…`); await yieldFrame(); await this.buildTerrain();
@@ -329,7 +337,9 @@ export class RailWorld {
     onProgress(0.87, '建立橋梁、立體交會與隧道…'); await yieldFrame();
     if (this.features.overpass) buildGirderBridge(this, this.features.overpass, this.route.turns - 1);
     buildBridgeAndRiver(this); buildTunnel(this);
-    onProgress(0.94, '建立車站、礦車與遠景…'); await yieldFrame(); this.buildStations(); buildFans(this); this.buildCart();
+    onProgress(0.94, '建立車站、礦車與遠景…'); await yieldFrame(); this.buildStations(); this.buildCart();
+    const goals = this.config.playable ? buildGoals(this) : [];
+    buildFans(this, goals);
     this.createClouds();
     onProgress(1, '旅程準備就緒');
     return this;
@@ -389,7 +399,7 @@ export class RailWorld {
     this.instanceCount += placements.length;
   }
   buildTrack() {
-    const tracks = this.route.lanes?.map(lane => ({...lane, length:lane.length + RUNOUT})) ?? [this.route], rails = [];
+    const tracks = this.route.lanes ?? [this.route], rails = [];
     const layout = sleeperLayout(tracks[0].length, this.config.sleeperSpacing || 0.75, this.config.seed), ties = [], bolts = [];
     this.sleeperPitch = layout.pitch;
     for (const track of tracks) {
@@ -412,20 +422,40 @@ export class RailWorld {
     this.addBatches('Environment_Rail_Fastener_001', bolts, { size: 96, kind: 'fasteners' });
     this.sleeperInstances = ties.length;
     this.trackInstances = rails.length / 2;
-    const bedMaterial = new THREE.MeshStandardMaterial({ color: '#a79a7d', roughness: 1, side: THREE.DoubleSide });
+    // A single mipmapped strip per lane carries distant rails and sleepers.
+    const canvas = document.createElement('canvas');
+    canvas.width = 128; canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#a79a7d'; ctx.fillRect(0, 0, 128, 64);
+    const tieHeight = 64 * 0.30 / layout.pitch;
+    ctx.fillStyle = '#b5916c'; ctx.fillRect(9, (64 - tieHeight) / 2, 110, tieHeight);
+    ctx.fillStyle = '#885e3c';
+    for (const x of [26, 102]) ctx.fillRect(x - 2, 0, 4, 64);
+    const map = new THREE.CanvasTexture(canvas);
+    map.colorSpace = THREE.SRGBColorSpace; map.wrapT = THREE.RepeatWrapping;
+    this.ownedTextures.push(map);
+    const bedMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1, side: THREE.DoubleSide });
+    const ballast = new THREE.Color('#a79a7d').toArray().map(v => v.toFixed(5)).join(',');
+    bedMaterial.onBeforeCompile = shader => {
+      shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>',
+        `#include <map_fragment>
+         diffuseColor.rgb = mix(vec3(${ballast}), diffuseColor.rgb, smoothstep(56., 88., length(vViewPosition)));`);
+    };
     const overviewMaterial = new THREE.LineBasicMaterial({ color: '#926848' });
     this.ownedMaterials.push(bedMaterial, overviewMaterial);
     this.overviewTrack = new THREE.Group(); this.overviewTrack.visible = false; this.group.add(this.overviewTrack);
     for (const track of tracks) this.buildTrackBase(track, bedMaterial, overviewMaterial);
   }
   buildTrackBase(track, bedMaterial, overviewMaterial) {
-    const bed = [], bedIndices = [], bedCount = Math.ceil(track.length / 2);
+    const bed = [], uv = [], bedIndices = [], bedCount = Math.ceil(track.length / 2);
     for (let i = 0; i <= bedCount; i++) {
       const p = track.sample(i / bedCount * track.length);
+      const v = (i / bedCount) * track.length / this.sleeperPitch;
+      uv.push(0, v, 1, v);
       for (const side of [-1, 1]) bed.push(p.x + p.nx * side * 1.49, p.y - 0.035, p.z + p.nz * side * 1.49);
       if (i) { const a = (i - 1) * 2; bedIndices.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
     }
-    const bedGeometry = new THREE.BufferGeometry(); bedGeometry.setAttribute('position', new THREE.Float32BufferAttribute(bed, 3)); bedGeometry.setIndex(bedIndices); bedGeometry.computeVertexNormals();
+    const bedGeometry = new THREE.BufferGeometry(); bedGeometry.setAttribute('position', new THREE.Float32BufferAttribute(bed, 3)); bedGeometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); bedGeometry.setIndex(bedIndices); bedGeometry.computeVertexNormals();
     const bedMesh = new THREE.Mesh(bedGeometry, bedMaterial); bedMesh.receiveShadow = true; this.group.add(bedMesh); this.ownedGeometry.push(bedGeometry);
     const overviewPoints = track.points.filter((_, i) => i % 8 === 0).map(p => new THREE.Vector3(p.x, p.y + 0.46, p.z));
     const geometry = new THREE.BufferGeometry().setFromPoints(overviewPoints);
@@ -712,7 +742,7 @@ export class RailWorld {
     const lines = new THREE.InstancedMesh(geometry, material, lanes.length * 2 * squaresPerLine);
     const transform = new THREE.Matrix4(), colour = new THREE.Color();
     let index = 0;
-    for (const lane of lanes) for (const distance of [0, lane.length]) {
+    for (const lane of lanes) for (const distance of [0, this.config.length * 1000]) {
       const position = lane.sample(distance);
       for (let row = 0; row < 2; row++) for (let col = 0; col < 8; col++) {
         transform.makeTranslation(position.x + (row - 0.5) * 0.31, position.y + 0.045, position.z + (col - 3.5) * 0.55);
@@ -743,7 +773,7 @@ export class RailWorld {
       const laneIndex = fleet.length === 1 ? 1 : index;
       const track = this.route.lanes?.[laneIndex] ?? this.route;
       const departure = this.route.lanes ? 0 : this.route.turnStarts[fleet.length - index - 1];
-      return { ...this.buildCartRig(selection, departure, resources), track, laneIndex };
+      return { ...this.buildCartRig(selection, departure, resources), track, laneIndex, raceLength: this.config.length * 1000 };
     });
     this.primaryCart = this.carts[Math.floor(this.carts.length / 2)];
     this.cart = this.primaryCart.root;
@@ -873,6 +903,9 @@ export class RailWorld {
         continue;
       }
       item.group.visible = !(overview && ['track', 'sleepers', 'fasteners'].includes(item.kind)) && distance < radius + item.radius;
+      if (item.kind === 'track' || item.kind === 'sleepers') {
+        item.group.visible = item.group.visible && distance < 92 + item.radius;
+      }
       if (item.kind === 'fasteners') item.group.visible = item.group.visible && Math.abs(this.lastSpeed) < 12 && distance < 95;
       if (item.group.visible) for (const mesh of item.group.children) {
         const lod = mesh.userData.sceneryLOD;

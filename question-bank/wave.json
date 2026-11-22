@@ -214,5 +214,437 @@
     "prompt": "y = 4 sin x − 3 cos x + 6 的最大值與最小值之和是多少？",
     "answer": 12,
     "hint": "兩個極值關於中線對稱。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 5 sin x − 3 cos x，x = 90° 時 y 是多少？",
+    "answer": 5,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 4 sin x − 3 cos x，x = 90° 時 y 是多少？",
+    "answer": 4,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 3 sin x − 3 cos x，x = 90° 時 y 是多少？",
+    "answer": 3,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 2 sin x − 1 cos x，x = 90° 時 y 是多少？",
+    "answer": 2,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 6 sin x − 4 cos x，x = 90° 時 y 是多少？",
+    "answer": 6,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 2 sin x − 4 cos x，x = 90° 時 y 是多少？",
+    "answer": 2,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 1 sin x − 2 cos x，x = 90° 時 y 是多少？",
+    "answer": 1,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 1 sin x − 3 cos x，x = 90° 時 y 是多少？",
+    "answer": 1,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 5 sin x − 1 cos x，x = 90° 時 y 是多少？",
+    "answer": 5,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 7 sin x − 3 cos x，x = 90° 時 y 是多少？",
+    "answer": 7,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 2 sin x − 3 cos x，x = 90° 時 y 是多少？",
+    "answer": 2,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 5 sin x − 4 cos x，x = 90° 時 y 是多少？",
+    "answer": 5,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 7 sin x − 2 cos x，x = 90° 時 y 是多少？",
+    "answer": 7,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 8 sin x − 1 cos x，x = 90° 時 y 是多少？",
+    "answer": 8,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 8 sin x − 2 cos x，x = 90° 時 y 是多少？",
+    "answer": 8,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 3 sin x − 1 cos x，x = 90° 時 y 是多少？",
+    "answer": 3,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 2 sin x − 2 cos x，x = 90° 時 y 是多少？",
+    "answer": 2,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 1 sin x − 4 cos x，x = 90° 時 y 是多少？",
+    "answer": 1,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 6 sin x − 2 cos x，x = 90° 時 y 是多少？",
+    "answer": 6,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 4 sin x − 1 cos x，x = 90° 時 y 是多少？",
+    "answer": 4,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 4 sin x − 2 cos x，x = 90° 時 y 是多少？",
+    "answer": 4,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 3 sin x − 2 cos x，x = 90° 時 y 是多少？",
+    "answer": 3,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 8 sin x − 4 cos x，x = 90° 時 y 是多少？",
+    "answer": 8,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 6 sin x − 3 cos x，x = 90° 時 y 是多少？",
+    "answer": 6,
+    "hint": "代入 sin 90° = 1、cos 90° = 0。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 3 sin x + 4 sin x，最大值是多少？",
+    "answer": 7,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 2 sin x + 2 sin x，最大值是多少？",
+    "answer": 4,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 1 sin x + 2 sin x，最大值是多少？",
+    "answer": 3,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 5 sin x + 2 sin x，最大值是多少？",
+    "answer": 7,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 8 sin x + 1 sin x，最大值是多少？",
+    "answer": 9,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 6 sin x + 4 sin x，最大值是多少？",
+    "answer": 10,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 5 sin x + 3 sin x，最大值是多少？",
+    "answer": 8,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 8 sin x + 3 sin x，最大值是多少？",
+    "answer": 11,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 1 sin x + 3 sin x，最大值是多少？",
+    "answer": 4,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 2 sin x + 4 sin x，最大值是多少？",
+    "answer": 6,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 6 sin x + 3 sin x，最大值是多少？",
+    "answer": 9,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 2 sin x + 1 sin x，最大值是多少？",
+    "answer": 3,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 3 sin x + 1 sin x，最大值是多少？",
+    "answer": 4,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 7 sin x + 4 sin x，最大值是多少？",
+    "answer": 11,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 8 sin x + 2 sin x，最大值是多少？",
+    "answer": 10,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 4 sin x + 3 sin x，最大值是多少？",
+    "answer": 7,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 4 sin x + 4 sin x，最大值是多少？",
+    "answer": 8,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 1 sin x + 1 sin x，最大值是多少？",
+    "answer": 2,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 7 sin x + 2 sin x，最大值是多少？",
+    "answer": 9,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 1 sin x + 4 sin x，最大值是多少？",
+    "answer": 5,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 7 sin x + 3 sin x，最大值是多少？",
+    "answer": 10,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 4 sin x + 1 sin x，最大值是多少？",
+    "answer": 5,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 7 sin x + 1 sin x，最大值是多少？",
+    "answer": 8,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 6 sin x + 1 sin x，最大值是多少？",
+    "answer": 7,
+    "hint": "兩項同為 sin x，先合併係數。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 3 sin x + 4 cos x − 2 的最小值是多少？",
+    "answer": -7,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 6 sin x + 8 cos x − 3 的最小值是多少？",
+    "answer": -13,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 3 sin x + 4 cos x − 1 的最小值是多少？",
+    "answer": -6,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 12 sin x + 16 cos x − 2 的最小值是多少？",
+    "answer": -22,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 12 sin x + 16 cos x − 6 的最小值是多少？",
+    "answer": -26,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 6 sin x + 8 cos x − 2 的最小值是多少？",
+    "answer": -12,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 6 sin x + 8 cos x − 8 的最小值是多少？",
+    "answer": -18,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 12 sin x + 16 cos x − 4 的最小值是多少？",
+    "answer": -24,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 9 sin x + 12 cos x − 3 的最小值是多少？",
+    "answer": -18,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 12 sin x + 16 cos x − 3 的最小值是多少？",
+    "answer": -23,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 3 sin x + 4 cos x − 5 的最小值是多少？",
+    "answer": -10,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 9 sin x + 12 cos x − 4 的最小值是多少？",
+    "answer": -19,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 9 sin x + 12 cos x − 7 的最小值是多少？",
+    "answer": -22,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 12 sin x + 16 cos x − 1 的最小值是多少？",
+    "answer": -21,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 3 sin x + 4 cos x − 8 的最小值是多少？",
+    "answer": -13,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 3 sin x + 4 cos x − 4 的最小值是多少？",
+    "answer": -9,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 12 sin x + 16 cos x − 5 的最小值是多少？",
+    "answer": -25,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 9 sin x + 12 cos x − 2 的最小值是多少？",
+    "answer": -17,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 12 sin x + 16 cos x − 7 的最小值是多少？",
+    "answer": -27,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 3 sin x + 4 cos x − 3 的最小值是多少？",
+    "answer": -8,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 6 sin x + 8 cos x − 6 的最小值是多少？",
+    "answer": -16,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 9 sin x + 12 cos x − 6 的最小值是多少？",
+    "answer": -21,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 12 sin x + 16 cos x − 8 的最小值是多少？",
+    "answer": -28,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 9 sin x + 12 cos x − 1 的最小值是多少？",
+    "answer": -16,
+    "hint": "3、4、5 的倍數可用來找振幅，再往下平移。"
   }
 ]

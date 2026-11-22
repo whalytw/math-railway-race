@@ -214,5 +214,437 @@
     "prompt": "已知 0 < log₁₀ 2 < 1，log₁₀(2 × 10 的 6 次方) 的整數部分是多少？",
     "answer": 6,
     "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 6，log₁₀ B = 1。log₁₀(AB) 是多少？",
+    "answer": 7,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 1，log₁₀ B = 4。log₁₀(AB) 是多少？",
+    "answer": 5,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 1，log₁₀ B = 1。log₁₀(AB) 是多少？",
+    "answer": 2,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 7，log₁₀ B = 3。log₁₀(AB) 是多少？",
+    "answer": 10,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 8，log₁₀ B = 4。log₁₀(AB) 是多少？",
+    "answer": 12,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 3，log₁₀ B = 3。log₁₀(AB) 是多少？",
+    "answer": 6,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 6，log₁₀ B = 2。log₁₀(AB) 是多少？",
+    "answer": 8,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 1，log₁₀ B = 2。log₁₀(AB) 是多少？",
+    "answer": 3,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 8，log₁₀ B = 1。log₁₀(AB) 是多少？",
+    "answer": 9,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 4，log₁₀ B = 4。log₁₀(AB) 是多少？",
+    "answer": 8,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 2，log₁₀ B = 4。log₁₀(AB) 是多少？",
+    "answer": 6,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 2，log₁₀ B = 2。log₁₀(AB) 是多少？",
+    "answer": 4,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 3，log₁₀ B = 1。log₁₀(AB) 是多少？",
+    "answer": 4,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 6，log₁₀ B = 4。log₁₀(AB) 是多少？",
+    "answer": 10,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 6，log₁₀ B = 3。log₁₀(AB) 是多少？",
+    "answer": 9,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 5，log₁₀ B = 2。log₁₀(AB) 是多少？",
+    "answer": 7,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 7，log₁₀ B = 1。log₁₀(AB) 是多少？",
+    "answer": 8,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 5，log₁₀ B = 4。log₁₀(AB) 是多少？",
+    "answer": 9,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 4，log₁₀ B = 1。log₁₀(AB) 是多少？",
+    "answer": 5,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 7，log₁₀ B = 4。log₁₀(AB) 是多少？",
+    "answer": 11,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 4，log₁₀ B = 3。log₁₀(AB) 是多少？",
+    "answer": 7,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 4，log₁₀ B = 2。log₁₀(AB) 是多少？",
+    "answer": 6,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 1，log₁₀ B = 3。log₁₀(AB) 是多少？",
+    "answer": 4,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₁₀ A = 3，log₁₀ B = 2。log₁₀(AB) 是多少？",
+    "answer": 5,
+    "hint": "乘積的對數是兩個對數的和。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 4，log₁₀ B = 2。log₁₀(A/B) 是多少？",
+    "answer": 2,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 7，log₁₀ B = 4。log₁₀(A/B) 是多少？",
+    "answer": 3,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 6，log₁₀ B = 4。log₁₀(A/B) 是多少？",
+    "answer": 2,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 8，log₁₀ B = 1。log₁₀(A/B) 是多少？",
+    "answer": 7,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 1，log₁₀ B = 3。log₁₀(A/B) 是多少？",
+    "answer": -2,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 5，log₁₀ B = 4。log₁₀(A/B) 是多少？",
+    "answer": 1,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 3，log₁₀ B = 3。log₁₀(A/B) 是多少？",
+    "answer": 0,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 6，log₁₀ B = 2。log₁₀(A/B) 是多少？",
+    "answer": 4,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 8，log₁₀ B = 3。log₁₀(A/B) 是多少？",
+    "answer": 5,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 8，log₁₀ B = 4。log₁₀(A/B) 是多少？",
+    "answer": 4,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 4，log₁₀ B = 1。log₁₀(A/B) 是多少？",
+    "answer": 3,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 5，log₁₀ B = 3。log₁₀(A/B) 是多少？",
+    "answer": 2,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 1，log₁₀ B = 2。log₁₀(A/B) 是多少？",
+    "answer": -1,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 6，log₁₀ B = 3。log₁₀(A/B) 是多少？",
+    "answer": 3,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 2，log₁₀ B = 2。log₁₀(A/B) 是多少？",
+    "answer": 0,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 1，log₁₀ B = 4。log₁₀(A/B) 是多少？",
+    "answer": -3,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 1，log₁₀ B = 1。log₁₀(A/B) 是多少？",
+    "answer": 0,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 3，log₁₀ B = 4。log₁₀(A/B) 是多少？",
+    "answer": -1,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 2，log₁₀ B = 3。log₁₀(A/B) 是多少？",
+    "answer": -1,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 7，log₁₀ B = 3。log₁₀(A/B) 是多少？",
+    "answer": 4,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 3，log₁₀ B = 1。log₁₀(A/B) 是多少？",
+    "answer": 2,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 4，log₁₀ B = 4。log₁₀(A/B) 是多少？",
+    "answer": 0,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 2，log₁₀ B = 4。log₁₀(A/B) 是多少？",
+    "answer": -2,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₁₀ A = 3，log₁₀ B = 2。log₁₀(A/B) 是多少？",
+    "answer": 1,
+    "hint": "商的對數是兩個對數的差。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 7，log₁₀ B = 1。log₁₀(A²/B) 是多少？",
+    "answer": 13,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 3，log₁₀ B = 4。log₁₀(A²/B) 是多少？",
+    "answer": 2,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 1，log₁₀ B = 1。log₁₀(A²/B) 是多少？",
+    "answer": 1,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 7，log₁₀ B = 2。log₁₀(A²/B) 是多少？",
+    "answer": 12,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 4，log₁₀ B = 4。log₁₀(A²/B) 是多少？",
+    "answer": 4,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 6，log₁₀ B = 3。log₁₀(A²/B) 是多少？",
+    "answer": 9,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 1，log₁₀ B = 3。log₁₀(A²/B) 是多少？",
+    "answer": -1,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 1，log₁₀ B = 2。log₁₀(A²/B) 是多少？",
+    "answer": 0,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 5，log₁₀ B = 4。log₁₀(A²/B) 是多少？",
+    "answer": 6,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 7，log₁₀ B = 4。log₁₀(A²/B) 是多少？",
+    "answer": 10,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 2，log₁₀ B = 3。log₁₀(A²/B) 是多少？",
+    "answer": 1,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 2，log₁₀ B = 2。log₁₀(A²/B) 是多少？",
+    "answer": 2,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 6，log₁₀ B = 2。log₁₀(A²/B) 是多少？",
+    "answer": 10,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 4，log₁₀ B = 3。log₁₀(A²/B) 是多少？",
+    "answer": 5,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 5，log₁₀ B = 2。log₁₀(A²/B) 是多少？",
+    "answer": 8,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 2，log₁₀ B = 4。log₁₀(A²/B) 是多少？",
+    "answer": 0,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 7，log₁₀ B = 3。log₁₀(A²/B) 是多少？",
+    "answer": 11,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 1，log₁₀ B = 4。log₁₀(A²/B) 是多少？",
+    "answer": -2,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 4，log₁₀ B = 2。log₁₀(A²/B) 是多少？",
+    "answer": 6,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 8，log₁₀ B = 1。log₁₀(A²/B) 是多少？",
+    "answer": 15,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 6，log₁₀ B = 1。log₁₀(A²/B) 是多少？",
+    "answer": 11,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 5，log₁₀ B = 1。log₁₀(A²/B) 是多少？",
+    "answer": 9,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 5，log₁₀ B = 3。log₁₀(A²/B) 是多少？",
+    "answer": 7,
+    "hint": "先用次方律，再用商數律。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₁₀ A = 8，log₁₀ B = 3。log₁₀(A²/B) 是多少？",
+    "answer": 13,
+    "hint": "先用次方律，再用商數律。"
   }
 ]

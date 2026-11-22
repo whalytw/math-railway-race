@@ -16,8 +16,8 @@
   <link rel="stylesheet" href="./fleet-v11.css?v=13.0.0">
   <link rel="stylesheet" href="./straight-v13.css?v=13.0.0">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
-  <script type="module" src="./src/app.js?v=16.1"></script>
-<link rel="stylesheet" href="./quiz.css?v=15"></head>
+  <script type="module" src="./src/app.js?v=17"></script>
+<link rel="stylesheet" href="./quiz.css?v=17"></head>
 <body>
   <canvas id="scene" aria-label="三維軌道與地形場景"></canvas>
   <div class="vignette" aria-hidden="true"></div>
@@ -29,8 +29,7 @@
         <div class="route-fields">
           <label class="course-field">軌道模式<select id="route-mode" aria-label="軌道模式"><option value="loop">環形競速</option><option value="straight" selected>直線競速 · 三車</option></select></label>
           <label id="ring-turns-field">軌道圈數<select id="track-turns" aria-label="軌道圈數" aria-describedby="relief-hint"><option value="1">單車 · 一圈路線</option><option value="3" selected>三車 · 三圈路線</option></select></label>
-          <label id="ring-length-field">軌道總長<select id="route-length" aria-label="軌道總長度"></select></label>
-          <label id="straight-length-field" class="course-field" hidden>每條賽道長度<select id="straight-length" aria-label="每條賽道長度" aria-describedby="relief-hint"></select></label>
+          <label>競賽軌道長度<select id="race-length" aria-label="競賽軌道長度"></select></label>
           <label>沿線車站<select id="station-count" aria-label="車站數量"><option value="3">3 座車站</option><option value="2">2 座車站</option></select></label>
           <label>軌道起伏上限<select id="elevation-limit" aria-label="軌道起伏上限"></select></label>
         </div><details class="extras"><summary>地形、礦車與畫面設定</summary><div class="section-heading mix-heading"><span>01</span><h2>地形面積比例</h2><button type="button" id="randomize" class="text-button" title="隨機選出 2～4 種不同地形及比例">↻ 隨機環境</button></div>

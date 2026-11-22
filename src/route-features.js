@@ -20,14 +20,14 @@ export function exposureCoverage(z, exposure, halfWidth = 0.15) {
 function stationClearance(distance, stations, length) {
   return Math.min(...stations.map(s => Math.abs(wrap(distance - s.distance + length / 2, length) - length / 2)));
 }
-export function planRouteFeatures(route, stations, seed = 'features') {
-  if (route.turns > 1 || route.lanes) return planParallelFeatures(route, stations, seed);
+export function planRouteFeatures(route, stations, seed = 'features', goals = []) {
+  if (route.turns > 1 || route.lanes) return planParallelFeatures(route, stations, seed, goals);
   const random = randomGenerator(`${seed}:features`);
   function choose(target, length, kind, previous) {
     let best = null, score = Infinity;
     for (let i = -45; i <= 45; i++) {
       const centre = target + i * 10;
-      if (centre < 180 || centre > route.length - 180 || stationClearance(centre, stations, route.length) < length / 2 + 100) continue;
+      if (centre < 180 || centre > route.length - 180 || stationClearance(centre, [...stations, ...goals], route.length) < length / 2 + 100) continue;
       if (previous && Math.abs(centre - previous.centre) < 350) continue;
       let error = 0;
       const module = kind === 'bridge' ? 8 : 4;
@@ -68,14 +68,14 @@ export function planRouteFeatures(route, stations, seed = 'features') {
 // One river can be crossed on several turns. Each physical crossing gets its
 // own deck, so the river never removes the ground from a neighboring track.
 const CIRCUIT_BRIDGE_HALF_SPAN = 40;
-function planParallelFeatures(route, stations, seed) {
+function planParallelFeatures(route, stations, seed, goals) {
   const random = randomGenerator(`${seed}:circuit-water`);
   const count = route.lanes?.length ?? route.turns, midLane = Math.floor(count / 2);
   const turnIds = Array.from({ length: count }, (_, i) => i);
   const halfDepth = route.halfDepth ?? route.squareSize / 2;
   const sample = (lane, distance) => (route.lanes?.[lane] ?? route).sample(distance);
   const distanceAtPhase = (lane, u) => route.lanes ? route.length * u : route.distanceAtPhase(lane, u);
-  const allPlatforms = stations.flatMap(station => station.passes);
+  const allPlatforms = [...stations.flatMap(station => station.passes), ...goals];
   const riverPhase = (stations.length === 3 ? 0.16 : 0.24) + (random() - 0.5) * 0.045;
   const riverPhaseAngle = random() * Math.PI * 2, wideSide = random() < 0.5 ? -1 : 1;
   let bridge = null;

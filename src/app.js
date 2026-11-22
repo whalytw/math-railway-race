@@ -1,7 +1,7 @@
-import {setupQuestions, startQuestions, drawQuestions} from './quiz-ui.js?v=16';
+import {setupQuestions, startQuestions, drawQuestions} from './quiz-ui.js?v=17';
 import { COAST_SECONDS } from './quiz-race.js?v=16';
 import * as THREE from 'three';
-import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=16.1';
+import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=17';
 import { createPhysics, stepPhysics, FIXED_STEP, clamp, lerp, wrap, resolveBiomes, randomGenerator, nextStation, biomeMix, createElevationProfile, leverReference, leverForSpeed, RATED_POWER, CART_MASS, MAX_GRADE, MIN_VERTICAL_RADIUS } from './core.js?v=13.0.0';
 import { riverProfile, riverPoint } from './route-features.js?v=13.0.0';
 import { copyMotion, interpolateMotion, zoomView, anchorCamera, partitionViewports } from './presentation.js?v=13.0.0';
@@ -11,7 +11,6 @@ import { MixControls } from './mix-controls.js?v=13.0.0';
 import { BIOME_COLORS, DEFAULT_MIX } from './biome-blend.js?v=13.0.0';
 import { initRapier, RapierRailPhysics, RAPIER_VERSION } from './rapier-rail.js?v=13.0.0';
 import { FLYOVER_RAIL_SEPARATION, turnIndexAt } from './circuit-route.js?v=13.0.0';
-import { STRAIGHT_LENGTHS } from './straight-route.js?v=13.0.0';
 import { checkRaceBoundary, raceStandings } from './straight-race.js?v=13.0.0';
 
 const $ = id => document.getElementById(id);
@@ -162,7 +161,7 @@ const chooseFleet = () => chooseStraight() || $('track-turns').value === '3';
 function courseSettings() {
   const straight = chooseStraight();
   return { routeMode: straight ? 'straight' : 'loop', turns: straight ? 1 : Number($('track-turns').value),
-    length: Number($(straight ? 'straight-length' : 'route-length').value) };
+    length: Number($('race-length').value) };
 }
 function courseLabel(config) {
   return config.routeMode === 'straight' ? `每道 ${config.length} km` : `${config.length} km · ${config.turns} 圈`;
@@ -171,8 +170,7 @@ function updateFleetControls() {
   const split = chooseFleet(), straight = chooseStraight();
   $('fleet-loadout').hidden = !split;
   $('single-loadout').hidden = split;
-  $('ring-turns-field').hidden = $('ring-length-field').hidden = straight;
-  $('straight-length-field').hidden = !straight;
+  $('ring-turns-field').hidden = straight;
   $('course-headline').textContent = straight ? '直線競速' : '環形競速';
   $('course-intro').textContent = '答對心算題，把剩餘作答秒數換成加速時間。';
   $('start-label').textContent = split ? '三車同時出發' : '單車出發';
@@ -201,7 +199,7 @@ async function updateTitleDriver() {
 }
 function formConfig() {
   const seed = seedValue();
-  const routeFields = chooseStraight() ? ['straight-length'] : ['route-length', 'track-turns'];
+  const routeFields = chooseStraight() ? ['race-length'] : ['race-length', 'track-turns'];
   for(const id of [...routeFields,'station-count','elevation-limit','density','view-distance','resolution','sleeper-spacing']) {
     if(!$(id).selectedOptions.length || !Number.isFinite(Number($(id).value))) throw new Error('設定值已失效，請重新選擇路線與畫面設定。');
   }
@@ -218,7 +216,7 @@ function formConfig() {
 function savePreferences() {
   try {
     const values = {};
-    for (const id of ['route-mode', 'straight-length', 'route-length', 'track-turns', 'station-count', 'elevation-limit', 'density', 'view-distance', 'resolution', 'shadows', 'scenery-shadows', 'shadow-quality', 'features', 'skyline', 'sleeper-filter', 'sleeper-spacing', 'seed', 'driver-select']) values[id] = $(id).value;
+    for (const id of ['route-mode', 'race-length', 'track-turns', 'station-count', 'elevation-limit', 'density', 'view-distance', 'resolution', 'shadows', 'scenery-shadows', 'shadow-quality', 'features', 'skyline', 'sleeper-filter', 'sleeper-spacing', 'seed', 'driver-select']) values[id] = $(id).value;
     for (const { vehicle, driver } of fleetFields) { values[vehicle.id] = vehicle.value; values[driver.id] = driver.value; }
     values.vehicle = selectedVehicle(); values.biomeMix = mixControls.value(); localStorage.setItem('rail-loop-lab:preferences:v13', JSON.stringify(values));
   } catch { /* Private browsing may disable local storage. */ }
@@ -240,10 +238,9 @@ function populateForm() {
     option.textContent = `${label} · ${count.toLocaleString()}`; option.selected = count === 2000; return option;
   }));
   mixControls = new MixControls($('mix-slots'), Object.fromEntries(biomeNames.map(id=>[id,manifest.biomes[id]])), schedulePreview);
-  for (let km = 5; km <= 15; km++) {
-    const option = document.createElement('option'); option.value = String(km); option.textContent = `${km} 公里`; option.selected = km === 5; $('route-length').append(option);
+  for (let km = 3; km <= 7; km++) {
+    const option = document.createElement('option'); option.value = String(km); option.textContent = `${km} 公里`; option.selected = km === 5; $('race-length').append(option);
   }
-  for (const km of STRAIGHT_LENGTHS) $('straight-length').add(new Option(`${km} 公里／道`, String(km)));
   for (let height = 0; height <= 500; height += 25) {
     const option = document.createElement('option'); option.value = String(height); option.textContent = height === 0 ? '0 m · 平坦' : `${height} 公尺`;
     option.selected = height === 75; $('elevation-limit').append(option);
@@ -270,7 +267,7 @@ function populateForm() {
     $('driver-select').value = 'random'; titleDriver = chooseDriver('random', manifest.drivers, Math.random, previous);
     updateTitleDriver().catch(error => notify(error.message));
   });
-  for (const id of ['route-mode', 'straight-length', 'route-length', 'track-turns', 'station-count', 'elevation-limit']) $(id).addEventListener('change', () => { updateFleetControls(); updateReliefHint(); schedulePreview(); });
+  for (const id of ['route-mode', 'race-length', 'track-turns', 'station-count', 'elevation-limit']) $(id).addEventListener('change', () => { updateFleetControls(); updateReliefHint(); schedulePreview(); });
   for (const id of ['features', 'skyline', 'seed']) $(id).addEventListener('change', schedulePreview);
   $('density').addEventListener('change', updatePresetHint);
   $('randomize').addEventListener('click', () => mixControls.randomize(false));
@@ -281,15 +278,15 @@ function updateReliefHint() {
   const field = $('elevation-limit'), { routeMode, turns, length } = courseSettings(), requested = Number(field.value);
   field.options[0].textContent = turns > 1 ? '0 m · 僅跨線坡' : '0 m · 平坦';
   if (routeMode === 'straight') {
-    $('relief-hint').textContent = `三條各 ${length} 公里，起點與終點對齊。縱坡 ≤25‰，到達終點即記錄用時。`;
+    $('relief-hint').textContent = `競賽 ${length} 公里，每道實鋪 ${length+1} 公里。縱坡 ≤25‰，到達終點即記錄用時。`;
     return;
   }
   if (turns > 1) {
-    $('relief-hint').textContent = `全線 ${$('route-length').value} 公里繞 ${turns} 圈。高架交會保留 ${FLYOVER_RAIL_SEPARATION} m 軌面高差，縱坡 ≤25‰。`;
+    $('relief-hint').textContent = `全線 ${length+1} 公里（競賽 ${length} 公里）繞 ${turns} 圈。高架交會保留 ${FLYOVER_RAIL_SEPARATION} m 軌面高差，縱坡 ≤25‰。`;
     return;
   }
   if (!requested) { $('relief-hint').textContent = '軌道完全平坦；沿線山丘景觀仍保留。'; return; }
-  const profile = createElevationProfile(Number($('route-length').value) * 1000, requested, Number($('station-count').value));
+  const profile = createElevationProfile((length + 1) * 1000, requested, Number($('station-count').value));
   $('relief-hint').textContent = `縱坡 ≤25‰、站區水平；預估實際高差 ${profile.range.toFixed(1)} m${profile.range < requested - 0.1 ? '（依路長限縮）' : ''}。`;
 }
 function buildLeverScale() {
@@ -863,7 +860,7 @@ function physicsTick() {
     const waiting = Math.min(FIXED_STEP, state.countdown);
     state.countdown = Math.max(0, state.countdown - waiting);
     const previousTier = quiz.tier;
-    quiz.tick(FIXED_STEP - waiting, rig.track.length);
+    quiz.tick(FIXED_STEP - waiting, rig.raceLength);
     state.odometer = quiz.distance + quiz.coastDistance;
     state.distance = rig.departure + state.odometer;
     state.speed = quiz.speed / 3.6;
@@ -955,7 +952,7 @@ window.__LOOP_TEST__ = {
       cartNDC: world.cart.position.clone().project(camera).toArray(), cartVisible: views[Math.floor(views.length / 2)].cartVisible,
       near: camera.near, far: camera.far, fog: [scene.fog.near, scene.fog.far], visibleGroups: world.cullGroups.filter(g => g.group.visible).length } : null,
     carts: views.map(view => ({ vehicle: view.rig.vehicle, driver: view.rig.driver?.userData.driver.id, departure: view.rig.departure,
-      laneLength: view.rig.track.length, finishSeconds: view.finishTime,
+      laneLength: view.rig.track.length, raceLength: view.rig.raceLength, finishSeconds: view.finishTime,
       state: { ...view.state }, position: view.rig.root.position.toArray(), viewport: view.viewport, camera: view.camera.position.toArray(),
       direction: view.camera.getWorldDirection(new THREE.Vector3()).toArray(), cartVisible: view.cartVisible,
       turboVisible: Boolean(view.rig.turbo?.root.visible),

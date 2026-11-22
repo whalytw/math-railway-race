@@ -214,5 +214,437 @@
     "prompt": "y = tan(x/6) 的最小正週期是幾個 π？",
     "answer": 6,
     "hint": "正切函數的基本週期是 π。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 3 cos x − 2，x = 0 時 y 是多少？",
+    "answer": 1,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 7 cos x − 2，x = 0 時 y 是多少？",
+    "answer": 5,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 4 cos x − 1，x = 0 時 y 是多少？",
+    "answer": 3,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 2 cos x − 1，x = 0 時 y 是多少？",
+    "answer": 1,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 6 cos x − 4，x = 0 時 y 是多少？",
+    "answer": 2,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 4 cos x − 3，x = 0 時 y 是多少？",
+    "answer": 1,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 8 cos x − 4，x = 0 時 y 是多少？",
+    "answer": 4,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 6 cos x − 2，x = 0 時 y 是多少？",
+    "answer": 4,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 1 cos x − 1，x = 0 時 y 是多少？",
+    "answer": 0,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 8 cos x − 2，x = 0 時 y 是多少？",
+    "answer": 6,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 4 cos x − 4，x = 0 時 y 是多少？",
+    "answer": 0,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 5 cos x − 1，x = 0 時 y 是多少？",
+    "answer": 4,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 5 cos x − 4，x = 0 時 y 是多少？",
+    "answer": 1,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 2 cos x − 2，x = 0 時 y 是多少？",
+    "answer": 0,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 1 cos x − 4，x = 0 時 y 是多少？",
+    "answer": -3,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 2 cos x − 4，x = 0 時 y 是多少？",
+    "answer": -2,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 5 cos x − 2，x = 0 時 y 是多少？",
+    "answer": 3,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 8 cos x − 1，x = 0 時 y 是多少？",
+    "answer": 7,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 7 cos x − 3，x = 0 時 y 是多少？",
+    "answer": 4,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 7 cos x − 1，x = 0 時 y 是多少？",
+    "answer": 6,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 3 cos x − 3，x = 0 時 y 是多少？",
+    "answer": 0,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 3 cos x − 1，x = 0 時 y 是多少？",
+    "answer": 2,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 1 cos x − 3，x = 0 時 y 是多少？",
+    "answer": -2,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "y = 6 cos x − 1，x = 0 時 y 是多少？",
+    "answer": 5,
+    "hint": "cos 0 等於 1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 2 sin x − 4 的最小值是多少？",
+    "answer": -6,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 2 sin x − 3 的最小值是多少？",
+    "answer": -5,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 8 sin x − 4 的最小值是多少？",
+    "answer": -12,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 7 sin x − 4 的最小值是多少？",
+    "answer": -11,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 4 sin x − 3 的最小值是多少？",
+    "answer": -7,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 2 sin x − 1 的最小值是多少？",
+    "answer": -3,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 4 sin x − 1 的最小值是多少？",
+    "answer": -5,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 8 sin x − 2 的最小值是多少？",
+    "answer": -10,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 6 sin x − 1 的最小值是多少？",
+    "answer": -7,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 3 sin x − 2 的最小值是多少？",
+    "answer": -5,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 1 sin x − 3 的最小值是多少？",
+    "answer": -4,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 1 sin x − 4 的最小值是多少？",
+    "answer": -5,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 5 sin x − 2 的最小值是多少？",
+    "answer": -7,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 3 sin x − 3 的最小值是多少？",
+    "answer": -6,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 7 sin x − 1 的最小值是多少？",
+    "answer": -8,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 7 sin x − 3 的最小值是多少？",
+    "answer": -10,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 8 sin x − 3 的最小值是多少？",
+    "answer": -11,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 4 sin x − 4 的最小值是多少？",
+    "answer": -8,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 8 sin x − 1 的最小值是多少？",
+    "answer": -9,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 1 sin x − 1 的最小值是多少？",
+    "answer": -2,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 1 sin x − 2 的最小值是多少？",
+    "answer": -3,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 3 sin x − 1 的最小值是多少？",
+    "answer": -4,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 6 sin x − 4 的最小值是多少？",
+    "answer": -10,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 2,
+    "prompt": "y = 3 sin x − 4 的最小值是多少？",
+    "answer": -7,
+    "hint": "sin x 的最小值是 −1。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 6 cos x + b 的最小值是 3，最大值是多少？",
+    "answer": 15,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 4 cos x + b 的最小值是 3，最大值是多少？",
+    "answer": 11,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 8 cos x + b 的最小值是 4，最大值是多少？",
+    "answer": 20,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 3 cos x + b 的最小值是 1，最大值是多少？",
+    "answer": 7,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 5 cos x + b 的最小值是 2，最大值是多少？",
+    "answer": 12,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 4 cos x + b 的最小值是 2，最大值是多少？",
+    "answer": 10,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 2 cos x + b 的最小值是 2，最大值是多少？",
+    "answer": 6,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 5 cos x + b 的最小值是 1，最大值是多少？",
+    "answer": 11,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 4 cos x + b 的最小值是 4，最大值是多少？",
+    "answer": 12,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 6 cos x + b 的最小值是 2，最大值是多少？",
+    "answer": 14,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 3 cos x + b 的最小值是 4，最大值是多少？",
+    "answer": 10,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 4 cos x + b 的最小值是 1，最大值是多少？",
+    "answer": 9,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 7 cos x + b 的最小值是 2，最大值是多少？",
+    "answer": 16,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 3 cos x + b 的最小值是 2，最大值是多少？",
+    "answer": 8,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 8 cos x + b 的最小值是 1，最大值是多少？",
+    "answer": 17,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 1 cos x + b 的最小值是 2，最大值是多少？",
+    "answer": 4,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 7 cos x + b 的最小值是 1，最大值是多少？",
+    "answer": 15,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 5 cos x + b 的最小值是 4，最大值是多少？",
+    "answer": 14,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 2 cos x + b 的最小值是 3，最大值是多少？",
+    "answer": 7,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 8 cos x + b 的最小值是 3，最大值是多少？",
+    "answer": 19,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 8 cos x + b 的最小值是 2，最大值是多少？",
+    "answer": 18,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 6 cos x + b 的最小值是 4，最大值是多少？",
+    "answer": 16,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 2 cos x + b 的最小值是 1，最大值是多少？",
+    "answer": 5,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
+  },
+  {
+    "level": 3,
+    "prompt": "y = 5 cos x + b 的最小值是 3，最大值是多少？",
+    "answer": 13,
+    "hint": "從最小值到最大值跨過兩倍振幅。"
   }
 ]

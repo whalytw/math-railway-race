@@ -1,7 +1,6 @@
 import { clamp, lerp, MAX_GRADE, MIN_VERTICAL_RADIUS, routeFromPolyline, seedNumber } from './core.js?v=13.0.0';
 
 export const STRAIGHT_LENGTHS = [3, 4, 5, 6, 7, 8, 9, 10];
-export const RUNOUT = 180; // 120 km/h brakes to rest in at most 167 metres.
 const LANE_GAP = 24;
 const HALF_DEPTH = 580;
 const SAMPLES = 4096;
@@ -66,17 +65,11 @@ export function createStraightRoute(length, seed, options = {}) {
     const lane = routeFromPolyline(points, distances, length, squareSize, {
       range: Math.max(...points.map(point => point.y)) - Math.min(...points.map(point => point.y)), requested: limit,
     }, { closed: false });
-    const sample = lane.sample;
-    lane.sample = (distance, out) => {
-      const p = sample(distance, out);
-      if (distance > length) p.x += Math.min(RUNOUT, distance - length);
-      return p;
-    };
     return lane;
   });
   function nearestOnTurn(lane, x, z, maxDistance = 100, out = {}) {
     const { points, distances } = lanes[lane];
-    const longitudinal = clamp(x, startX, -startX + RUNOUT);
+    const longitudinal = clamp(x, startX, -startX);
     const position = (Math.min(longitudinal, -startX) - startX) / horizontalLength * SAMPLES;
     const i = Math.min(SAMPLES - 1, Math.floor(position)), f = position - i;
     const a = points[i], b = points[i + 1];
@@ -99,9 +92,10 @@ export function createStraightRoute(length, seed, options = {}) {
   };
 }
 
-export function straightStations(route, count) {
+export function straightStations(route, count, finish = route.length) {
   return Array.from({ length: count }, (_, index) => {
-    const distance = route.length * index / (count - 1);
+    // Keep the final platform and its canopy clear of the arch and cheering area.
+    const distance = index === count - 1 && finish < route.length ? finish + 48 : finish * index / (count - 1);
     const name = index === 0 ? '起點站' : index === count - 1 ? '終點站' : '林野站';
     const passes = route.lanes.map((lane, turnIndex) => ({ index, name, distance, turnIndex, ...lane.sample(distance) }));
     return { ...passes.at(-1), passes };

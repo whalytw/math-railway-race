@@ -98,7 +98,8 @@ export async function planScenery(world, onProgress = () => {}) {
     const clearance = Math.max(7 + radius, (info.minimumRailOffset || 0) * scale + 2);
     const nearest = route.nearestTo(x, z, Math.max(115, clearance + 1));
     if (nearest.distance < clearance) return null;
-    if (world.stationPasses.some(s => Math.hypot(x - s.x, z - s.z) < 23 + radius)) return null;
+    if (world.stationPasses.some(s => Math.hypot(x - s.x, z - s.z) < 23 + radius)
+      || world.finishZones.some(s => Math.hypot(x - s.x, z - s.z) < 18 + radius)) return null;
     if (!options.water && world.lakeRadiusAt(x, z) < (lake?.radius || 0) + radius + 3) return null;
     if (features.bridge) {
       const b = bridgeCoordinates(features.bridge, x, z), river = features.bridge.river;

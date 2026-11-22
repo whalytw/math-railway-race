@@ -214,5 +214,437 @@
     "prompt": "f(x) = 2x − 6，求 f⁻¹(8)。",
     "answer": 7,
     "hint": "解 2x − n = 題目的輸出值。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 8 − x，f(1) 是多少？",
+    "answer": 7,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 3 − x，f(2) 是多少？",
+    "answer": 1,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 2 − x，f(4) 是多少？",
+    "answer": -2,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 5 − x，f(1) 是多少？",
+    "answer": 4,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 4 − x，f(1) 是多少？",
+    "answer": 3,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 6 − x，f(2) 是多少？",
+    "answer": 4,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 8 − x，f(2) 是多少？",
+    "answer": 6,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 1 − x，f(3) 是多少？",
+    "answer": -2,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 7 − x，f(3) 是多少？",
+    "answer": 4,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 3 − x，f(1) 是多少？",
+    "answer": 2,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 8 − x，f(3) 是多少？",
+    "answer": 5,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 4 − x，f(2) 是多少？",
+    "answer": 2,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 3 − x，f(4) 是多少？",
+    "answer": -1,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 5 − x，f(2) 是多少？",
+    "answer": 3,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 4 − x，f(3) 是多少？",
+    "answer": 1,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 2 − x，f(3) 是多少？",
+    "answer": -1,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 8 − x，f(4) 是多少？",
+    "answer": 4,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 6 − x，f(1) 是多少？",
+    "answer": 5,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 4 − x，f(4) 是多少？",
+    "answer": 0,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 1 − x，f(1) 是多少？",
+    "answer": 0,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 1 − x，f(2) 是多少？",
+    "answer": -1,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 5 − x，f(3) 是多少？",
+    "answer": 2,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 3 − x，f(3) 是多少？",
+    "answer": 0,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 1,
+    "prompt": "f(x) = 5 − x，f(4) 是多少？",
+    "answer": 1,
+    "hint": "把 x 換成指定的數。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 5，若 f(a) = 1，a 是多少？",
+    "answer": 3,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 5，若 f(a) = -3，a 是多少？",
+    "answer": 1,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 4，若 f(a) = 0，a 是多少？",
+    "answer": 2,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 2，若 f(a) = 0，a 是多少？",
+    "answer": 1,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 8，若 f(a) = -6，a 是多少？",
+    "answer": 1,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 3，若 f(a) = 3，a 是多少？",
+    "answer": 3,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 2，若 f(a) = 2，a 是多少？",
+    "answer": 2,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 6，若 f(a) = -2，a 是多少？",
+    "answer": 2,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 1，若 f(a) = 1，a 是多少？",
+    "answer": 1,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 6，若 f(a) = 2，a 是多少？",
+    "answer": 4,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 2，若 f(a) = 4，a 是多少？",
+    "answer": 3,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 5，若 f(a) = 3，a 是多少？",
+    "answer": 4,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 4，若 f(a) = 2，a 是多少？",
+    "answer": 3,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 6，若 f(a) = 0，a 是多少？",
+    "answer": 3,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 3，若 f(a) = -1，a 是多少？",
+    "answer": 1,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 8，若 f(a) = -4，a 是多少？",
+    "answer": 2,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 3，若 f(a) = 1，a 是多少？",
+    "answer": 2,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 1，若 f(a) = 3，a 是多少？",
+    "answer": 2,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 7，若 f(a) = -5，a 是多少？",
+    "answer": 1,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 8，若 f(a) = -2，a 是多少？",
+    "answer": 3,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 1，若 f(a) = 7，a 是多少？",
+    "answer": 4,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 7，若 f(a) = 1，a 是多少？",
+    "answer": 4,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 4，若 f(a) = -2，a 是多少？",
+    "answer": 1,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 2,
+    "prompt": "f(x) = 2x − 3，若 f(a) = 5，a 是多少？",
+    "answer": 4,
+    "hint": "移項後除以 2。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 8，g(x) = 2x + 3。求 f(g(2))。",
+    "answer": -1,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 1，g(x) = 2x + 4。求 f(g(2))。",
+    "answer": 7,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 8，g(x) = 2x + 1。求 f(g(2))。",
+    "answer": -3,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 8，g(x) = 2x + 2。求 f(g(2))。",
+    "answer": -2,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 5，g(x) = 2x + 1。求 f(g(2))。",
+    "answer": 0,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 2，g(x) = 2x + 4。求 f(g(2))。",
+    "answer": 6,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 2，g(x) = 2x + 3。求 f(g(2))。",
+    "answer": 5,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 4，g(x) = 2x + 2。求 f(g(2))。",
+    "answer": 2,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 6，g(x) = 2x + 4。求 f(g(2))。",
+    "answer": 2,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 7，g(x) = 2x + 3。求 f(g(2))。",
+    "answer": 0,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 6，g(x) = 2x + 2。求 f(g(2))。",
+    "answer": 0,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 3，g(x) = 2x + 1。求 f(g(2))。",
+    "answer": 2,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 1，g(x) = 2x + 1。求 f(g(2))。",
+    "answer": 4,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 2，g(x) = 2x + 1。求 f(g(2))。",
+    "answer": 3,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 5，g(x) = 2x + 4。求 f(g(2))。",
+    "answer": 3,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 4，g(x) = 2x + 1。求 f(g(2))。",
+    "answer": 1,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 3，g(x) = 2x + 4。求 f(g(2))。",
+    "answer": 5,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 7，g(x) = 2x + 4。求 f(g(2))。",
+    "answer": 1,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 7，g(x) = 2x + 2。求 f(g(2))。",
+    "answer": -1,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 4，g(x) = 2x + 4。求 f(g(2))。",
+    "answer": 4,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 4，g(x) = 2x + 3。求 f(g(2))。",
+    "answer": 3,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 2，g(x) = 2x + 2。求 f(g(2))。",
+    "answer": 4,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 3，g(x) = 2x + 2。求 f(g(2))。",
+    "answer": 3,
+    "hint": "先算內層的 g(2)，再套用 f。"
+  },
+  {
+    "level": 3,
+    "prompt": "f(x) = x − 5，g(x) = 2x + 3。求 f(g(2))。",
+    "answer": 2,
+    "hint": "先算內層的 g(2)，再套用 f。"
   }
 ]

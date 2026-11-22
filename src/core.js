@@ -81,7 +81,7 @@ export function createElevationProfile(length, limit = 0, stations = 3, count = 
 
 // One shared THREE-DIMENSIONAL arc-length table for visible rails and driving.
 export function createRoute(lengthMetres, seed = 1, samples = 8192, options = {}) {
-  if (!(lengthMetres >= 5000 && lengthMetres <= 15000)) throw new Error('軌道長度必須為 5–15 公里。');
+  if (!(lengthMetres >= 4000 && lengthMetres <= 15000)) throw new Error('軌道長度必須為 4–15 公里。');
   const random = randomGenerator(seed);
   const phase = random() * TAU;
   const phase2 = random() * TAU;

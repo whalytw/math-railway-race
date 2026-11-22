@@ -214,5 +214,437 @@
     "prompt": "已知 log₃ A = 6。log₃(A²/3) 是多少？",
     "answer": 11,
     "hint": "平方讓對數加倍，除以 3 再減去 1。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 8、log₂ B = 3，log₂(AB) 是多少？",
+    "answer": 11,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 8、log₂ B = 2，log₂(AB) 是多少？",
+    "answer": 10,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 7、log₂ B = 1，log₂(AB) 是多少？",
+    "answer": 8,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 2、log₂ B = 2，log₂(AB) 是多少？",
+    "answer": 4,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 5、log₂ B = 3，log₂(AB) 是多少？",
+    "answer": 8,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 7、log₂ B = 3，log₂(AB) 是多少？",
+    "answer": 10,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 6、log₂ B = 3，log₂(AB) 是多少？",
+    "answer": 9,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 6、log₂ B = 4，log₂(AB) 是多少？",
+    "answer": 10,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 1、log₂ B = 3，log₂(AB) 是多少？",
+    "answer": 4,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 4、log₂ B = 1，log₂(AB) 是多少？",
+    "answer": 5,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 4、log₂ B = 4，log₂(AB) 是多少？",
+    "answer": 8,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 8、log₂ B = 4，log₂(AB) 是多少？",
+    "answer": 12,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 5、log₂ B = 2，log₂(AB) 是多少？",
+    "answer": 7,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 7、log₂ B = 2，log₂(AB) 是多少？",
+    "answer": 9,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 2、log₂ B = 4，log₂(AB) 是多少？",
+    "answer": 6,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 4、log₂ B = 3，log₂(AB) 是多少？",
+    "answer": 7,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 2、log₂ B = 1，log₂(AB) 是多少？",
+    "answer": 3,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 1、log₂ B = 1，log₂(AB) 是多少？",
+    "answer": 2,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 5、log₂ B = 4，log₂(AB) 是多少？",
+    "answer": 9,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 5、log₂ B = 1，log₂(AB) 是多少？",
+    "answer": 6,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 8、log₂ B = 1，log₂(AB) 是多少？",
+    "answer": 9,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 6、log₂ B = 1，log₂(AB) 是多少？",
+    "answer": 7,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 1、log₂ B = 2，log₂(AB) 是多少？",
+    "answer": 3,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 1,
+    "prompt": "log₂ A = 1、log₂ B = 4，log₂(AB) 是多少？",
+    "answer": 5,
+    "hint": "乘積的對數可拆成加法。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 3、log₃ B = 4，log₃(B/A) 是多少？",
+    "answer": 1,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 5、log₃ B = 4，log₃(B/A) 是多少？",
+    "answer": -1,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 6、log₃ B = 3，log₃(B/A) 是多少？",
+    "answer": -3,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 5、log₃ B = 3，log₃(B/A) 是多少？",
+    "answer": -2,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 1、log₃ B = 3，log₃(B/A) 是多少？",
+    "answer": 2,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 2、log₃ B = 4，log₃(B/A) 是多少？",
+    "answer": 2,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 5、log₃ B = 1，log₃(B/A) 是多少？",
+    "answer": -4,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 6、log₃ B = 4，log₃(B/A) 是多少？",
+    "answer": -2,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 7、log₃ B = 2，log₃(B/A) 是多少？",
+    "answer": -5,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 6、log₃ B = 1，log₃(B/A) 是多少？",
+    "answer": -5,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 7、log₃ B = 1，log₃(B/A) 是多少？",
+    "answer": -6,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 2、log₃ B = 1，log₃(B/A) 是多少？",
+    "answer": -1,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 2、log₃ B = 3，log₃(B/A) 是多少？",
+    "answer": 1,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 1、log₃ B = 4，log₃(B/A) 是多少？",
+    "answer": 3,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 8、log₃ B = 1，log₃(B/A) 是多少？",
+    "answer": -7,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 8、log₃ B = 4，log₃(B/A) 是多少？",
+    "answer": -4,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 6、log₃ B = 2，log₃(B/A) 是多少？",
+    "answer": -4,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 3、log₃ B = 1，log₃(B/A) 是多少？",
+    "answer": -2,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 8、log₃ B = 3，log₃(B/A) 是多少？",
+    "answer": -5,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 8、log₃ B = 2，log₃(B/A) 是多少？",
+    "answer": -6,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 1、log₃ B = 2，log₃(B/A) 是多少？",
+    "answer": 1,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 5、log₃ B = 2，log₃(B/A) 是多少？",
+    "answer": -3,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 1、log₃ B = 1，log₃(B/A) 是多少？",
+    "answer": 0,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 2,
+    "prompt": "log₃ A = 3、log₃ B = 2，log₃(B/A) 是多少？",
+    "answer": -1,
+    "hint": "分子的對數減分母的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 6、log₂ B = 2，log₂(A²B) 是多少？",
+    "answer": 14,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 2、log₂ B = 3，log₂(A²B) 是多少？",
+    "answer": 7,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 4、log₂ B = 2，log₂(A²B) 是多少？",
+    "answer": 10,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 8、log₂ B = 3，log₂(A²B) 是多少？",
+    "answer": 19,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 4、log₂ B = 3，log₂(A²B) 是多少？",
+    "answer": 11,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 3、log₂ B = 1，log₂(A²B) 是多少？",
+    "answer": 7,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 3、log₂ B = 4，log₂(A²B) 是多少？",
+    "answer": 10,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 2、log₂ B = 1，log₂(A²B) 是多少？",
+    "answer": 5,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 5、log₂ B = 2，log₂(A²B) 是多少？",
+    "answer": 12,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 6、log₂ B = 1，log₂(A²B) 是多少？",
+    "answer": 13,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 1、log₂ B = 3，log₂(A²B) 是多少？",
+    "answer": 5,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 8、log₂ B = 1，log₂(A²B) 是多少？",
+    "answer": 17,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 7、log₂ B = 2，log₂(A²B) 是多少？",
+    "answer": 16,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 3、log₂ B = 3，log₂(A²B) 是多少？",
+    "answer": 9,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 2、log₂ B = 2，log₂(A²B) 是多少？",
+    "answer": 6,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 8、log₂ B = 2，log₂(A²B) 是多少？",
+    "answer": 18,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 6、log₂ B = 3，log₂(A²B) 是多少？",
+    "answer": 15,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 8、log₂ B = 4，log₂(A²B) 是多少？",
+    "answer": 20,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 7、log₂ B = 3，log₂(A²B) 是多少？",
+    "answer": 17,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 1、log₂ B = 1，log₂(A²B) 是多少？",
+    "answer": 3,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 4、log₂ B = 4，log₂(A²B) 是多少？",
+    "answer": 12,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 1、log₂ B = 2，log₂(A²B) 是多少？",
+    "answer": 4,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 4、log₂ B = 1，log₂(A²B) 是多少？",
+    "answer": 9,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
+  },
+  {
+    "level": 3,
+    "prompt": "log₂ A = 2、log₂ B = 4，log₂(A²B) 是多少？",
+    "answer": 8,
+    "hint": "平方變成兩倍，再加上 B 的對數。"
   }
 ]

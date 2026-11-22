@@ -1,8 +1,25 @@
 import * as THREE from 'three';
 import { randomGenerator } from './core.js?v=13.0.0';
 
+export const GOAL_ARCH = 'Environment_Desert_SandstoneArch9m_001';
+
+export function buildGoals(world) {
+  return world.carts.map(rig => {
+    const goal = rig.track.sample(rig.departure + rig.raceLength);
+    const arch = world.store.get(GOAL_ARCH).root.clone(true);
+    arch.name = 'GoalArch';
+    arch.position.set(goal.x, goal.y, goal.z);
+    arch.rotation.y = goal.yaw;
+    arch.scale.set(1.12, 1.18, 1);
+    const sign = world.makeLabel('GOAL', world.carts.length === 1 ? '終 點' : ['一號車終點', '二號車終點', '三號車終點'][rig.laneIndex]);
+    sign.position.set(0, 4.85, 0); sign.scale.set(5, 1.6, 1);
+    arch.add(sign); world.group.add(arch);
+    return {...goal, finish: true};
+  });
+}
+
 // Each station submits one batch of coloured cubes. A single clock drives all jumps.
-export function buildFans(world) {
+export function buildFans(world, goals) {
   const random = randomGenerator(world.config.seed + ':station-fans');
   const material = new THREE.MeshLambertMaterial();
   world.ownedMaterials.push(material);
@@ -19,17 +36,26 @@ export function buildFans(world) {
   };
   const coats = ['#f6eee1','#b78154','#efb076','#c3ad96','#f7d788'];
   const local = new THREE.Object3D(), pose = new THREE.Object3D();
-  for (const station of world.stations) {
+  for (const station of [...world.stations, ...goals]) {
     const blocks = [], phases = [];
     const count = 13 + Math.floor(random() * 4);
     const passes = station.passes ?? [station];
     for (let i = 0; i < count; i++) {
-      const pass = passes[i % (world.route.lanes ? 2 : passes.length)];
-      const side = world.route.lanes ? 1 : i % 2 ? -1 : 1;
-      const along = (i % 2 ? -1 : 1) * (18 + (i >> 1) * 2.4 + random() * 1.5);
-      const offset = (8 + random() * 7) * side;
-      const x = pass.x + pass.tx * along + pass.nx * offset;
-      const z = pass.z + pass.tz * along + pass.nz * offset;
+      const pass = passes[i % passes.length];
+      const side = world.route.lanes && !station.finish ? 1 : i % 2 ? -1 : 1;
+      const along = station.finish ? (Math.floor(i / 2) - 3) * 2.5 + random() : (i % 2 ? -1 : 1) * (18 + (i >> 1) * 2.4 + random() * 1.5);
+      const offset = (station.finish ? 6 + random() * 2 : 8 + random() * 7) * side;
+      let x = pass.x + pass.tx * along + pass.nx * offset;
+      let z = pass.z + pass.tz * along + pass.nz * offset;
+      if (station.finish) {
+        // A second track can run beside the finish or cross it diagonally.
+        for (let attempt = 0; attempt < 24 && world.route.distanceTo(x,z,10) < 3; attempt++) {
+          const lateral = (attempt % 2 ? -1 : 1) * (5 + random() * 9);
+          const forward = along + (random() - .5) * 14;
+          x = pass.x + pass.tx * forward + pass.nx * lateral;
+          z = pass.z + pass.tz * forward + pass.nz * lateral;
+        }
+      }
       if (world.route.distanceTo(x,z,10) < 3) continue;
       pose.position.set(x,world.groundHeight(x,z)+.03,z);
       pose.rotation.y = Math.atan2(-pass.nx * side,-pass.nz * side) + (random()-.5)*.6;
@@ -55,7 +81,7 @@ export function buildFans(world) {
     world.ownedGeometry.push(geometry);
     const mesh = new THREE.InstancedMesh(geometry,material,blocks.length);
     blocks.forEach(({matrix,color},i) => {mesh.setMatrixAt(i,matrix);mesh.setColorAt(i,new THREE.Color(color));});
-    mesh.name='StationFans'; mesh.computeBoundingSphere(); mesh.boundingSphere.radius+=.5;
+    mesh.name=station.finish ? 'GoalFans' : 'StationFans'; mesh.computeBoundingSphere(); mesh.boundingSphere.radius+=.5;
     world.group.add(mesh);
   }
 }

@@ -6,10 +6,10 @@ const json=async f=>JSON.parse(await readFile(new URL('../question-bank/'+f+'.js
 const books=await json('books'), pool=await json('number');
 const newLane=i=>new QuizLane([{label:'數與數線',questions:pool}],45,DEFAULT_CAPS,i);
 const run=(lane,seconds,length=5000)=>{for(let i=0;i<Math.round(seconds*120);i++)lane.tick(1/120,length);};
-test('all 42 book units offer at least twelve distinct prompts at each level',async()=>{
+test('all 42 book units offer at least 36 distinct prompts at each level',async()=>{
   assert.equal(books.flatMap(b=>b.units).length,42);
   for(const unit of books.flatMap(b=>b.units)){const rows=await json(unit.topic);
-    for(const level of [1,2,3]){const items=rows.filter(q=>q.level===level);assert.ok(new Set(items.map(q=>q.prompt)).size>=12);assert.ok(items.every(q=>Number.isFinite(q.answer)&&q.hint));}}
+    for(const level of [1,2,3]){const items=rows.filter(q=>q.level===level);assert.ok(new Set(items.map(q=>q.prompt)).size>=36);assert.ok(items.every(q=>Number.isFinite(q.answer)&&q.hint));}}
 });
 test('three independent lanes, timed queue, tier speeds and feedback',()=>{
  const lanes=[0,1,2].map(newLane);lanes.forEach(l=>run(l,8));
@@ -31,6 +31,9 @@ test('next question follows each rider’s streak and timeout resets it', () => 
   for (const level of [1,2,3,3]) {
     lane.settle(lane.question.answer); lane.next();
     assert.equal(lane.question.level,level);
+    assert.equal(lane.options.length,level+3);
+    assert.equal(new Set(lane.options).size,lane.options.length);
+    assert.ok(lane.options.includes(lane.question.answer));
     assert.equal(other.question.level,1);
   }
   lane.settle(lane.question.answer + 1); lane.next();

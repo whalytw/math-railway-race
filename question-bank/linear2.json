@@ -214,5 +214,437 @@
     "prompt": "2x + y = 14，x + 2y = 10，求 x + y。",
     "answer": 8,
     "hint": "將兩式相加後兩邊同除以 3。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 4，x + y = 8，求 y。",
+    "answer": 4,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 5，x + y = 7，求 y。",
+    "answer": 2,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 5，x + y = 8，求 y。",
+    "answer": 3,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 4，x + y = 5，求 y。",
+    "answer": 1,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 1，x + y = 4，求 y。",
+    "answer": 3,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 2，x + y = 3，求 y。",
+    "answer": 1,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 4，x + y = 7，求 y。",
+    "answer": 3,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 3，x + y = 5，求 y。",
+    "answer": 2,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 8，x + y = 12，求 y。",
+    "answer": 4,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 4，x + y = 6，求 y。",
+    "answer": 2,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 3，x + y = 4，求 y。",
+    "answer": 1,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 5，x + y = 9，求 y。",
+    "answer": 4,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 1，x + y = 5，求 y。",
+    "answer": 4,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 6，x + y = 7，求 y。",
+    "answer": 1,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 1，x + y = 3，求 y。",
+    "answer": 2,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 3，x + y = 7，求 y。",
+    "answer": 4,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 5，x + y = 6，求 y。",
+    "answer": 1,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 2，x + y = 6，求 y。",
+    "answer": 4,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 7，x + y = 9，求 y。",
+    "answer": 2,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 6，x + y = 10，求 y。",
+    "answer": 4,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 7，x + y = 8，求 y。",
+    "answer": 1,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 1，x + y = 2，求 y。",
+    "answer": 1,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 6，x + y = 8，求 y。",
+    "answer": 2,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 1,
+    "prompt": "x = 3，x + y = 6，求 y。",
+    "answer": 3,
+    "hint": "把已知的 x 代入第二式。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 11，y − x = -3，求 y。",
+    "answer": 4,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 5，y − x = -1，求 y。",
+    "answer": 2,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 5，y − x = 1，求 y。",
+    "answer": 3,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 8，y − x = -6，求 y。",
+    "answer": 1,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 3，y − x = 1，求 y。",
+    "answer": 2,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 9，y − x = -5，求 y。",
+    "answer": 2,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 5，y − x = -3，求 y。",
+    "answer": 1,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 11，y − x = -5，求 y。",
+    "answer": 3,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 4，y − x = 0，求 y。",
+    "answer": 2,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 7，y − x = -1，求 y。",
+    "answer": 3,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 9，y − x = -3，求 y。",
+    "answer": 3,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 7，y − x = 1，求 y。",
+    "answer": 4,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 10，y − x = -4，求 y。",
+    "answer": 3,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 6，y − x = -4，求 y。",
+    "answer": 1,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 7，y − x = -3，求 y。",
+    "answer": 2,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 10，y − x = -2，求 y。",
+    "answer": 4,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 3，y − x = -1，求 y。",
+    "answer": 1,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 8，y − x = -4，求 y。",
+    "answer": 2,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 8，y − x = -2，求 y。",
+    "answer": 3,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 6，y − x = 0，求 y。",
+    "answer": 3,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 4，y − x = 2，求 y。",
+    "answer": 3,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 9，y − x = -7，求 y。",
+    "answer": 1,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 4，y − x = -2，求 y。",
+    "answer": 1,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 2,
+    "prompt": "x + y = 6，y − x = -2，求 y。",
+    "answer": 2,
+    "hint": "兩式相加消去 x。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 1，x + 2y = 4，求 x。",
+    "answer": 2,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 4，x + 2y = 10，求 x。",
+    "answer": 6,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = -1，x + 2y = 8，求 x。",
+    "answer": 2,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 2，x + 2y = 11，求 x。",
+    "answer": 5,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 2，x + 2y = 5，求 x。",
+    "answer": 3,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 0，x + 2y = 6，求 x。",
+    "answer": 2,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 5，x + 2y = 8，求 x。",
+    "answer": 6,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 6，x + 2y = 12，求 x。",
+    "answer": 8,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = -1，x + 2y = 5，求 x。",
+    "answer": 1,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 5，x + 2y = 11，求 x。",
+    "answer": 7,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 0，x + 2y = 9，求 x。",
+    "answer": 3,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 7，x + 2y = 10，求 x。",
+    "answer": 8,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 2，x + 2y = 14，求 x。",
+    "answer": 6,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = -3，x + 2y = 9，求 x。",
+    "answer": 1,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 6，x + 2y = 9，求 x。",
+    "answer": 7,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 5，x + 2y = 14，求 x。",
+    "answer": 8,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 1，x + 2y = 7，求 x。",
+    "answer": 3,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = -2，x + 2y = 7，求 x。",
+    "answer": 1,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 4，x + 2y = 13，求 x。",
+    "answer": 7,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 3，x + 2y = 6，求 x。",
+    "answer": 4,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 2，x + 2y = 8，求 x。",
+    "answer": 4,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 3，x + 2y = 9，求 x。",
+    "answer": 5,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 1，x + 2y = 10，求 x。",
+    "answer": 4,
+    "hint": "第二式減第一式可先求 y，再代回。"
+  },
+  {
+    "level": 3,
+    "prompt": "x − y = 3，x + 2y = 12，求 x。",
+    "answer": 6,
+    "hint": "第二式減第一式可先求 y，再代回。"
   }
 ]
