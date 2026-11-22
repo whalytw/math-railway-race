@@ -1,4 +1,15 @@
-const tracks = ['morning-rails', 'quarry-shuffle', 'ridge-run'];
+const tracks = new Map([
+  ["racing-game-menu", "Racing Game Menu"],
+  ["super-wreck-roadway", "Super Wreck Roadway"],
+  ["hyper-ultra-racing", "Hyper Ultra-Racing"],
+  ["hyperflight-racing", "Hyperflight Racing"],
+  ["tech-rave-faster", "Tech Rave (Faster)"],
+  ["determined-pursuit", "Determined Pursuit"],
+  ["battle-rpg-theme", "Battle RPG Theme"],
+  ["8bit-miniboss-battle", "8bit Action Miniboss Battle"],
+  ["8bit-boss-climax", "8bit Action Boss Battle (Climax)"],
+  ["retro-level-3", "Retro Game Music Pack · Level 3"],
+]);
 const effects = {
   correct: {file: 'correct', gain: 1},
   wrong: {file: 'wrong', gain: 0.82},
@@ -6,7 +17,7 @@ const effects = {
   depart: {file: 'depart', gain: 0.72},
   finish: {file: 'finish', gain: 0.85},
 };
-const settingsKey = 'math-railway-audio-v1';
+const settingsKey = 'math-railway-audio-v2';
 const $ = id => document.getElementById(id);
 
 let context, musicGain, effectsGain, masterGain;
@@ -15,15 +26,21 @@ const samples = new Map();
 const voices = new Set();
 
 export function setupRaceAudio() {
-  let saved;
-  try { saved = JSON.parse(localStorage.getItem(settingsKey)); } catch {}
+  let saved, preferredTrack;
+  try {
+    const current = localStorage.getItem(settingsKey);
+    saved = JSON.parse(current || localStorage.getItem('math-railway-audio-v1'));
+    if (current) preferredTrack = saved?.track;
+  } catch {}
   const volume = (value, fallback) => Number.isFinite(value) ? Math.min(100, Math.max(0, value)) : fallback;
   settings = {
-    track: ['random', 'off', ...tracks].includes(saved?.track) ? saved.track : 'random',
+    track: preferredTrack === 'random' || tracks.has(preferredTrack) ? preferredTrack : 'off',
     music: volume(saved?.music, 32),
     effects: volume(saved?.effects, 68),
   };
-  $('audio-track').value = settings.track;
+  const musicSelect = $('audio-track');
+  musicSelect.append(...Array.from(tracks, ([id, title]) => new Option(title, id)));
+  musicSelect.value = settings.track;
   $('audio-music').value = settings.music;
   $('audio-effects').value = settings.effects;
 
@@ -58,7 +75,7 @@ function syncGains() {
 }
 
 async function decode(file) {
-  const response = await fetch('./assets/audio/' + file + '?v=18');
+  const response = await fetch('./assets/audio/' + file + '?v=19');
   if (!response.ok) throw new Error('Audio asset unavailable: ' + file);
   return context.decodeAudioData(await response.arrayBuffer());
 }
@@ -99,7 +116,7 @@ export async function startRaceAudio() {
   if (settings.track === 'off' || !settings.music) return;
   let track = settings.track;
   if (track === 'random') {
-    const candidates = tracks.filter(candidate => candidate !== lastTrack);
+    const candidates = [...tracks.keys()].filter(candidate => candidate !== lastTrack);
     track = candidates[Math.floor(Math.random() * candidates.length)];
   }
   lastTrack = track;

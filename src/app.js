@@ -1,6 +1,6 @@
-import {setupQuestions, startQuestions, drawQuestions, stopQuizEffects} from './quiz-ui.js?v=18';
-import {shakeAnswerCamera} from './answer-effects.js?v=18';
-import {setupRaceAudio, prepareRaceAudio, startRaceAudio, playRaceSound, pauseRaceAudio, stopRaceAudio} from './race-audio.js?v=18';
+import {setupQuestions, startQuestions, drawQuestions, stopQuizEffects} from './quiz-ui.js?v=19';
+import {shakeAnswerCamera} from './answer-effects.js?v=19';
+import {setupRaceAudio, prepareRaceAudio, startRaceAudio, playRaceSound, pauseRaceAudio, stopRaceAudio} from './race-audio.js?v=19';
 import { COAST_SECONDS } from './quiz-race.js?v=18';
 import * as THREE from 'three';
 import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=17';
@@ -16,6 +16,7 @@ import { FLYOVER_RAIL_SEPARATION, turnIndexAt } from './circuit-route.js?v=13.0.
 import { checkRaceBoundary, raceStandings } from './straight-race.js?v=13.0.0';
 
 const $ = id => document.getElementById(id);
+const GAME_VERSION = '19.0.0';
 let renderer, scene, camera, atmosphere, manifest, store, world;
 let mode = 'loading', physics = createPhysics(), cameraMode = 'chase', buildEpoch = 0;
 let accumulator = 0, lastTime = 0, hudElapsed = 0, visibilityElapsed = 0, titleTime = 0;
@@ -36,6 +37,15 @@ const biomeNames = ['Forest', 'Hills', 'Pastoral', 'Desert', 'Rural', 'Lakeside'
 const cartLabels = ['左車', '中車', '右車'], cartColours = ['#83d6e5', '#ffc487', '#f1a8a0'];
 const percentFormat = new Intl.NumberFormat('zh-TW', { maximumFractionDigits: 1 });
 const fleetFields = [], randomFleetDrivers = [];
+const preferencesKey = 'rail-loop-lab:preferences:v19';
+const previousGraphicsDefaults = {
+  density: '2000',
+  'view-distance': '550',
+  resolution: '1',
+  shadows: 'off',
+  'scenery-shadows': 'off',
+  'shadow-quality': 'near',
+};
 const mixLabel = row => `${manifest.biomes[row.biome].name} ${percentFormat.format(row.percent)}%`;
 const mainPass = { calls: 0, triangles: 0 }, shadowPass = { drawCalls: 0, triangles: 0, maps: 0 };
 const viewShadow = { drawCalls: 0, triangles: 0 };
@@ -224,12 +234,18 @@ function savePreferences() {
     const values = {};
     for (const id of ['route-mode', 'race-length', 'track-turns', 'station-count', 'elevation-limit', 'density', 'view-distance', 'resolution', 'shadows', 'scenery-shadows', 'shadow-quality', 'features', 'skyline', 'sleeper-filter', 'sleeper-spacing', 'seed', 'driver-select']) values[id] = $(id).value;
     for (const { vehicle, driver } of fleetFields) { values[vehicle.id] = vehicle.value; values[driver.id] = driver.value; }
-    values.vehicle = selectedVehicle(); values.biomeMix = mixControls.value(); localStorage.setItem('rail-loop-lab:preferences:v13', JSON.stringify(values));
+    values.vehicle = selectedVehicle(); values.biomeMix = mixControls.value(); localStorage.setItem(preferencesKey, JSON.stringify(values));
   } catch { /* Private browsing may disable local storage. */ }
 }
 function restorePreferences() {
   try {
-    const values = JSON.parse(localStorage.getItem('rail-loop-lab:preferences:v13') || localStorage.getItem('rail-loop-lab:preferences:v11') || localStorage.getItem('rail-loop-lab:preferences:v10') || localStorage.getItem('rail-loop-lab:preferences:v8') || '{}');
+    const current = localStorage.getItem(preferencesKey);
+    const values = JSON.parse(current || localStorage.getItem('rail-loop-lab:preferences:v13') ||
+      localStorage.getItem('rail-loop-lab:preferences:v11') || localStorage.getItem('rail-loop-lab:preferences:v10') ||
+      localStorage.getItem('rail-loop-lab:preferences:v8') || '{}');
+    if (!current && Object.entries(previousGraphicsDefaults).every(([id, value]) => values[id] === value)) {
+      for (const id of Object.keys(previousGraphicsDefaults)) delete values[id];
+    }
     for (const [id, value] of Object.entries(values)) {
       if (id === 'biomeMix') mixControls.set(value);
       else if (id === 'vehicle') { const input = [...document.querySelectorAll('input[name="vehicle"]')].find(el => el.value === value); if (input) input.checked = true; }
@@ -241,7 +257,7 @@ function populateForm() {
   $('density').replaceChildren(...DENSITY_OPTIONS.map(count => {
     const option = document.createElement('option'); option.value = String(count);
     const label = count === 1000 ? '入門' : count <= 3500 ? '輕量' : count <= 5000 ? '中量' : count <= 10000 ? '標準' : count <= 16000 ? '進階' : count <= 30000 ? '加壓' : '極限';
-    option.textContent = `${label} · ${count.toLocaleString()}`; option.selected = count === 2000; return option;
+    option.textContent = `${label} · ${count.toLocaleString()}`; option.selected = count === DENSITY_OPTIONS[0]; return option;
   }));
   mixControls = new MixControls($('mix-slots'), Object.fromEntries(biomeNames.map(id=>[id,manifest.biomes[id]])), schedulePreview);
   for (let km = 3; km <= 7; km++) {
@@ -323,8 +339,8 @@ function previewConfig() {
   const selection = chooseFleet() ? selectedFleet()[1] : { vehicle: selectedVehicle(), driver: titleDriverId(), driverChoice: selectedDriverChoice() };
   return { biomeMix, biomeA: biomeMix[0].biome, biomeB: biomeMix[1]?.biome || biomeMix[0].biome, ...courseSettings(),
     stations: Number($('station-count').value), elevationLimit: Number($('elevation-limit').value),
-    ...selection, density: 2000,
-    features: $('features').value === 'on', skyline: $('skyline').value === 'on', sleeperFilter: true, sleeperSpacing: 0.75, viewDistance: 450, resolution: 1, shadows: false, sceneryShadows: false, seed: $('seed').value.trim() || 'LOOP-PREVIEW' };
+    ...selection, density: DENSITY_OPTIONS[0],
+    features: $('features').value === 'on', skyline: $('skyline').value === 'on', sleeperFilter: true, sleeperSpacing: 0.75, viewDistance: 300, resolution: 0.75, shadows: false, sceneryShadows: false, seed: $('seed').value.trim() || 'LOOP-PREVIEW' };
 }
 
 function updatePreviewCaption(config) {
@@ -841,7 +857,7 @@ function recordMetrics(dt) {
 function exportReport() {
   const samples = fpsHistory;
   const route = world.route, laneCount = route.lanes?.length ?? 0;
-  const report = { application: 'LOOP · 軌道試驗場', version: '14.0.0', threeVersion: THREE.REVISION, generatedAt: new Date().toISOString(),
+  const report = { application: 'LOOP · 軌道試驗場', version: GAME_VERSION, threeVersion: THREE.REVISION, generatedAt: new Date().toISOString(),
     settings: sessionConfig, actualTrackLengthMetres: route.length * (laneCount || 1), worldUnit: 'metre', elapsedSecondsIncludingCountdown: physics.elapsed,
     trackLayout: { mode: laneCount ? 'straight' : 'loop', lanes: laneCount || null, laneLengthMetres: laneCount ? route.length : null,
       turns: laneCount ? null : route.turns, turnStartsMetres: laneCount ? [] : route.turnStarts, crossings: route.crossings,
@@ -963,7 +979,7 @@ async function boot() {
 
 window.__LOOP_TEST__ = {
   snapshot: () => ({
-    mode, version: '18.0.0', physics: { ...physics }, renderMotion: { ...renderMotion },
+    mode, version: GAME_VERSION, physics: { ...physics }, renderMotion: { ...renderMotion },
     config: world?.config, biomes: world?.biomeReport, scenery: world?.sceneryStats, rapier: railPhysics?.diagnostics(), turboOn,
     cart: world?.cart?.position.toArray(),
     camera: camera ? { position: camera.position.toArray(), direction: camera.getWorldDirection(new THREE.Vector3()).toArray(),

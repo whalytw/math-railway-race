@@ -1,5 +1,5 @@
-import {clearAnswerEffects, showAnswerEffect} from './answer-effects.js?v=18';
-import {playRaceSound} from './race-audio.js?v=18';
+import {clearAnswerEffects, showAnswerEffect} from './answer-effects.js?v=19';
+import {playRaceSound} from './race-audio.js?v=19';
 import {DEFAULT_CAPS, QuizLane, shuffle} from './quiz-race.js?v=18';
 const $ = id => document.getElementById(id);
 const storageKey = 'math-railway-classroom-v1';
