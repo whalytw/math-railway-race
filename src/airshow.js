@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {clamp, GRAVITY, lerp, smoothstep, TAU} from './core.js?v=13.0.0';
-import {footprintMaximum} from './grounding.js?v=13.0.0';
-import {AircraftShadow} from './aircraft-shadow.js?v=23';
+import {footprintMaximum} from './grounding.js?v=24';
+import {AircraftShadow} from './aircraft-shadow.js?v=24';
 import {AirshowSmoke, SMOKE_LIFETIME} from './airshow-smoke.js?v=23';
 
 export const BIPLANE_ASSET = 'AirshowBiplane';

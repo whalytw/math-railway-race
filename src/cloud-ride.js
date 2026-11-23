@@ -2,26 +2,22 @@ import * as THREE from 'three';
 import {smoothstep} from './core.js?v=13.0.0';
 import {shuffle} from './quiz-race.js?v=23';
 import {createCloudRider} from './drivers.js?v=23';
-import {AircraftShadow} from './aircraft-shadow.js?v=23';
+import {AircraftShadow} from './aircraft-shadow.js?v=24';
 import {AirshowSmoke} from './airshow-smoke.js?v=23';
-import {CloudPath, CLOUD_FLIGHT_SECONDS, CLOUD_VISITS, chooseCloudManeuvers} from './cloud-path.js?v=23';
+import {CloudPath, cloudFlightDuration, chooseCloudManeuvers, MIN_CLOUD_FLIGHT_SECONDS} from './cloud-path.js?v=24';
+import {CLOUD_EVENTS, cloudLaunchDecision, cloudProgress} from './cloud-schedule.js?v=24';
 import {CloudStars, STAR_COUNT, STAR_DROP_SECONDS, starReleaseDelay} from './cloud-stars.js?v=23';
 
 export const CLOUD_ASSET = 'CloudPlatform';
-const EVENTS = [{progress: .25, duration: 3}, {progress: .50, duration: 5}, {progress: .70, duration: 7}];
 const SCALE = 2.48;
 
 export function pickCloudRiders(drivers, activeDrivers, random = Math.random) {
   const used = new Set(activeDrivers);
-  return shuffle(drivers.filter(id => !used.has(id)), random).slice(0, EVENTS.length);
+  return shuffle(drivers.filter(id => !used.has(id)), random).slice(0, CLOUD_EVENTS.length);
 }
 
 function makePose() {
   return {position: new THREE.Vector3(), rotation: new THREE.Quaternion(), yaw: 0};
-}
-
-function progress(view) {
-  return view.quiz.distance / view.rig.raceLength;
 }
 
 export class CloudRide {
@@ -32,6 +28,7 @@ export class CloudRide {
     this.riders = world.cloudRiders;
     this.roll = 0;
     this.next = 0;
+    this.plannedDuration = null;
     this.root = new THREE.Group();
     this.root.name = 'FlyingCloud';
     this.root.visible = false;
@@ -46,7 +43,7 @@ export class CloudRide {
     this.platformMaterials = this.bindMaterials(platform);
     const tail = new THREE.Vector3(0, this.deck * .50, bounds.min.z * SCALE * .86);
     this.smoke = new AirshowSmoke(world, [tail], {
-      lifetime: .56, spacing: .023, colors: ['#fffdf8'], sizes: [1.26, 3.25], opacity: .52, range: 47,
+      lifetime: 1.18, spacing: .027, colors: ['#fffdf8'], sizes: [1.18, 3.75], opacity: .51, range: 72,
     });
     this.smoke.mesh.name = 'CloudWhiteTrail';
     this.stars = new CloudStars(world);
@@ -81,7 +78,7 @@ export class CloudRide {
   }
 
   reset() {
-    this.next = 0; this.flight = null; this.burst = null;
+    this.next = 0; this.plannedDuration = null; this.flight = null; this.burst = null;
     this.hide();
     const stamp = ++this.roll;
     const riders = pickCloudRiders(this.world.store.manifest.drivers,
@@ -93,15 +90,16 @@ export class CloudRide {
     }).catch(() => {});
   }
 
-  start(views, seconds, event, riderId) {
+  start(views, seconds, event, riderId, duration) {
     const order = shuffle(views.filter(({quiz}) => quiz.finished === null), this.random)
-      .sort((a, b) => progress(a) - progress(b));
+      .sort((a, b) => cloudProgress(a) - cloudProgress(b));
     if (!order.length) return;
     const maneuvers = chooseCloudManeuvers(this.random);
     const side = this.random() < .5 ? -1 : 1;
-    const path = new CloudPath(this.world, order, maneuvers, side);
-    const gifts = [{at: CLOUD_VISITS[0], view: order[0], kmh: 10}];
-    if (order.length === 3 && this.random() < .60) gifts.push({at: CLOUD_VISITS[1], view: order[1], kmh: 5});
+    const path = new CloudPath(this.world, order, maneuvers, side, duration);
+    path.planClearance();
+    const gifts = [{at: path.visits[0], view: order[0], kmh: 10}];
+    if (order.length === 3 && this.random() < .60) gifts.push({at: path.visits[1], view: order[1], kmh: 5});
     if (this.rider) this.root.remove(this.rider);
     this.rider = riderId ? createCloudRider(this.world.store.get(riderId), this.deck) : null;
     this.activeMaterials = new Set(this.platformMaterials);
@@ -124,12 +122,23 @@ export class CloudRide {
       }
       this.burst = null;
     }
-    const event = EVENTS[this.next];
-    if (event && views.some(view => progress(view) >= event.progress)) {
-      const rider = this.riders[this.next++];
-      this.start(views, seconds, event, rider);
+    if (this.flight && seconds >= this.flight.startsAt + this.flight.path.duration + this.smoke.lifetime) {
+      this.flight = null;
+      this.hide();
     }
-    if (!this.flight) return rewarded;
+    if (!this.flight) {
+      const event = CLOUD_EVENTS[this.next];
+      if (!event) return rewarded;
+      const duration = this.plannedDuration ??= cloudFlightDuration(this.random);
+      const tail = this.smoke.lifetime;
+      const decision = cloudLaunchDecision(views, this.world.features.tunnel, !this.world.route.lanes,
+        event, duration + tail, MIN_CLOUD_FLIGHT_SECONDS + tail);
+      if (decision.status === 'wait') return rewarded;
+      const rider = this.riders[this.next++];
+      this.plannedDuration = null;
+      if (decision.status === 'launch') this.start(views, seconds, event, rider, decision.duration - tail);
+      return rewarded;
+    }
     const elapsed = seconds - this.flight.startsAt;
     const gift = this.flight.gifts[this.flight.nextGift];
     if (gift && elapsed + 1e-8 >= gift.at) {
@@ -140,18 +149,14 @@ export class CloudRide {
         point.y += this.deck * .44;
         return point;
       });
-      this.burst = {...gift, startsAt: seconds, origins, duration: this.flight.event.duration};
-    }
-    if (elapsed >= CLOUD_FLIGHT_SECONDS + this.smoke.lifetime) {
-      this.flight = null;
-      this.hide();
+      this.burst = {...gift, startsAt: seconds, origins, duration: this.flight.event.rewardSeconds};
     }
     return rewarded;
   }
 
   flyoverFraming(view) {
     if (!this.flight) return 0;
-    const visit = CLOUD_VISITS[this.flight.order.indexOf(view)];
+    const visit = this.flight.path.visits[this.flight.order.indexOf(view)];
     if (visit === undefined) return 0;
     const t = this.renderTime;
     return smoothstep(visit - .85, visit - .35, t) * (1 - smoothstep(visit + .32, visit + .87, t));
@@ -159,14 +164,15 @@ export class CloudRide {
 
   draw(seconds, viewportHeight) {
     if (!this.flight) return;
-    const time = Math.max(0, seconds - this.flight.startsAt);
+    const {path, startsAt} = this.flight;
+    const time = Math.max(0, seconds - startsAt), {duration} = path;
     this.renderTime = time;
-    const pose = this.flight.path.sample(Math.min(time, CLOUD_FLIGHT_SECONDS), time, true, this.pose);
-    this.root.visible = time < CLOUD_FLIGHT_SECONDS;
+    this.root.visible = time < duration;
     if (this.root.visible) {
+      const pose = path.sample(time, time, true, this.pose);
       this.root.position.copy(pose.position);
       this.root.quaternion.copy(pose.rotation);
-      const fade = 1 - smoothstep(6.66, CLOUD_FLIGHT_SECONDS, time);
+      const fade = 1 - smoothstep(duration - 1.45, duration, time);
       for (const material of this.activeMaterials) {
         const transparent = fade < 1;
         if (material.transparent !== transparent) {
@@ -178,7 +184,7 @@ export class CloudRide {
       }
       this.shadow?.update(this.world, pose.position, pose.yaw, fade);
     } else this.shadow?.hide();
-    this.smoke.update(time, CLOUD_FLIGHT_SECONDS, viewportHeight, this.sampleTrail);
+    this.smoke.update(time, duration, viewportHeight, this.sampleTrail);
     if (this.burst) this.stars.draw(this.burst, seconds);
     else this.stars.clear();
   }

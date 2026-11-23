@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { clamp, lerp, smoothstep, randomGenerator, TAU } from './core.js?v=13.0.0';
 import { riverProfile, riverPoint } from './route-features.js?v=13.0.0';
-import { renderedGroundHeight } from './grounding.js?v=13.0.0';
+import { renderedGroundHeight } from './grounding.js?v=24';
 import { TUNNEL_WIDTH_SCALE, TUNNEL_HEIGHT_SCALE, tunnelFrontShift, tunnelMoundHeight, tunnelCutFactor, GRASS_HABITAT, landNoise } from './landscape-profile.js?v=13.0.0';
 import { createGroundMaterial } from './ground-cover.js?v=13.0.0';
 
@@ -91,7 +91,11 @@ export function buildVariedClouds(world) {
   }
   geometry.setAttribute('color', new THREE.Float32BufferAttribute(cloudColors, 3));
   const material = new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.70, depthWrite: false, fog: false });
-  const mesh = new THREE.InstancedMesh(geometry, material, parts.length); mesh.frustumCulled = false; mesh.renderOrder = 2;
+  const mesh = new THREE.InstancedMesh(geometry, material, parts.length);
+  mesh.name = 'BackdropClouds';
+  mesh.frustumCulled = false;
+  // Blend this distant layer before foreground transparent effects such as contrails.
+  mesh.renderOrder = -5;
   world.group.add(mesh); world.ownedGeometry.push(geometry); world.ownedMaterials.push(material);
   world.clouds = mesh; world.cloudParts = parts; world.cloudSpan = span;
   updateClouds(world, 0);

@@ -1,4 +1,4 @@
-import {AircraftShadow} from './aircraft-shadow.js?v=23';
+import {AircraftShadow} from './aircraft-shadow.js?v=24';
 import * as THREE from 'three';
 import {clamp, lerp, randomGenerator, smoothstep} from './core.js?v=13.0.0';
 

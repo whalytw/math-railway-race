@@ -1,3 +1,4 @@
+import {CLOUD_EVENTS, cloudLaunchDecision} from '../src/cloud-schedule.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -125,4 +126,31 @@ test('a cart that finishes during a cloud bonus starts the coast at its boosted 
   lane.tick(.1, lane.distance + .5);
   assert.equal(lane.finishSpeed, 70);
   assert.equal(lane.cloudBonus, 0);
+});
+
+test('cloud departures stay inside each progress window and move around tunnels', () => {
+  const cart = (progress, laneIndex = 0, distance = progress * 3000) => ({
+    quiz: {distance: progress * 3000, finished: null, caps: [75, 90, 100]},
+    rig: {raceLength: 3000, laneIndex, track: {length: 4000}},
+    state: {distance, speed: 60 / 3.6},
+  });
+  const first = CLOUD_EVENTS[0];
+  const earlyTunnel = {start: 1045, end: 1125, turnIndex: 0};
+  const passingTunnel = {start: 720, end: 800, turnIndex: 0};
+  const launch = (progress, tunnel = null) => cloudLaunchDecision([cart(progress)], tunnel, false, first, 14).status;
+  assert.equal(launch(.1699, earlyTunnel), 'wait');
+  assert.equal(launch(.18, earlyTunnel), 'launch');
+  assert.equal(launch(.24), 'wait');
+  assert.equal(launch(.25), 'launch');
+  assert.equal(launch(.25, passingTunnel), 'wait');
+  assert.equal(launch(.27, passingTunnel), 'wait');
+  assert.equal(launch(.28, passingTunnel), 'launch');
+  assert.equal(launch(.33), 'launch');
+  assert.equal(launch(.3301, passingTunnel), 'skip');
+  assert.equal(cloudLaunchDecision([cart(.25, 1)], passingTunnel, false, first, 14).status, 'launch');
+  assert.equal(cloudLaunchDecision([cart(.25, 1), cart(.249)], passingTunnel, false, first, 14).status, 'wait');
+  assert.equal(cloudLaunchDecision([cart(.25, 2, 4078)], {start: 65, end: 145, turnIndex: 0}, true, first, 14).status, 'wait');
+  const approaching = {start: 1162, end: 1242, turnIndex: 0};
+  assert.deepEqual(cloudLaunchDecision([cart(.25)], approaching, false, first, 14.6, 13.2),
+    {status: 'launch', duration: 13.2});
 });

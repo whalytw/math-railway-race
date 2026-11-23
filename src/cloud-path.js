@@ -1,9 +1,17 @@
 import * as THREE from 'three';
 import {clamp, lerp, TAU} from './core.js?v=13.0.0';
 
-export const CLOUD_VISITS = [1.60, 3.43, 5.17];
-export const CLOUD_FLIGHT_SECONDS = 7.52;
-const TIMES = [0, ...CLOUD_VISITS, CLOUD_FLIGHT_SECONDS];
+import {groundMaximum} from './grounding.js?v=24';
+
+export const MIN_CLOUD_FLIGHT_SECONDS = 12;
+export const cloudFlightDuration = random => 12.8 + random() * 1.9;
+
+const VISIT_FRACTIONS = [.23, .48, .73];
+const CLOUD_RADIUS = 3.92;
+const CLOUD_CLEARANCE = 2.52;
+const FLIGHT_SAMPLE_SECONDS = .12;
+const CLIMB_GRADE = .65;
+const DESCENT_GRADE = .56;
 
 // Each row contributes a lateral flourish, height change, bank, and yaw turn.
 const MANEUVERS = [
@@ -24,31 +32,57 @@ function smooth(u) {
   return u ** 3 * (10 - 15 * u + 6 * u * u);
 }
 
-function phaseAt(time) {
-  if (time <= TIMES[1]) return 0;
-  if (time <= TIMES[2]) return 1;
-  return time <= TIMES[3] ? 2 : 3;
-}
-
 export class CloudPath {
-  constructor(world, order, maneuvers, side) {
+  constructor(world, order, maneuvers, side, duration) {
     const first = order[0], last = order.at(-1);
     const middle = order[1] ?? first;
     this.world = world;
     this.maneuvers = maneuvers;
     this.side = side;
+    this.duration = duration;
+    this.visits = VISIT_FRACTIONS.map(fraction => duration * fraction);
+    this.times = [0, ...this.visits, duration];
     this.nodes = [
-      {view: first, along: -41, across: side * 14, height: 7.8, speed: 26},
-      {view: first, along: 0, across: 0, height: 5.6, speed: 12},
-      {view: middle, along: 3, across: side * 1.8, height: 6.0, speed: 13},
-      {view: last, along: 7, across: -side * 1.85, height: 6.45, speed: 19},
-      {view: last, along: 147, across: side * 13, height: 14.5, speed: 96},
+      {view: first, along: -38, across: side * 13.5, height: 7.6, speed: 17},
+      {view: first, along: 0, across: 0, height: 5.6, speed: 8},
+      {view: middle, along: 3, across: side * 1.8, height: 6.0, speed: 9},
+      {view: last, along: 7, across: -side * 1.85, height: 6.45, speed: 12},
+      {view: last, along: 133, across: side * 13, height: 16, speed: 63},
     ];
     this.a = {};
     this.b = {};
     this.before = new THREE.Vector3();
     this.after = new THREE.Vector3();
     this.euler = new THREE.Euler(0, 0, 0, 'YXZ');
+  }
+
+  phaseAt(time) {
+    if (time <= this.visits[0]) return 0;
+    if (time <= this.visits[1]) return 1;
+    return time <= this.visits[2] ? 2 : 3;
+  }
+
+  clearanceAt(x, z) {
+    const terrain = groundMaximum(this.world.terrainGrid, x, z, CLOUD_RADIUS);
+    return this.world.airspace.obstacleTop(x, z, CLOUD_RADIUS, terrain, 18) + CLOUD_CLEARANCE;
+  }
+
+  planClearance() {
+    const count = Math.ceil(this.duration / FLIGHT_SAMPLE_SECONDS);
+    this.floorStep = this.duration / count;
+    const point = new THREE.Vector3(), previous = new THREE.Vector3();
+    const floors = new Float64Array(count + 1), steps = new Float64Array(count + 1);
+    for (let i = 0; i <= count; i++) {
+      this.rawPosition(i * this.floorStep, 0, false, point);
+      floors[i] = this.clearanceAt(point.x, point.z);
+      steps[i] = Math.hypot(point.x - previous.x, point.z - previous.z);
+      previous.copy(point);
+    }
+    // Use distance along the route so a ridge between separated carts does
+    // not lift the cloud too early at either cart's low flyover.
+    for (let i = count - 1; i >= 0; i--) floors[i] = Math.max(floors[i], floors[i + 1] - steps[i + 1] * CLIMB_GRADE);
+    for (let i = 1; i <= count; i++) floors[i] = Math.max(floors[i], floors[i - 1] - steps[i] * DESCENT_GRADE);
+    this.floors = floors;
   }
 
   readNode(node, delta, interpolated, out) {
@@ -62,8 +96,8 @@ export class CloudPath {
     out.y += out.ty * extra + height;
   }
 
-  positionAt(time, now, interpolated, out) {
-    const phase = phaseAt(time), t0 = TIMES[phase], duration = TIMES[phase + 1] - t0;
+  rawPosition(time, now, interpolated, out) {
+    const phase = this.phaseAt(time), t0 = this.times[phase], duration = this.times[phase + 1] - t0;
     const u = clamp((time - t0) / duration, 0, 1);
     const i = this.maneuvers[phase], [sway, lift] = MANEUVERS[phase][i];
     const a = this.a, b = this.b, from = this.nodes[phase], to = this.nodes[phase + 1];
@@ -78,30 +112,38 @@ export class CloudPath {
     const yaw = a.yaw + mix * Math.atan2(Math.sin(b.yaw - a.yaw), Math.cos(b.yaw - a.yaw));
     out.x = lerp(a.x, b.x, mix) + a.tx * v0 + b.tx * v1 + lateral * Math.cos(yaw);
     out.z = lerp(a.z, b.z, mix) + a.tz * v0 + b.tz * v1 - lateral * Math.sin(yaw);
-    const desired = lerp(a.y, b.y, mix) + lift * window;
-    const radius = 2.9, x = out.x, z = out.z;
-    const ground = Math.max(this.world.groundHeight(x, z),
-      this.world.groundHeight(x - radius, z), this.world.groundHeight(x + radius, z),
-      this.world.groundHeight(x, z - radius), this.world.groundHeight(x, z + radius));
-    const obstacle = this.world.airspace.obstacleTop(x, z, radius, ground, 16);
-    const floor = Math.max(ground, obstacle) + 2;
-    // Blend onto the clearance envelope instead of abruptly changing altitude.
-    const overlap = Math.max(0, 1.8 - Math.abs(desired - floor));
-    out.y = Math.max(desired, floor) + overlap * overlap / 7.2;
+    const rise = i === 1 ? .35 - .85 * Math.cos(TAU * u * 1.12) : 1;
+    out.y = lerp(a.y, b.y, mix) + lift * window * rise;
+    return yaw;
+  }
+
+  positionAt(time, now, interpolated, out) {
+    const yaw = this.rawPosition(time, now, interpolated, out);
+    // Use the planned climb as well as the exact live footprint when the carts
+    // change speeds after launch.
+    let floor = this.clearanceAt(out.x, out.z);
+    if (this.floors) {
+      const i = Math.min(this.floors.length - 2, Math.floor(time / this.floorStep));
+      floor = Math.max(floor, lerp(this.floors[i], this.floors[i + 1], clamp(time / this.floorStep - i, 0, 1)));
+    }
+    const overlap = Math.max(0, 1.8 - Math.abs(out.y - floor));
+    out.y = Math.max(out.y, floor) + overlap * overlap / 7.2;
     return yaw;
   }
 
   sample(time, now, interpolated, pose) {
     const yawHint = this.positionAt(time, now, interpolated, pose.position);
     this.positionAt(Math.max(0, time - .108), now, interpolated, this.before);
-    this.positionAt(Math.min(CLOUD_FLIGHT_SECONDS, time + .108), now, interpolated, this.after);
+    this.positionAt(Math.min(this.duration, time + .108), now, interpolated, this.after);
     const dx = this.after.x - this.before.x, dz = this.after.z - this.before.z;
     const horizontal = Math.hypot(dx, dz);
     const yaw = horizontal > .12 ? Math.atan2(dx, dz) : yawHint;
-    const phase = phaseAt(time), u = clamp((time - TIMES[phase]) / (TIMES[phase + 1] - TIMES[phase]), 0, 1);
+    const phase = this.phaseAt(time);
+    const u = clamp((time - this.times[phase]) / (this.times[phase + 1] - this.times[phase]), 0, 1);
     const [, , bank, spin] = MANEUVERS[phase][this.maneuvers[phase]];
     const envelope = Math.sin(Math.PI * u) ** 4;
-    const roll = this.side * bank * envelope * Math.cos(Math.PI * u);
+    const tilt = Math.sin(Math.PI * u) ** 2 * Math.cos((u - .26) * TAU);
+    const roll = this.side * bank * tilt;
     const yawTurn = Math.abs(spin) > Math.PI ? spin * smooth(clamp((u - .12) / .77, 0, 1)) : spin * envelope;
     const pitch = clamp(-.6 * Math.atan2(this.after.y - this.before.y, horizontal), -.34, .34);
     pose.rotation.setFromEuler(this.euler.set(pitch, yaw + this.side * yawTurn, roll));

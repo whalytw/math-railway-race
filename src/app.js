@@ -3,10 +3,10 @@ import {shakeAnswerCamera} from './answer-effects.js?v=20';
 import {setupRaceAudio, prepareRaceAudio, startRaceAudio, playRaceSound, pauseRaceAudio, stopRaceAudio} from './race-audio.js?v=20';
 import { COAST_SECONDS } from './quiz-race.js?v=23';
 import * as THREE from 'three';
-import {CloudRide} from './cloud-ride.js?v=23';
-import { Airshow } from './airshow.js?v=23';
-import { CameraDrone } from './camera-drone.js?v=23';
-import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=23';
+import {CloudRide} from './cloud-ride.js?v=24';
+import { Airshow } from './airshow.js?v=24';
+import { CameraDrone } from './camera-drone.js?v=24';
+import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=24';
 import { createPhysics, stepPhysics, FIXED_STEP, DEPARTURE_COUNTDOWN, clamp, lerp, wrap, resolveBiomes, randomGenerator, nextStation, biomeMix, createElevationProfile, leverReference, leverForSpeed, RATED_POWER, CART_MASS, MAX_GRADE, MIN_VERTICAL_RADIUS } from './core.js?v=13.0.0';
 import { riverProfile, riverPoint } from './route-features.js?v=13.0.0';
 import { copyMotion, interpolateMotion, zoomView, anchorCamera, partitionViewports } from './presentation.js?v=13.0.0';
@@ -19,7 +19,7 @@ import { FLYOVER_RAIL_SEPARATION, turnIndexAt } from './circuit-route.js?v=13.0.
 import { checkRaceBoundary, raceStandings } from './straight-race.js?v=22';
 
 const $ = id => document.getElementById(id);
-const GAME_VERSION = '23.0.0';
+const GAME_VERSION = '24.0.0';
 const flightSettings = {
   'camera-drone': 'cameraDrone',
   'drone-shadow': 'droneShadow',

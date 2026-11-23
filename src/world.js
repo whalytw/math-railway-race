@@ -1,16 +1,16 @@
 import {Airspace} from './airspace.js?v=23';
 import * as THREE from 'three';
-import {CLOUD_ASSET, pickCloudRiders} from './cloud-ride.js?v=23';
-import { BIPLANE_ASSET } from './airshow.js?v=23';
-import { SUN_OFFSET } from './aircraft-shadow.js?v=23';
-import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=23';
+import {CLOUD_ASSET, pickCloudRiders} from './cloud-ride.js?v=24';
+import { BIPLANE_ASSET } from './airshow.js?v=24';
+import {createCartContactShadow, SUN_OFFSET, updateCartContactShadow} from './aircraft-shadow.js?v=24';
+import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=24';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { TAU, lerp, clamp, wrap, smoothstep, randomGenerator, stationsFor, biomeMix, trackSegments } from './core.js?v=13.0.0';
 import { createCircuitRoute } from './circuit-route.js?v=17';
 import { createStraightRoute, straightStations } from './straight-route.js?v=17';
 import { sleeperLayout, sleeperFilter, planRouteFeatures, routeStructures, bridgeCoordinates, bridgeGroundHeight } from './route-features.js?v=17';
-import { buildMountainBackdrop, buildVariedClouds, updateClouds, buildBridgeAndRiver, buildTunnel, buildGirderBridge } from './scenery.js?v=22';
-import { fitGroundContact, prepareGroundedParts, groundBatchGeometry, renderedGroundHeight } from './grounding.js?v=13.0.0';
+import { buildMountainBackdrop, buildVariedClouds, updateClouds, buildBridgeAndRiver, buildTunnel, buildGirderBridge } from './scenery.js?v=24';
+import { fitGroundContact, prepareGroundedParts, groundBatchGeometry, renderedGroundHeight } from './grounding.js?v=24';
 import { planScenery, indexGroundPads, paddedHeight } from './scenery-plan.js?v=17';
 import { createBiomeLayout } from './biome-blend.js?v=13.0.0';
 import { shadowProfile, keepSceneryShadow } from './shadow-profile.js?v=13.0.0';
@@ -817,7 +817,8 @@ export class RailWorld {
     this.group.add(root);
     const halfWidth = resources ? Math.max(-source.bounds.min.x, source.bounds.max.x) : 0;
     const turbo = resources ? new TurboPair(this, root, halfWidth, resources) : null;
-    return { root, vehicle, departure, wheels, lever, leverBase: lever?.quaternion.clone(), sample: {}, frontSample: {}, rearSample: {}, driver: null, turbo };
+    const contactShadow = this.config.shadows ? createCartContactShadow(this, source.bounds) : null;
+    return { root, vehicle, departure, wheels, lever, leverBase: lever?.quaternion.clone(), sample: {}, frontSample: {}, rearSample: {}, driver: null, turbo, contactShadow };
   }
   attachDriver(id, rig = this.primaryCart) {
     if (!this.store.manifest.drivers?.includes(id)) throw new Error('找不到動物駕駛。');
@@ -891,6 +892,7 @@ export class RailWorld {
       q.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -throttle * 0.35);
       rig.lever.quaternion.copy(rig.leverBase).multiply(q);
     }
+    if (rig?.contactShadow) updateCartContactShadow(this, rig, distance, p);
     return p;
   }
   showTestBumper(distance) {

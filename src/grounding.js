@@ -26,7 +26,39 @@ export function renderedGroundHeight(grid, x, z) {
   const fx = clamp((x - tile.x0) / grid.width * n, 0, n), fz = clamp((z - tile.z0) / grid.depth * n, 0, n);
   const i = Math.min(n - 1, Math.floor(fx)), j = Math.min(n - 1, Math.floor(fz)), tx = fx - i, tz = fz - j, k = j * (n + 1) + i;
   const h0 = a.getY(k), h1 = a.getY(k + 1), h2 = a.getY(k + n + 1), h3 = a.getY(k + n + 2);
-  return tx + tz <= 1 ? h0 + tx * (h1 - h0) + tz * (h2 - h0) : h3 + (1 - tx) * (h2 - h3) + (1 - tz) * (h1 - h3);
+  return cellHeight(h0, h1, h2, h3, tx, tz);
+}
+
+function cellHeight(h0, h1, h2, h3, x, z) {
+  return x + z <= 1 ? h0 + x * (h1 - h0) + z * (h2 - h0) : h3 + (1 - x) * (h2 - h3) + (1 - z) * (h1 - h3);
+}
+
+// Measure the rendered triangles inside an axis-aligned footprint, including
+// where their diagonal crosses the edge of the footprint.
+export function groundMaximum(grid, x, z, radius) {
+  const {d, nx, nz, width, depth, tiles} = grid, halfDepth = grid.halfDepth ?? d / 2;
+  const x0 = x - radius, x1 = x + radius, z0 = z - radius, z1 = z + radius;
+  let top = renderedGroundHeight(grid, x, z);
+  for (let iz = Math.max(0, Math.floor((z0 + halfDepth) / depth)); iz <= Math.min(nz - 1, Math.floor((z1 + halfDepth) / depth)); iz++) {
+    for (let ix = Math.max(0, Math.floor((x0 + d) / width)); ix <= Math.min(nx - 1, Math.floor((x1 + d) / width)); ix++) {
+      const tile = tiles[iz * nx + ix], n = tile.segments, points = tile.geometry.attributes.position;
+      const left = clamp((x0 - tile.x0) * n / width, 0, n), right = clamp((x1 - tile.x0) * n / width, 0, n);
+      const near = clamp((z0 - tile.z0) * n / depth, 0, n), far = clamp((z1 - tile.z0) * n / depth, 0, n);
+      for (let j = Math.min(n - 1, Math.floor(near)); j <= Math.min(n - 1, Math.floor(far)); j++) {
+        for (let i = Math.min(n - 1, Math.floor(left)); i <= Math.min(n - 1, Math.floor(right)); i++) {
+          const a = j * (n + 1) + i;
+          const h0 = points.getY(a), h1 = points.getY(a + 1), h2 = points.getY(a + n + 1), h3 = points.getY(a + n + 2);
+          const u0 = Math.max(0, left - i), u1 = Math.min(1, right - i);
+          const v0 = Math.max(0, near - j), v1 = Math.min(1, far - j);
+          top = Math.max(top, cellHeight(h0, h1, h2, h3, u0, v0), cellHeight(h0, h1, h2, h3, u1, v0),
+            cellHeight(h0, h1, h2, h3, u0, v1), cellHeight(h0, h1, h2, h3, u1, v1));
+          const diagonalStart = Math.max(u0, 1 - v1), diagonalEnd = Math.min(u1, 1 - v0);
+          if (diagonalStart <= diagonalEnd) top = Math.max(top, lerp(h2, h1, diagonalStart), lerp(h2, h1, diagonalEnd));
+        }
+      }
+    }
+  }
+  return top;
 }
 
 function clipPolygon(points, axis, limit, greater) {
