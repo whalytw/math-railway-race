@@ -16,14 +16,14 @@
   <link rel="stylesheet" href="./fleet-v11.css?v=13.0.0">
   <link rel="stylesheet" href="./straight-v13.css?v=13.0.0">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
-  <script type="module" src="./src/app.js?v=22"></script>
-<link rel="stylesheet" href="./quiz.css?v=22"></head>
+  <script type="module" src="./src/app.js?v=23"></script>
+<link rel="stylesheet" href="./quiz.css?v=23"></head>
 <body>
   <canvas id="scene" aria-label="三維軌道與地形場景"></canvas>
   <div class="vignette" aria-hidden="true"></div>
   <main id="title-screen" class="title-screen">
     <section class="setup-panel">
-      <header class="brand"><span class="brand-mark" aria-hidden="true">╫</span><span>LOOP<span class="brand-small">軌道試驗場</span></span><span class="edition">課堂競速<br>V22.0</span></header>
+      <header class="brand"><span class="brand-mark" aria-hidden="true">╫</span><span>LOOP<span class="brand-small">軌道試驗場</span></span><span class="edition">課堂競速<br>V23.0</span></header>
       <div class="intro"><h1>數學鐵道<br><b id="course-headline">心算競速</b></h1><p id="course-intro"></p></div>
       <form id="setup-form"><div class="scope-card"><button type="button" id="settings-open">教師設定 · 選題範圍</button><p id="scope-summary"></p></div>
         <div class="route-fields">
@@ -63,6 +63,8 @@
           <label><input id="drone-shadow" type="checkbox" checked>無人機陰影</label>
           <label><input id="airshow-plane" type="checkbox" checked>雙翼飛機表演</label>
           <label><input id="plane-shadow" type="checkbox" checked>飛機陰影</label>
+          <label><input id="cloud-ride" type="checkbox" checked>方塊動物踩雲</label>
+          <label><input id="cloud-shadow" type="checkbox" checked>飛行雲朵陰影</label>
         </fieldset>
         <details class="audio-settings">
           <summary>音樂與音效</summary>

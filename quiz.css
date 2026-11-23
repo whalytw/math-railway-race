@@ -136,6 +136,17 @@ body {--team:#88dece;--deck:50vh}
 .speed em[data-tier="2"], #quiz-effects > div[data-tier="2"] { --charge: var(--jet-yellow); }
 .speed em[data-tier="3"], #quiz-effects > div[data-tier="3"] { --charge: var(--jet-pink); }
 .jet-time { display: inline-block; font-variant-numeric: tabular-nums; }
+.dial .cloud-boost {
+  color: #a7ffaf;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.dial.speed b[data-boost] {
+  color: #fff;
+  paint-order: stroke fill;
+  -webkit-text-stroke: .09em var(--speed-outline);
+  text-shadow: 0 0 .24em var(--speed-outline);
+}
 .charge-star {
   position: absolute;
   inset: 0 auto auto 0;

@@ -1,7 +1,7 @@
 import {clearAnswerEffects, showAnswerEffect} from './answer-effects.js?v=19';
 import {playRaceSound} from './race-audio.js?v=20';
 import {raceStandings} from './straight-race.js?v=22';
-import {DEFAULT_CAPS, QuizLane, shuffle} from './quiz-race.js?v=18';
+import {DEFAULT_CAPS, JET_FLAME_COLORS, QuizLane, shuffle} from './quiz-race.js?v=23';
 const $ = id => document.getElementById(id);
 const storageKey = 'math-railway-classroom-v1';
 const names = ['基礎', '進階', '挑戰'];
@@ -100,9 +100,10 @@ export function startQuestions(views) {
     const team=panel.style.getPropertyValue('--team');
     const dash=document.createElement('section');
     dash.className='race-dash'; dash.style.setProperty('--team',team);
-    dash.innerHTML='<div class="dial elapsed"><small>用時</small><div><b></b> 秒</div></div><div class="dial speed"><em hidden>JET <span class="jet-level"></span> · <span class="jet-time"></span> 秒</em><div><b></b> km/h</div></div>';
+    dash.innerHTML='<div class="dial elapsed"><small>用時</small><div><b></b> 秒</div></div><div class="dial speed"><small class="cloud-boost" hidden></small><em hidden>JET <span class="jet-level"></span> · <span class="jet-time"></span> 秒</em><div><b></b> km/h</div></div>';
     pane.time=dash.querySelector('.elapsed b'); pane.speed=dash.querySelector('.speed b'); pane.jet=dash.querySelector('em');
     pane.jetLevel=dash.querySelector('.jet-level'); pane.jetTime=dash.querySelector('.jet-time');
+    pane.cloud=dash.querySelector('.cloud-boost');
     pane.effects=document.createElement('div');
     effectsGrid.append(pane.effects);
     instruments.append(dash);
@@ -146,6 +147,19 @@ export function drawQuestions(views) {
     p.time.textContent=(lane.finished ?? lane.clock).toFixed(1);
     p.speed.textContent=Math.round(lane.speed);
     const tier = lane.boostTier;
+    const cloud = lane.cloudBonus;
+    const outline = cloud ? '#57e767' : JET_FLAME_COLORS[tier - 1]?.[0];
+    if (outline !== p.outline) {
+      p.outline = outline;
+      p.speed.toggleAttribute('data-boost', Boolean(outline));
+      if (outline) p.speed.style.setProperty('--speed-outline', outline);
+      else p.speed.style.removeProperty('--speed-outline');
+    }
+    p.cloud.hidden = !cloud;
+    if (cloud) {
+      const label = '雲朵 +' + cloud + ' · ' + Math.ceil(lane.cloudUntil - lane.clock) + ' 秒';
+      if (p.cloud.textContent !== label) p.cloud.textContent = label;
+    }
     p.jet.hidden = !tier;
     if (tier) {
       const seconds = String(Math.ceil(Math.max(0, lane.ends.at(-1) - lane.clock)));

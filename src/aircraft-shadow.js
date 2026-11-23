@@ -3,18 +3,25 @@ import {clamp, smoothstep} from './core.js?v=13.0.0';
 
 export const SUN_OFFSET = [-100, 170, 70];
 
-function shadowTexture(world, plane) {
+function shadowTexture(world, type) {
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = 96;
   const ctx = canvas.getContext('2d');
   ctx.translate(48, 48);
   ctx.filter = 'blur(3px)';
   ctx.fillStyle = ctx.strokeStyle = '#fff';
-  if (plane) {
+  if (type === 'plane') {
     ctx.beginPath();
     ctx.ellipse(0, 0, 8, 40, 0, 0, Math.PI * 2);
     ctx.roundRect(-42, -17, 84, 16, 6);
     ctx.roundRect(-16, 24, 32, 9, 3);
+    ctx.fill();
+  } else if (type === 'cloud') {
+    ctx.beginPath();
+    ctx.ellipse(0, 2, 41, 29, 0, 0, Math.PI * 2);
+    ctx.moveTo(-9, -17); ctx.arc(-24, -17, 15, 0, Math.PI * 2);
+    ctx.moveTo(21, -22); ctx.arc(1, -22, 20, 0, Math.PI * 2);
+    ctx.moveTo(38, -11); ctx.arc(24, -11, 14, 0, Math.PI * 2);
     ctx.fill();
   } else {
     ctx.lineWidth = 11;
@@ -33,18 +40,17 @@ function shadowTexture(world, plane) {
 }
 
 export class AircraftShadow {
-  constructor(world, span, length, plane = false) {
-    const key = plane ? 'plane' : 'drone';
+  constructor(world, span, length, type = 'drone') {
     world.aircraftShadowTextures ??= {};
-    world.aircraftShadowTextures[key] ??= shadowTexture(world, plane);
+    world.aircraftShadowTextures[type] ??= shadowTexture(world, type);
     const geometry = new THREE.PlaneGeometry(1, 1, 4, 4);
     const material = new THREE.MeshBasicMaterial({
-      map: world.aircraftShadowTextures[key], color: '#151814', transparent: true,
+      map: world.aircraftShadowTextures[type], color: '#151814', transparent: true,
       depthWrite: false, side: THREE.DoubleSide, polygonOffset: true,
       polygonOffsetFactor: -2, polygonOffsetUnits: -2,
     });
     this.mesh = new THREE.Mesh(geometry, material);
-    this.mesh.name = plane ? 'BiplaneGroundShadow' : 'DroneGroundShadow';
+    this.mesh.name = {plane: 'BiplaneGroundShadow', drone: 'DroneGroundShadow', cloud: 'CloudGroundShadow'}[type];
     this.mesh.frustumCulled = false;
     this.mesh.visible = false;
     world.group.add(this.mesh);

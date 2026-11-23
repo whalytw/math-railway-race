@@ -20,10 +20,8 @@ export function chooseDriver(choice, available, random = Math.random, exclude = 
   return candidates[Math.floor(sample * candidates.length)];
 }
 
-export function createStandingDriver(source, vehicleId, { id = '', name = '', shadows = false, staticClip = null } = {}) {
-  const seat = DRIVER_SEATS[vehicleId];
-  if (!seat) throw new Error('這款礦車尚未設定動物座位。');
-  const holder = new THREE.Group(); holder.name = 'AnimalDriver';
+function fitStandingAnimal(source, staticClip, deck) {
+  const holder = new THREE.Group();
   const model = source.clone(true); holder.add(model);
   if (staticClip) {
     // Sample Kenney's authored static pose once. Do not play walk/run or a seated motion.
@@ -35,15 +33,33 @@ export function createStandingDriver(source, vehicleId, { id = '', name = '', sh
   const size = bounds.getSize(new THREE.Vector3());
   if (![size.x, size.y, size.z].every(v => Number.isFinite(v) && v > 0)) throw new Error('動物模型尺寸不正確。');
   // Preserve proportions. Tails on long species must also stay inside the cart.
-  const scale = Math.min(seat.targetWidth / size.x, (seat.front - seat.rear) / size.z);
+  const scale = Math.min(deck.targetWidth / size.x, (deck.front - deck.rear) / size.z);
   model.scale.multiplyScalar(scale); holder.updateMatrixWorld(true);
   bounds.setFromObject(model, true);
   const centre = bounds.getCenter(new THREE.Vector3());
   const depth = bounds.max.z - bounds.min.z;
-  const centreZ = Math.max(seat.rear + depth / 2, Math.min(seat.front - depth / 2, seat.centreZ));
-  model.position.add(new THREE.Vector3(-centre.x, seat.top - bounds.min.y, centreZ - centre.z));
-  model.traverse(node => { if (node.isMesh) { node.castShadow = shadows; node.receiveShadow = true; } });
-  holder.updateMatrixWorld(true); bounds.setFromObject(model, true);
+  const centreZ = Math.max(deck.rear + depth / 2, Math.min(deck.front - depth / 2, deck.centreZ));
+  model.position.add(new THREE.Vector3(-centre.x, deck.top - bounds.min.y, centreZ - centre.z));
+  holder.updateMatrixWorld(true);
+  bounds.setFromObject(model, true);
+  return {holder, bounds, scale};
+}
+
+export function createCloudRider(asset, deckHeight) {
+  const clip = asset.animations.find(action => action.name === 'static');
+  const {holder} = fitStandingAnimal(asset.root, clip, {
+    top: deckHeight, centreZ: 0, targetWidth: 2.10, rear: -1.42, front: 1.42,
+  });
+  holder.name = 'CloudRider';
+  return holder;
+}
+
+export function createStandingDriver(source, vehicleId, {id = '', name = '', shadows = false, staticClip = null} = {}) {
+  const seat = DRIVER_SEATS[vehicleId];
+  if (!seat) throw new Error('這款礦車尚未設定動物座位。');
+  const {holder, bounds, scale} = fitStandingAnimal(source, staticClip, seat);
+  holder.name = 'AnimalDriver';
+  holder.traverse(node => { if (node.isMesh) { node.castShadow = shadows; node.receiveShadow = true; } });
   holder.userData.driver = {
     id, name, license: 'CC0-1.0', posture: 'standing', poseClip: staticClip?.name || 'default', scale,
     seatTopMetres: seat.top, targetWidthMetres: seat.targetWidth,

@@ -1,8 +1,9 @@
-import {Airspace} from './airspace.js?v=22';
+import {Airspace} from './airspace.js?v=23';
 import * as THREE from 'three';
-import { BIPLANE_ASSET } from './airshow.js?v=22';
-import { SUN_OFFSET } from './aircraft-shadow.js?v=21';
-import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=22';
+import {CLOUD_ASSET, pickCloudRiders} from './cloud-ride.js?v=23';
+import { BIPLANE_ASSET } from './airshow.js?v=23';
+import { SUN_OFFSET } from './aircraft-shadow.js?v=23';
+import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=23';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { TAU, lerp, clamp, wrap, smoothstep, randomGenerator, stationsFor, biomeMix, trackSegments } from './core.js?v=13.0.0';
 import { createCircuitRoute } from './circuit-route.js?v=17';
@@ -14,8 +15,8 @@ import { planScenery, indexGroundPads, paddedHeight } from './scenery-plan.js?v=
 import { createBiomeLayout } from './biome-blend.js?v=13.0.0';
 import { shadowProfile, keepSceneryShadow } from './shadow-profile.js?v=13.0.0';
 import { buildFans, buildGoals, GOAL_ARCH, finishSmile } from './celebration.js?v=22';
-import { createStandingDriver } from './drivers.js?v=13.0.0';
-import { TURBO_ASSET_ID, TurboPair, createTurboResources } from './turbo-visual.js?v=22';
+import { createStandingDriver } from './drivers.js?v=23';
+import { TURBO_ASSET_ID, TurboPair, createTurboResources } from './turbo-visual.js?v=23';
 import { createGroundMaterial, grassHabitatAt, buildGrassCover, buildFarmland, GRASS_NEAR_DISTANCE, GRASS_DRAW_DISTANCE } from './ground-cover.js?v=13.0.0';
 import { chooseFarGeometry, distanceToXZBounds } from './render-lod.js?v=13.0.0';
 import { planSharedShadow, SHADOW_DEPTH } from './shared-shadow.js?v=13.0.0';
@@ -144,7 +145,7 @@ export class RailWorld {
     this.groundProximities = Array.from({ length: this.route.lanes?.length ?? this.route.turns }, () => ({}));
     this.structures = routeStructures(this.features);
     this.group = new THREE.Group(); scene.add(this.group);
-    this.airspace = config.playable && config.airshowPlane ? new Airspace() : null;
+    this.airspace = config.playable && (config.airshowPlane || config.cloudRide) ? new Airspace() : null;
     this.cullGroups = []; this.ownedGeometry = []; this.ownedMaterials = []; this.ownedTextures = [];
     this.instanceCount = 0; this.sceneryCount = 0; this.terrainChunks = 0;
     this.wheels = []; this.carts = []; this.waterMaterials = [];
@@ -331,12 +332,15 @@ export class RailWorld {
     ];
     const lakeModels = this.lake && this.lake.kind !== 'oasis' && this.lake.radius >= 36 ? this.store.manifest.biomes.Lakeside.models.filter(id => !this.store.manifest.models[id].scenePack?.startsWith('Quaternius')) : [];
     const selections = this.config.fleet ?? [this.config];
+    const addCloud = this.config.playable && this.config.cloudRide;
+    if (addCloud) this.cloudRiders = pickCloudRiders(this.store.manifest.drivers, selections.map(choice => choice.driver));
     const vehicles = selections.flatMap(({ vehicle, driver }) => driver ? [vehicle, driver] : [vehicle]);
     const ids = [...this.sceneryPlan.placements.map(p => p.id), ...lakeModels,
       ...this.store.manifest.stationModels, 'Environment_Rail_RailSection_1m_001', 'Environment_Rail_Sleeper_001', 'Environment_Rail_Fastener_001', ...infrastructure,
       ...vehicles, ...(this.config.playable ? [TURBO_ASSET_ID, GOAL_ARCH] : []),
       ...(this.config.playable && this.config.cameraDrone ? [CAMERA_DRONE_ASSET] : []),
-      ...(this.config.playable && this.config.airshowPlane ? [BIPLANE_ASSET] : [])];
+      ...(this.config.playable && this.config.airshowPlane ? [BIPLANE_ASSET] : []),
+      ...(addCloud ? [CLOUD_ASSET, ...this.cloudRiders] : [])];
     await this.store.load(ids, (p, id) => onProgress(0.08 + p * 0.32, `讀取 ${this.store.manifest.models[id].name}`));
     onProgress(0.42, this.route.lanes ? '鋪設三條直線賽道…' : '鋪設閉合軌道…'); await yieldFrame(); this.buildTrack();
     onProgress(0.55, `混合 ${this.activeBiomes.length} 種環境地表…`); await yieldFrame(); await this.buildTerrain();

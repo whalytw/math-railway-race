@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import {clamp, GRAVITY, lerp, smoothstep, TAU} from './core.js?v=13.0.0';
 import {footprintMaximum} from './grounding.js?v=13.0.0';
-import {AircraftShadow} from './aircraft-shadow.js?v=21';
-import {AirshowSmoke, SMOKE_LIFETIME} from './airshow-smoke.js?v=22';
+import {AircraftShadow} from './aircraft-shadow.js?v=23';
+import {AirshowSmoke, SMOKE_LIFETIME} from './airshow-smoke.js?v=23';
 
 export const BIPLANE_ASSET = 'AirshowBiplane';
 
@@ -260,7 +260,7 @@ class BiplanePass {
     const tips = ['SmokePort', 'SmokeStarboard'].map(name =>
       this.model.getObjectByName(name).getWorldPosition(new THREE.Vector3()));
     this.smoke = new AirshowSmoke(world, tips);
-    this.shadow = world.config.planeShadow ? new AircraftShadow(world, 10.6, 8.7, true) : null;
+    this.shadow = world.config.planeShadow ? new AircraftShadow(world, 10.6, 8.7, 'plane') : null;
     this.materials = new Map();
     this.model.traverse(node => {
       if (!node.isMesh) return;

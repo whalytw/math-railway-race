@@ -1,6 +1,19 @@
 {
   "version": "8.0.0",
   "models": {
+    "CloudPlatform": {
+      "id": "CloudPlatform",
+      "name": "伴飛雲朵",
+      "url": "assets/models/CloudPlatform.glb",
+      "category": "08_Props",
+      "sceneRole": "fixed",
+      "triangles": 960,
+      "bytes": 159012,
+      "meshNodeCount": 1,
+      "scenePack": "Grab3D",
+      "license": "CC0-1.0",
+      "source": "https://grab3d.com/models/nature/cloud-platform/"
+    },
     "AirshowBiplane": {
       "id": "AirshowBiplane",
       "name": "嘉年華雙翼飛機",

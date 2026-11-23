@@ -1,16 +1,17 @@
-import {setupQuestions, startQuestions, drawQuestions, stopQuizEffects} from './quiz-ui.js?v=22';
+import {setupQuestions, startQuestions, drawQuestions, stopQuizEffects} from './quiz-ui.js?v=23';
 import {shakeAnswerCamera} from './answer-effects.js?v=20';
 import {setupRaceAudio, prepareRaceAudio, startRaceAudio, playRaceSound, pauseRaceAudio, stopRaceAudio} from './race-audio.js?v=20';
-import { COAST_SECONDS } from './quiz-race.js?v=18';
+import { COAST_SECONDS } from './quiz-race.js?v=23';
 import * as THREE from 'three';
-import { Airshow } from './airshow.js?v=22';
-import { CameraDrone } from './camera-drone.js?v=22';
-import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=22';
+import {CloudRide} from './cloud-ride.js?v=23';
+import { Airshow } from './airshow.js?v=23';
+import { CameraDrone } from './camera-drone.js?v=23';
+import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=23';
 import { createPhysics, stepPhysics, FIXED_STEP, DEPARTURE_COUNTDOWN, clamp, lerp, wrap, resolveBiomes, randomGenerator, nextStation, biomeMix, createElevationProfile, leverReference, leverForSpeed, RATED_POWER, CART_MASS, MAX_GRADE, MIN_VERTICAL_RADIUS } from './core.js?v=13.0.0';
 import { riverProfile, riverPoint } from './route-features.js?v=13.0.0';
 import { copyMotion, interpolateMotion, zoomView, anchorCamera, partitionViewports } from './presentation.js?v=13.0.0';
 import { DENSITY_OPTIONS, SCENERY_VERSION } from './scenery-plan.js?v=13.0.0';
-import { chooseDriver } from './drivers.js?v=13.0.0';
+import { chooseDriver } from './drivers.js?v=23';
 import { MixControls } from './mix-controls.js?v=13.0.0';
 import { BIOME_COLORS, DEFAULT_MIX } from './biome-blend.js?v=13.0.0';
 import { initRapier, RapierRailPhysics, RAPIER_VERSION } from './rapier-rail.js?v=13.0.0';
@@ -18,12 +19,14 @@ import { FLYOVER_RAIL_SEPARATION, turnIndexAt } from './circuit-route.js?v=13.0.
 import { checkRaceBoundary, raceStandings } from './straight-race.js?v=22';
 
 const $ = id => document.getElementById(id);
-const GAME_VERSION = '22.0.0';
+const GAME_VERSION = '23.0.0';
 const flightSettings = {
   'camera-drone': 'cameraDrone',
   'drone-shadow': 'droneShadow',
   'airshow-plane': 'airshowPlane',
   'plane-shadow': 'planeShadow',
+  'cloud-ride': 'cloudRide',
+  'cloud-shadow': 'cloudShadow',
 };
 let renderer, scene, camera, atmosphere, manifest, store, world;
 let mode = 'loading', physics = createPhysics(), cameraMode = 'chase', buildEpoch = 0;
@@ -80,6 +83,7 @@ function setupViews(playable) {
     };
   });
   world.airshow = playable && world.config.airshowPlane ? new Airshow(world) : null;
+  world.cloudRide = playable && world.config.cloudRide ? new CloudRide(world, views) : null;
   const main = views[Math.floor(views.length / 2)];
   physics = main.state; renderMotion = main.motion; camera = main.camera; railPhysics = main.engine;
 }
@@ -94,7 +98,9 @@ function renderFrame(dt = 0, snap = false) {
   const updateVisibility = visibilityElapsed > 0.18 || snap;
   // Update airframes and carts before the shared scene's single matrix update.
   for (const view of views) view.drone?.update(world, view);
-  world.airshow?.draw(Math.max(0, physics.elapsed - DEPARTURE_COUNTDOWN + finishAnimationTime), renderer.domElement.height);
+  const raceSeconds = Math.max(0, physics.elapsed - DEPARTURE_COUNTDOWN + finishAnimationTime);
+  world.airshow?.draw(raceSeconds, renderer.domElement.height);
+  world.cloudRide?.draw(raceSeconds, renderer.domElement.height);
   scene.updateMatrixWorld();
   const now = performance.now();
   for (const view of views) {
@@ -453,6 +459,7 @@ function replayRound() {
     view.drone?.reset();
   }
   world.airshow?.reset();
+  world.cloudRide?.reset();
   world.showTestBumper(null);
   $('clear-bumper').hidden = true;
   beginRound();
@@ -702,7 +709,8 @@ function updateCamera(view, dt, snap = false) {
       const behind = rig.track.sample(distanceAlong - Math.min(7.5, distance)), ahead = rig.track.sample(distanceAlong + 5);
       const sideways = Math.sin(orbitYaw) * 0.62;
       desiredCamera.set(behind.x + behind.nx * sideways, behind.y + 2.28 + Math.sin(orbitPitch) * 0.38, behind.z + behind.nz * sideways);
-      lookTarget.set(ahead.x, ahead.y + 1.3, ahead.z); targetFov = 64;
+      const cloudFraming = world.cloudRide?.flyoverFraming(view) ?? 0;
+      lookTarget.set(ahead.x, ahead.y + 1.3 + .9 * cloudFraming, ahead.z); targetFov = 64 + 8 * cloudFraming;
     }
     // Smoothly travel the last seven metres into the driver's eye position.
     const eyeBlend = arrival ? 0 : 1 - THREE.MathUtils.smoothstep(distance, 0, 7);
@@ -951,7 +959,7 @@ function physicsTick() {
     state.distance = rig.departure + state.odometer;
     state.speed = quiz.speed / 3.6;
     state.throttle = quiz.finished === null ? leverForSpeed(quiz.speed) : 0;
-    state.turboKmh = Math.max(0, quiz.speed - 60);
+    state.turboKmh = Math.max(0, quiz.driveSpeed - 60);
     view.finishTime = quiz.finished;
     if (rig.smile) {
       rig.smile.visible = quiz.finished !== null;
@@ -961,7 +969,9 @@ function physicsTick() {
     if (Boolean(previousTier) !== Boolean(quiz.tier)) rig.turbo?.setEnabled(quiz.tier > 0, state.elapsed);
   }
   turboOn = views.some(v => v.quiz.tier > 0);
-  world.airshow?.updateRace(views, physics.elapsed - DEPARTURE_COUNTDOWN);
+  const raceSeconds = physics.elapsed - DEPARTURE_COUNTDOWN;
+  world.airshow?.updateRace(views, raceSeconds);
+  if (world.cloudRide?.updateRace(views, raceSeconds)) hudElapsed = 1;
   if (views.every(view => view.quiz.coastTime >= COAST_SECONDS)) showRaceResults();
 }
 function updateCartMotion(alpha) {
@@ -1006,7 +1016,7 @@ function frame(time) {
 
 async function boot() {
   if (location.protocol === 'file:') throw new Error('請透過 HTTP 開啟此專案：執行 START_LOCAL.cmd 後前往 http://127.0.0.1:4173，或使用 GitHub Pages 網址。');
-  const response = await fetch('./asset-manifest.json?v=22'); if (!response.ok) throw new Error(`找不到資產清單（HTTP ${response.status}）。請完整解壓縮 ZIP。`);
+  const response = await fetch('./asset-manifest.json?v=23'); if (!response.ok) throw new Error(`找不到資產清單（HTTP ${response.status}）。請完整解壓縮 ZIP。`);
   manifest = await response.json();
   loadingProgress(.02,'初始化本機 Rapier 物理引擎…'); await initRapier();
   await setupQuestions(()=>mode==='running'); setupRaceAudio(); populateForm(); installControls();

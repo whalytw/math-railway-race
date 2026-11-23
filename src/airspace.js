@@ -1,4 +1,5 @@
 import {Box3} from 'three';
+import {smoothstep} from './core.js?v=13.0.0';
 
 const CELL = 36;
 
@@ -42,13 +43,19 @@ export class Airspace {
     }
   }
 
-  obstacleTop(x, z, radius) {
-    const left = x - radius, right = x + radius, near = z - radius, far = z + radius;
-    let top = -Infinity;
+  obstacleTop(x, z, radius, ground = -Infinity, margin = 0) {
+    const reach = radius + margin;
+    const left = x - reach, right = x + reach, near = z - reach, far = z + reach;
+    let top = ground;
     for (let j = Math.floor(near / CELL); j <= Math.floor(far / CELL); j++) {
       for (let i = Math.floor(left / CELL); i <= Math.floor(right / CELL); i++) {
         for (const item of this.cells.get(i + ',' + j) ?? []) {
-          if (item.right >= left && item.left <= right && item.far >= near && item.near <= far) top = Math.max(top, item.top);
+          const separation = Math.max(item.left - x, x - item.right, item.near - z, z - item.far);
+          if (separation <= radius) top = Math.max(top, item.top);
+          else if (separation < reach && item.top > ground) {
+            const lift = (item.top - ground) * (1 - smoothstep(radius, reach, separation));
+            top = Math.max(top, ground + lift);
+          }
         }
       }
     }

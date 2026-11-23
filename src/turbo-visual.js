@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {JET_FLAME_COLORS} from './quiz-race.js?v=23';
 import { TURBO_DROP_SECONDS, clamp, lerp, smoothstep } from './core.js?v=13.0.0';
 
 export const TURBO_ASSET_ID = 'Prop_Aircraft_TurbofanExterior_LowPoly_001';
@@ -12,7 +13,7 @@ export function createTurboResources(world) {
   flame.rotateX(-Math.PI / 2);
   flame.translate(0, 0, -0.825);
   const bracket = new THREE.BoxGeometry(1, 0.14, 0.38);
-  const flames = [['#278dff','#a0e9ff'],['#ffcc19','#fff5a0'],['#ff449f','#ffc7eb']].map(pair =>
+  const flames = JET_FLAME_COLORS.map(pair =>
     pair.map((color,i) => new THREE.MeshBasicMaterial({ color, transparent:true, opacity:i ? 0.78 : 0.55, depthWrite:false, toneMapped:false })));
   const steel = new THREE.MeshStandardMaterial({ color: '#4a575a', roughness: 0.65, metalness: 0.2 });
   world.ownedGeometry.push(flame, bracket);

@@ -82,3 +82,47 @@ test('live ranks compare progress until each cart finishes and preserve ties', (
   assert.deepEqual(ranks([null, 108, null], [.98, 1, .98]), [[1, 1], [0, 2], [2, 2]]);
   assert.deepEqual(ranks([111.0001, 108, 111.0002], [1, 1, 1]), [[1, 1], [0, 2], [2, 2]]);
 });
+
+test('cloud bonuses add immediately without altering the JET timeline', () => {
+  for (const [bonus, duration] of [[10, 3], [5, 5], [10, 7]]) {
+    const lane = newLane(0), opponent = newLane(1);
+    lane.ends = [50, 55, 60];
+    run(lane, 6);
+    run(opponent, 6);
+    assert.equal(lane.speed, 100);
+    const distance = lane.distance;
+    lane.grantCloudBoost(bonus, duration);
+    assert.equal(lane.speed, 100 + bonus);
+    assert.equal(lane.cloudBonus, bonus);
+    assert.equal(opponent.speed, 60);
+    run(lane, duration);
+    assert.equal(lane.cloudBonus, 0);
+    assert.equal(lane.speed, 100);
+    assert.ok(Math.abs(lane.distance - distance - duration * (100 + bonus) / 3.6) < 1e-6);
+    assert.deepEqual(lane.ends, [50, 55, 60]);
+  }
+});
+
+test('a cloud bonus expires during a tick and preserves the finish speed', () => {
+  const lane = newLane(0);
+  run(lane, 6);
+  lane.grantCloudBoost(10, .025);
+  const initial = lane.distance;
+  const length = initial + 1;
+  lane.tick(.08, length);
+  assert.ok(lane.finished !== null);
+  assert.equal(lane.cloudBonus, 0);
+  assert.equal(lane.finishSpeed, 60);
+  const speed = lane.speed;
+  lane.grantCloudBoost(10, 7);
+  assert.equal(lane.speed, speed);
+});
+
+test('a cart that finishes during a cloud bonus starts the coast at its boosted speed', () => {
+  const lane = newLane(0);
+  run(lane, 6);
+  lane.grantCloudBoost(10, 3);
+  lane.tick(.1, lane.distance + .5);
+  assert.equal(lane.finishSpeed, 70);
+  assert.equal(lane.cloudBonus, 0);
+});

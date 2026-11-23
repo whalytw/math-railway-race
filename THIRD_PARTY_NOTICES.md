@@ -62,3 +62,8 @@ v7 的草地顏色、短草幾何、河道、田區與隧道山坡由本專案�
 **Biplane**，Grab3D，CC0 1.0 Universal。原始 GLB 有 19,942 個三角面。遊戲版以 Blender 減至 2,942 個三角面，保留原色與螺旋槳旋轉軸，調整為起飛後的姿態，加入下層機翼兩處發煙定位點。 [原始模型與授權](https://grab3d.com/models/vehicles/biplane/)
 
 原始 biplane.glb 的 SHA-256 為 4dda6beabb3c0a587dbd7d28c9dbabaf39f23f263fd9c79156715213961386c9。 [原始 GLB](https://grab3d.com/dl/biplane/biplane.glb)
+
+
+## v23 伴飛雲朵
+
+**Cloud Platform**，Grab3D，CC0 1.0 Universal。模型從 7,500 個三角面減至 960 個，保留雲朵外形、站立面與底部的淡藍色。遊戲版 GLB 已內嵌來源、授權和原始檔校驗值。 [原始模型](https://grab3d.com/models/nature/cloud-platform/) · [授權檔](https://grab3d.com/dl/cloud-platform/LICENSE.txt)

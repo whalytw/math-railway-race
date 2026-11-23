@@ -1,6 +1,7 @@
 export const COAST_SECONDS = 10;
 export const BASE_SPEED = 60;
 export const DEFAULT_CAPS = [75, 90, 100];
+export const JET_FLAME_COLORS = [['#278dff', '#a0e9ff'], ['#ffcc19', '#fff5a0'], ['#ff449f', '#ffc7eb']];
 export function shuffle(items, random = Math.random) {
   const copy = [...items];
   for (let i = copy.length - 1; i > 0; i--) {
@@ -24,6 +25,7 @@ export class QuizLane {
     this.coastTime = 0; this.coastDistance = 0; this.finishSpeed = 0;
     this.number = 0; this.correct = 0; this.phase = 'travel'; this.until = 8;
     this.clock = 0; this.ends = []; this.tier = 0; this.speed = 0; this.rate = 12;
+    this.driveSpeed = 0; this.cloudKmh = 0; this.cloudUntil = 0;
     this.revision = 0; this.distance = 0; this.finished = null;
   }
   next() {
@@ -44,6 +46,15 @@ export class QuizLane {
     if (this.finished !== null) return 0;
     const firstActive = this.ends.findIndex(end => end > this.clock + 1e-8);
     return firstActive < 0 ? 0 : Math.min(3, this.ends.length - firstActive);
+  }
+  get cloudBonus() {
+    return this.finished === null && this.cloudUntil > this.clock + 1e-8 ? this.cloudKmh : 0;
+  }
+  grantCloudBoost(kmh, seconds) {
+    if (this.finished !== null) return;
+    this.cloudKmh = kmh;
+    this.cloudUntil = this.clock + seconds;
+    this.speed = this.driveSpeed + kmh;
   }
   settle(choice) {
     if (this.phase !== 'question' || this.finished !== null) return;
@@ -79,18 +90,28 @@ export class QuizLane {
     while (this.ends.length && this.ends[0] <= this.clock + 1e-8) this.ends.shift();
     const tier = Math.min(3, this.ends.length);
     const target = tier ? this.caps[tier-1] : BASE_SPEED;
-    if (tier > this.tier) this.rate = Math.max(0, target-this.speed)/1.5;
+    const before = this.driveSpeed;
+    if (tier > this.tier) this.rate = Math.max(0, target - before) / 1.5;
     this.tier = tier;
-    const speed = this.speed < target ? Math.min(target, this.speed + this.rate * dt) : Math.max(target, this.speed - 5 * dt);
-    const travel = (speed + this.speed) / 7.2 * dt;
+    const speed = before < target ? Math.min(target, before + this.rate * dt) : Math.max(target, before - 5 * dt);
+    const cloudBonus = this.cloudBonus;
+    const boostedSeconds = cloudBonus ? Math.min(dt, this.cloudUntil - this.clock) : 0;
+    const driveMetresPerSecond = (before + speed) / 7.2;
+    const boostedMetresPerSecond = driveMetresPerSecond + cloudBonus / 3.6;
+    const boostedDistance = boostedMetresPerSecond * boostedSeconds;
+    const travel = boostedDistance + driveMetresPerSecond * (dt - boostedSeconds);
     if (this.distance + travel >= length) {
-      const crossing = dt * (length-this.distance)/travel;
+      const remaining = length - this.distance;
+      const boostedCrossing = boostedSeconds > 0 && remaining <= boostedDistance;
+      const crossing = boostedCrossing ? remaining / boostedMetresPerSecond
+        : boostedSeconds + (remaining - boostedDistance) / driveMetresPerSecond;
       this.finished = this.clock + crossing;
-      this.finishSpeed = this.speed + (speed-this.speed) * crossing/dt;
+      this.finishSpeed = before + (speed - before) * crossing / dt + (boostedCrossing ? cloudBonus : 0);
       this.phase = 'finished'; this.distance = length; this.coast(dt-crossing); this.tier = 0; this.revision++;
       return;
     }
-    this.clock += dt; this.distance += travel; this.speed = speed;
+    this.clock += dt; this.distance += travel;
+    this.driveSpeed = speed; this.speed = speed + this.cloudBonus;
     if (this.clock + 1e-8 >= this.until) {
       if (this.phase === 'question') this.settle(null);
       else this.next();
