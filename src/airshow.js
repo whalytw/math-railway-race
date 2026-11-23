@@ -1,102 +1,248 @@
 import * as THREE from 'three';
-import {clamp, lerp, smoothstep} from './core.js?v=13.0.0';
+import {clamp, GRAVITY, lerp, smoothstep, TAU} from './core.js?v=13.0.0';
+import {footprintMaximum} from './grounding.js?v=13.0.0';
 import {AircraftShadow} from './aircraft-shadow.js?v=21';
-import {AirshowSmoke} from './airshow-smoke.js?v=21';
+import {AirshowSmoke, SMOKE_LIFETIME} from './airshow-smoke.js?v=22';
 
 export const BIPLANE_ASSET = 'AirshowBiplane';
-const OPENING_TIME = 20;
-const FINAL_PASS_PROGRESS = 0.75;
+
 const APPROACH_SPEED = 110 / 3.6;
-const EXIT_ACCELERATION = 4.6;
-const ACCELERATION_TIME = 8;
-const GRAVITY = 9.81;
-const MAX_GRADE = 0.15;
+const APPROACH_HOLD = 2.2;
+const APPROACH_RAMP = 3.6;
+const EXIT_SPEED = 238 / 3.6;
+const EXIT_RAMP = 5.5;
+const MAX_GRADE = 0.23;
+const ENTRY_FRAME = 18;
+const ARC_SAMPLES = 8;
+const HEADING_LOOKAHEAD = 29;
+const BANK_STEP = 0.10;
+const BANK_RATE = 1.4;
+const SMOOTHING = [1, 8, 28, 56, 70, 56, 28, 8, 1];
+
+function ease(t) {
+  const u = clamp(t, 0, 1);
+  return u ** 3 * (10 + u * (-15 + 6 * u));
+}
+
+const windowed = (u, from = 0, to = 1) => Math.sin(Math.PI * clamp((u - from) / (to - from), 0, 1)) ** 2;
+const wave = (u, cycles) => windowed(u) * Math.sin(TAU * u * cycles);
+const cross = (u, from, to) => ease((u - from) / (to - from));
+
+const SHOW = [
+  {
+    seconds: 20, progress: 0, entry: -54, lead: 52, pace: 35.5, climb: 4,
+    routines: [
+      {name: 'diagonal', height: 12, span: 232},
+      {
+        name: 'low-wave', height: 12.4, span: 246,
+        lift: u => 3.8 * windowed(u, .05, .64) - 1.8 * windowed(u, .60, .96),
+      },
+      {
+        name: 'sweeping-arc', height: 12.75, span: 264, sweep: [.12, .89],
+        across: u => 11 * windowed(u, 0, .53) - 9 * windowed(u, .52, 1),
+        lift: u => 2.7 * windowed(u, .28, .88),
+      },
+    ],
+  },
+  {
+    seconds: 0, progress: .40, entry: -64, lead: 66, pace: 40.5, climb: 5,
+    routines: [
+      {
+        name: 'double-s', height: 13.6, span: 282,
+        across: u => 24 * wave(u, 1.35),
+        lift: u => 4 * windowed(u, .24, .85),
+      },
+      {
+        name: 'climb-and-dive', height: 14, span: 296, mirror: true, sweep: [.10, .88],
+        across: u => 8 * windowed(u, .5, 1),
+        lift: u => 10.5 * windowed(u, .09, .68) - 2.4 * windowed(u, .66, .99),
+      },
+      {
+        name: 'wing-rock', height: 14.45, span: 310,
+        across: u => 17 * wave(u, 1.1),
+        lift: u => 5.5 * windowed(u, .2, .93),
+        roll: u => .32 * wave(u, 2.25),
+      },
+    ],
+  },
+  {
+    seconds: 0, progress: .80, entry: -70, lead: 72, pace: 43, climb: 6,
+    routines: [
+      {
+        name: 'barrel-roll', height: 16, span: 324, fullRoll: true,
+        across: u => 14 * windowed(u, .23, .76),
+        lift: u => 8 * windowed(u, .19, .89),
+        roll: u => TAU * cross(u, .17, .83),
+      },
+      {
+        name: 'paired-wingovers', height: 16.5, span: 343, mirror: true, sweep: [.05, .92],
+        across: u => 30 * wave(u, 1.6),
+        lift: u => 7.5 * windowed(u, .08, .48) + 9 * windowed(u, .47, .94),
+        roll: u => .5 * wave(u, 1.65),
+      },
+      {
+        name: 'climbing-corkscrew', height: 17, span: 365, fullRoll: true,
+        across: u => {
+          const angle = TAU * cross(u, .18, .82);
+          return 12 * Math.sin(angle) * windowed(u, .06, .97);
+        },
+        lift: u => {
+          const angle = TAU * cross(u, .18, .82);
+          return (3 + 6 * (1 - Math.cos(angle))) * windowed(u, .12, .96);
+        },
+        roll: u => -TAU * cross(u, .14, .86),
+      },
+    ],
+  },
+];
 
 function nearbyGroup(active) {
-  if (active.length < 2) return [active];
+  if (active.length < 2) return active.length ? [active] : [];
   const centre = active[Math.floor(active.length / 2)];
   const p = centre.rig.track.sample(centre.state.distance);
   const close = active.every(view => {
     const s = view.rig.track.sample(view.state.distance);
     return Math.hypot(s.x - p.x, s.z - p.z) < 110 && p.tx * s.tx + p.tz * s.tz > 0.8;
   });
-  // A spread-out field sees the same choreography along each local stretch.
+  // Spread-out carts see the same routine along each local stretch.
   return close ? [active] : active.map(view => [view]);
 }
 
-function planPass(world, group, finalPass) {
+// Integral of the smooth speed ramp, continuing at full speed afterwards.
+function rampDistance(time, duration) {
+  const u = clamp(time / duration, 0, 1);
+  return duration * u ** 3 * (1 - u / 2) + Math.max(0, time - duration);
+}
+
+function timeForDistance(distanceAt, distance, minSpeed) {
+  let low = 0, high = distance / minSpeed;
+  for (let i = 0; i < 24; i++) {
+    const mid = (low + high) / 2;
+    if (distanceAt(mid) < distance) low = mid;
+    else high = mid;
+  }
+  return (low + high) / 2;
+}
+
+function smoothClearance(points) {
+  for (const direction of [-1, 1]) {
+    for (let i = direction > 0 ? 1 : points.length - 2; i >= 0 && i < points.length; i += direction) {
+      const a = points[i - direction], b = points[i];
+      b.y = Math.max(b.y, a.y - MAX_GRADE * Math.hypot(a.x - b.x, a.z - b.z));
+    }
+  }
+  const heights = points.map(p => p.y);
+  for (let i = 2; i < points.length - 2; i++) {
+    const eased = (heights[i - 2] + 4 * heights[i - 1] + 6 * heights[i] + 4 * heights[i + 1] + heights[i + 2]) / 16;
+    points[i].y = Math.max(points[i].y, eased);
+  }
+}
+
+function planPass(world, group, stage, routine, aircraftRadius) {
   const reference = group[Math.floor(group.length / 2)];
-  const {track} = reference.rig;
-  const start = reference.state.distance;
+  const {track} = reference.rig, start = reference.state.distance;
   const p = track.sample(start);
   const laneOffsets = group.map(view => {
     const s = view.rig.track.sample(view.state.distance);
     return (s.x - p.x) * p.nx + (s.z - p.z) * p.nz;
   });
-  // Use the rightmost and leftmost player columns when the rails run together.
   const rightSide = Math.sign(laneOffsets.at(-1) - laneOffsets[0]) || -1;
-  const rankedOffsets = laneOffsets.map(offset => offset * rightSide);
-  const right = Math.max(22, ...rankedOffsets) + (finalPass ? 17 : 12);
-  const left = Math.min(-20, ...rankedOffsets) - (finalPass ? 7 : 9);
-  const begin = finalPass ? -76 : -62;
-  const sweepStart = finalPass ? 55 : 76;
-  const sweepEnd = sweepStart + Math.max(finalPass ? 295 : 270, (right - left) * 4.1);
-  const end = sweepEnd + Math.max(500, Math.min(800, world.config.viewDistance * 1.15));
-  const clearance = finalPass ? 20 : 15;
-  const station = track.sample(start + sweepEnd);
-  const points = [];
-  const sample = {};
-  function addPoint(along) {
-    const d = start + Math.min(along, sweepEnd);
-    track.sample(d, sample);
-    const {nx, nz, x, y, z} = sample;
-    const extra = world.route.lanes ? d - clamp(d, 0, track.length) : 0;
-    const extension = Math.max(along - sweepEnd, 0);
-    const u = clamp((along - sweepStart) / (sweepEnd - sweepStart), 0, 1);
-    const easing = u ** 3 * (10 + u * (-15 + 6 * u));
-    const across = rightSide * lerp(right, left, easing);
-    const px = x + sample.tx * extra + station.tx * extension + nx * across;
-    const pz = z + sample.tz * extra + station.tz * extension + nz * across;
-    const ground = Math.max(
-      world.groundHeight(px, pz),
-      world.groundHeight(px + nx * 5, pz + nz * 5),
-      world.groundHeight(px - nx * 5, pz - nz * 5),
-    );
-    const climbing = 5 * smoothstep(sweepEnd, end, along);
-    points.push(new THREE.Vector3(px, Math.max(y, ground) + clearance + climbing, pz));
+  const ranked = laneOffsets.map(offset => offset * rightSide);
+  const right = Math.max(21, ...ranked) + 11;
+  const left = Math.min(-20, ...ranked) - 10;
+  const acrossStart = routine.mirror ? left : right;
+  const acrossEnd = routine.mirror ? right : left;
+  const direction = routine.mirror ? -1 : 1;
+  const fastest = Math.max(...group.map(view => view.state.speed));
+  const pace = Math.max(stage.pace, fastest + 11);
+  const sweepStart = stage.lead + Math.max(0, fastest - 18) * 3.8;
+  const sweepEnd = sweepStart + Math.max(routine.span, (right - left) * 3.65);
+  const end = sweepEnd + Math.max(470, Math.min(800, world.config.viewDistance * 1.04));
+  const radius = aircraftRadius + 4;
+  const footprint = {min: [-radius, 0, -radius], max: [radius, 0, radius]};
+  const groundPoint = {x: 0, z: 0, yaw: 0};
+  const points = [], exit = {}, frame = {}, before = {}, after = {};
+  const [sweepFrom, sweepTo] = routine.sweep ?? [0, 1];
+
+  function readTrack(distance, target) {
+    track.sample(distance, target);
+    if (world.route.lanes) {
+      const extra = distance - clamp(distance, 0, track.length);
+      target.x += target.tx * extra;
+      target.z += target.tz * extra;
+      target.y += target.ty * extra;
+    }
   }
+
+  function readFrame(along, target) {
+    const distance = start + along;
+    readTrack(distance, target);
+    readTrack(distance - ENTRY_FRAME, before);
+    readTrack(distance + ENTRY_FRAME, after);
+    const dx = after.x - before.x, dz = after.z - before.z;
+    const length = Math.hypot(dx, dz);
+    target.tx = dx / length;
+    target.tz = dz / length;
+  }
+
+  readFrame(sweepEnd, exit);
+  function addPoint(along) {
+    const extension = Math.max(0, along - sweepEnd);
+    if (extension) Object.assign(frame, exit);
+    else readFrame(along, frame);
+    const u = clamp((along - sweepStart) / (sweepEnd - sweepStart), 0, 1);
+    const across = rightSide * (lerp(acrossStart, acrossEnd, cross(u, sweepFrom, sweepTo))
+      + direction * (routine.across?.(u) ?? 0));
+    const x = frame.x + frame.tx * extension + frame.tz * across;
+    const z = frame.z + frame.tz * extension - frame.tx * across;
+    const lift = (routine.lift?.(u) ?? 0) + stage.climb * cross(along, sweepEnd, end);
+    points.push({x, z, railHeight: frame.y, lift});
+  }
+
   function segment(from, to) {
-    const steps = Math.ceil((to - from) / 9);
+    const steps = Math.ceil((to - from) / 5.5);
     for (let i = 1; i <= steps; i++) addPoint(lerp(from, to, i / steps));
   }
-  addPoint(begin);
-  segment(begin, sweepEnd);
-  const endSweepIndex = points.length - 1;
+
+  addPoint(stage.entry);
+  segment(stage.entry, sweepStart);
+  const beginIndex = points.length - 1;
+  segment(sweepStart, sweepEnd);
+  const endIndex = points.length - 1;
   segment(sweepEnd, end);
 
-  // A slope-limited clearance envelope lets the aircraft climb before hills.
-  for (let i = points.length - 2; i >= 0; i--) {
-    const a = points[i], b = points[i + 1];
-    a.y = Math.max(a.y, b.y - MAX_GRADE * Math.hypot(a.x - b.x, a.z - b.z));
-  }
-  for (let i = 1; i < points.length; i++) {
-    const a = points[i - 1], b = points[i];
-    b.y = Math.max(b.y, a.y - MAX_GRADE * Math.hypot(a.x - b.x, a.z - b.z));
-  }
-  const curve = new THREE.CatmullRomCurve3(points);
-  curve.arcLengthDivisions = (points.length - 1) * 12;
+  const halfWindow = Math.floor(SMOOTHING.length / 2);
+  const path = points.map(({x, z, railHeight, lift}, index) => {
+    // Smooth the track chord and lane offsets before measuring flight clearance.
+    if (index >= halfWindow && index < points.length - halfWindow) {
+      x = 0; z = 0;
+      for (const [i, weight] of SMOOTHING.entries()) {
+        const point = points[index + i - halfWindow];
+        x += point.x * weight / 256;
+        z += point.z * weight / 256;
+      }
+    }
+    groundPoint.x = x; groundPoint.z = z;
+    const ground = world.groundHeight(x, z);
+    const terrainTop = footprintMaximum(world.terrainGrid, groundPoint, footprint);
+    const objectTop = world.airspace.obstacleTop(x, z, radius);
+    const clearance = Math.max(terrainTop, objectTop) + aircraftRadius + 1.5;
+    const preferredHeight = Math.max(ground, railHeight) + routine.height + lift;
+    return new THREE.Vector3(x, Math.max(clearance, preferredHeight), z);
+  });
+  smoothClearance(path);
+
+  const curve = new THREE.CatmullRomCurve3(path);
+  curve.arcLengthDivisions = (points.length - 1) * ARC_SAMPLES;
   const lengths = curve.getLengths();
-  const sweepDistance = lengths[endSweepIndex * 12];
+  const maneuverStart = lengths[beginIndex * ARC_SAMPLES];
+  const maneuverEnd = lengths[endIndex * ARC_SAMPLES];
   const length = lengths.at(-1);
-  const accelerateAt = sweepDistance / APPROACH_SPEED;
-  const accelerationDistance = APPROACH_SPEED * ACCELERATION_TIME
-    + 0.5 * EXIT_ACCELERATION * ACCELERATION_TIME ** 2;
-  const remaining = length - sweepDistance;
-  const exitSpeed = APPROACH_SPEED + EXIT_ACCELERATION * ACCELERATION_TIME;
-  const after = remaining <= accelerationDistance
-    ? (Math.sqrt(APPROACH_SPEED ** 2 + 2 * EXIT_ACCELERATION * remaining) - APPROACH_SPEED) / EXIT_ACCELERATION
-    : ACCELERATION_TIME + (remaining - accelerationDistance) / exitSpeed;
-  return {curve, length, accelerateAt, duration: accelerateAt + after};
+  const approachDistance = time => APPROACH_SPEED * time + (pace - APPROACH_SPEED) * rampDistance(time - APPROACH_HOLD, APPROACH_RAMP);
+  const exitDistance = time => pace * time + (EXIT_SPEED - pace) * rampDistance(time, EXIT_RAMP);
+  const accelerateAt = timeForDistance(approachDistance, maneuverEnd, APPROACH_SPEED);
+  const duration = accelerateAt + timeForDistance(exitDistance, length - maneuverEnd, pace);
+  return {curve, length, approachDistance, exitDistance, maneuverStart, maneuverEnd, accelerateAt, duration, pace, routine, rightSide};
 }
 
 function makePose() {
@@ -105,7 +251,9 @@ function makePose() {
 
 class BiplanePass {
   constructor(world) {
-    this.model = world.store.get(BIPLANE_ASSET).root.clone(true);
+    const {root, bounds} = world.store.get(BIPLANE_ASSET);
+    this.model = root.clone(true);
+    this.radius = Math.hypot(...bounds.max.toArray().map((v, axis) => Math.max(Math.abs(v), Math.abs(bounds.min.getComponent(axis)))));
     this.model.name = 'AirshowBiplane';
     this.model.updateMatrixWorld(true);
     this.propeller = this.model.getObjectByName('Propeller');
@@ -128,44 +276,76 @@ class BiplanePass {
     this.model.visible = false;
     this.pose = makePose();
     this.trailPose = makePose();
-    this.tangent = new THREE.Vector3();
-    this.tangentBefore = new THREE.Vector3();
-    this.tangentAfter = new THREE.Vector3();
+    this.before = new THREE.Vector3();
+    this.after = new THREE.Vector3();
     this.euler = new THREE.Euler(0, 0, 0, 'YXZ');
     this.sampleTrail = time => this.sample(time, this.trailPose);
   }
 
-  start(world, group, seconds, finalPass) {
-    this.plan = planPass(world, group, finalPass);
+  start(world, group, seconds, stage, routine) {
+    this.clear();
+    this.plan = planPass(world, group, stage, routine, this.radius);
+    this.bankHistory = this.buildBankHistory();
     this.startsAt = seconds;
-    this.smoke.clear();
+    this.endsAt = seconds + this.plan.duration + SMOKE_LIFETIME;
     const mask = group.reduce((layers, view) => layers | (view.camera.layers.mask & ~1), 0);
     this.model.traverse(node => { node.layers.mask = mask; });
     this.smoke.mesh.layers.mask = mask;
     if (this.shadow) this.shadow.mesh.layers.mask = mask;
   }
 
+  distanceAt(time) {
+    const {length, accelerateAt, approachDistance, exitDistance} = this.plan;
+    return Math.min(length, approachDistance(Math.min(time, accelerateAt)) + exitDistance(Math.max(0, time - accelerateAt)));
+  }
+
+  readHeading(distance, position) {
+    const {curve, length} = this.plan;
+    curve.getPointAt(distance / length, position);
+    const start = Math.max(0, distance - HEADING_LOOKAHEAD);
+    const end = Math.min(length, distance + HEADING_LOOKAHEAD);
+    curve.getPointAt(start / length, this.before);
+    curve.getPointAt(end / length, this.after);
+    return end - start;
+  }
+
+  buildBankHistory() {
+    const {duration, pace, accelerateAt, length} = this.plan;
+    const values = new Float32Array(Math.ceil(duration / BANK_STEP) + 1);
+    const position = new THREE.Vector3();
+    const limit = BANK_STEP * BANK_RATE;
+    for (let i = 1; i < values.length; i++) {
+      const time = Math.min(duration, i * BANK_STEP);
+      const distance = this.distanceAt(time);
+      const width = this.readHeading(distance, position);
+      const ax = position.x - this.before.x, az = position.z - this.before.z;
+      const bx = this.after.x - position.x, bz = this.after.z - position.z;
+      const turn = Math.atan2(az * bx - ax * bz, ax * bx + az * bz);
+      const speed = APPROACH_SPEED
+        + (pace - APPROACH_SPEED) * smoothstep(0, APPROACH_RAMP, time - APPROACH_HOLD)
+        + (EXIT_SPEED - pace) * smoothstep(0, EXIT_RAMP, time - accelerateAt);
+      const strength = smoothstep(0, 23, Math.min(distance, length - distance));
+      const desired = -0.85 * Math.tanh(2 * speed ** 2 * turn / (0.85 * GRAVITY * width)) * strength;
+      // Rate-limit banking to avoid abrupt rolls at changes in path curvature.
+      values[i] = values[i - 1] + clamp((desired - values[i - 1]) * .55, -limit, limit);
+    }
+    return values;
+  }
+
   sample(time, pose) {
-    const {curve, length, accelerateAt} = this.plan;
-    const powered = Math.max(0, time - accelerateAt);
-    const acceleration = Math.min(ACCELERATION_TIME, powered);
-    const speed = APPROACH_SPEED + EXIT_ACCELERATION * acceleration;
-    const distance = Math.min(length, APPROACH_SPEED * time
-      + EXIT_ACCELERATION * acceleration * (powered - 0.5 * acceleration));
-    const u = distance / length;
-    curve.getPointAt(u, pose.position);
-    const forward = curve.getTangentAt(u, this.tangent);
-    const oldDistance = Math.max(0, distance - 9);
-    const newDistance = Math.min(length, distance + 9);
-    const before = curve.getTangentAt(oldDistance / length, this.tangentBefore);
-    const after = curve.getTangentAt(newDistance / length, this.tangentAfter);
-    const angle = Math.atan2(before.z * after.x - before.x * after.z, before.x * after.x + before.z * after.z);
-    const curvature = angle / Math.max(1, newDistance - oldDistance);
-    const roll = clamp(-Math.atan(speed ** 2 * curvature / GRAVITY), -0.80, 0.80);
-    const pitch = -Math.atan2(forward.y, Math.hypot(forward.x, forward.z));
-    pose.yaw = Math.atan2(forward.x, forward.z);
+    const {length, maneuverStart, maneuverEnd, routine, rightSide} = this.plan;
+    const distance = this.distanceAt(time);
+    this.readHeading(distance, pose.position);
+    const dx = this.after.x - this.before.x, dz = this.after.z - this.before.z;
+    const index = Math.min(this.bankHistory.length - 2, Math.floor(time / BANK_STEP));
+    const bank = lerp(this.bankHistory[index], this.bankHistory[index + 1], clamp(time / BANK_STEP - index, 0, 1));
+    const phase = clamp((distance - maneuverStart) / (maneuverEnd - maneuverStart), 0, 1);
+    const steady = routine.fullRoll ? 1 - .7 * windowed(phase, .08, .92) : 1;
+    const roll = bank * steady + rightSide * (routine.roll?.(phase) ?? 0);
+    const pitch = -Math.atan2(this.after.y - this.before.y, Math.hypot(dx, dz));
+    pose.yaw = Math.atan2(dx, dz);
     pose.rotation.setFromEuler(this.euler.set(pitch, pose.yaw, roll));
-    pose.fade = 1 - smoothstep(0.88, 1, u);
+    pose.fade = 1 - smoothstep(0.88, 1, distance / length);
     return pose;
   }
 
@@ -178,6 +358,10 @@ class BiplanePass {
 
   update(world, seconds, viewportHeight) {
     if (!this.plan) return;
+    if (seconds >= this.endsAt) {
+      this.clear();
+      return;
+    }
     const time = seconds - this.startsAt;
     const {duration} = this.plan;
     this.model.visible = time < duration;
@@ -202,38 +386,36 @@ class BiplanePass {
 }
 
 export class Airshow {
-  constructor(world) {
+  constructor(world, random = Math.random) {
     this.world = world;
+    this.random = random;
     this.flights = [];
-    this.openingPlayed = false;
-    this.finishPassPlayed = false;
+    this.reset();
+  }
+
+  reset() {
+    this.next = 0;
+    this.routines = SHOW.map(({routines}) => routines[Math.floor(this.random() * routines.length)]);
+    for (const flight of this.flights) flight.clear();
   }
 
   updateRace(views, seconds) {
-    if (!this.openingPlayed && seconds + 1e-8 >= OPENING_TIME) {
-      this.openingPlayed = true;
-      this.start(views, seconds, false);
-    }
-    if (!this.finishPassPlayed && views.some(({quiz, rig}) => quiz.distance >= rig.raceLength * FINAL_PASS_PROGRESS)) {
-      this.finishPassPlayed = true;
-      this.start(views, seconds, true);
-    }
-  }
-
-  start(views, seconds, finalPass) {
-    const groups = nearbyGroup(views);
-    for (const flight of this.flights) flight.clear();
-    for (const [i, group] of groups.entries()) {
-      const flight = this.flights[i] ??= new BiplanePass(this.world);
-      flight.start(this.world, group, seconds, finalPass);
+    const stage = SHOW[this.next];
+    if (!stage || seconds + 1e-8 < stage.seconds) return;
+    if (!views.some(({quiz, rig}) => quiz.distance >= rig.raceLength * stage.progress)) return;
+    const routine = this.routines[this.next++];
+    const active = views.filter(({quiz}) => quiz.finished === null);
+    for (const group of nearbyGroup(active)) {
+      let flight = this.flights.find(candidate => !candidate.plan || seconds >= candidate.endsAt);
+      if (!flight) {
+        flight = new BiplanePass(this.world);
+        this.flights.push(flight);
+      }
+      flight.start(this.world, group, seconds, stage, routine);
     }
   }
 
   draw(seconds, viewportHeight) {
     for (const flight of this.flights) flight.update(this.world, seconds, viewportHeight);
-  }
-
-  clear() {
-    for (const flight of this.flights) flight.clear();
   }
 }

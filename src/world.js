@@ -1,20 +1,21 @@
+import {Airspace} from './airspace.js?v=22';
 import * as THREE from 'three';
-import { BIPLANE_ASSET } from './airshow.js?v=21';
+import { BIPLANE_ASSET } from './airshow.js?v=22';
 import { SUN_OFFSET } from './aircraft-shadow.js?v=21';
-import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=21';
+import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=22';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { TAU, lerp, clamp, wrap, smoothstep, randomGenerator, stationsFor, biomeMix, trackSegments } from './core.js?v=13.0.0';
 import { createCircuitRoute } from './circuit-route.js?v=17';
 import { createStraightRoute, straightStations } from './straight-route.js?v=17';
 import { sleeperLayout, sleeperFilter, planRouteFeatures, routeStructures, bridgeCoordinates, bridgeGroundHeight } from './route-features.js?v=17';
-import { buildMountainBackdrop, buildVariedClouds, updateClouds, buildBridgeAndRiver, buildTunnel, buildGirderBridge } from './scenery.js?v=13.0.0';
+import { buildMountainBackdrop, buildVariedClouds, updateClouds, buildBridgeAndRiver, buildTunnel, buildGirderBridge } from './scenery.js?v=22';
 import { fitGroundContact, prepareGroundedParts, groundBatchGeometry, renderedGroundHeight } from './grounding.js?v=13.0.0';
 import { planScenery, indexGroundPads, paddedHeight } from './scenery-plan.js?v=17';
 import { createBiomeLayout } from './biome-blend.js?v=13.0.0';
 import { shadowProfile, keepSceneryShadow } from './shadow-profile.js?v=13.0.0';
-import { buildFans, buildGoals, GOAL_ARCH, finishSmile } from './celebration.js?v=17';
+import { buildFans, buildGoals, GOAL_ARCH, finishSmile } from './celebration.js?v=22';
 import { createStandingDriver } from './drivers.js?v=13.0.0';
-import { TURBO_ASSET_ID, TurboPair, createTurboResources } from './turbo-visual.js?v=15';
+import { TURBO_ASSET_ID, TurboPair, createTurboResources } from './turbo-visual.js?v=22';
 import { createGroundMaterial, grassHabitatAt, buildGrassCover, buildFarmland, GRASS_NEAR_DISTANCE, GRASS_DRAW_DISTANCE } from './ground-cover.js?v=13.0.0';
 import { chooseFarGeometry, distanceToXZBounds } from './render-lod.js?v=13.0.0';
 import { planSharedShadow, SHADOW_DEPTH } from './shared-shadow.js?v=13.0.0';
@@ -143,6 +144,7 @@ export class RailWorld {
     this.groundProximities = Array.from({ length: this.route.lanes?.length ?? this.route.turns }, () => ({}));
     this.structures = routeStructures(this.features);
     this.group = new THREE.Group(); scene.add(this.group);
+    this.airspace = config.playable && config.airshowPlane ? new Airspace() : null;
     this.cullGroups = []; this.ownedGeometry = []; this.ownedMaterials = []; this.ownedTextures = [];
     this.instanceCount = 0; this.sceneryCount = 0; this.terrainChunks = 0;
     this.wheels = []; this.carts = []; this.waterMaterials = [];
@@ -353,7 +355,9 @@ export class RailWorld {
     const info = this.store.manifest?.models?.[id];
     const casts = castShadow ?? (this.config.sceneryShadows && ['scenery', 'landmark'].includes(kind));
     const bins = new Map();
-    let source = this.partsOverrides.get(id) || this.store.get(id);
+    const asset = this.store.get(id);
+    const airspace = ['scenery', 'landmark', 'bridge', 'tunnel', 'station'].includes(kind) ? this.airspace : null;
+    let source = this.partsOverrides.get(id) || asset;
     if (placements[0]?.groundPatch) {
       if (!this.groundParts.has(id)) this.groundParts.set(id, { parts: prepareGroundedParts(source, this.store.manifest.models[id].placement, this.ownedMaterials) });
       source = this.groundParts.get(id);
@@ -383,7 +387,9 @@ export class RailWorld {
             slopeQuaternion.setFromUnitVectors(upAxis, slopeNormal); q.premultiply(slopeQuaternion);
           }
           scaling.set(p.sx ?? p.scale ?? 1, p.sy ?? p.scale ?? 1, p.sz ?? p.scale ?? 1);
-          placementMatrix.compose(position, q, scaling); combined.multiplyMatrices(placementMatrix, part.matrix);
+          placementMatrix.compose(position, q, scaling);
+          if (airspace && partIndex === 0) airspace.addPlacement(asset.bounds, placementMatrix, p.groundRelief);
+          combined.multiplyMatrices(placementMatrix, part.matrix);
           mesh.setMatrixAt(i, combined);
           if (p.tone !== undefined) mesh.setColorAt(i, new THREE.Color(p.tone, p.tone, p.tone));
         }
@@ -963,7 +969,7 @@ export class RailWorld {
     this.carts = []; this.primaryCart = null;
     this.group.traverse(node => { if (node.isInstancedMesh) node.dispose(); });
     this.ownedGeometry.forEach(g => g.dispose()); this.ownedMaterials.forEach(m => m.dispose()); this.ownedTextures.forEach(t => t.dispose());
-    this.group.clear(); this.cullGroups = []; this.wheels = [];
+    this.group.clear(); this.cullGroups = []; this.wheels = []; this.airspace = null;
     this.groundParts.clear(); this.terrainGrid = null;
     this.sceneryPlan = null; this.groundPadIndex = null;
   }

@@ -36,10 +36,14 @@ export class CameraDrone {
 
     this.random = randomGenerator(world.config.seed + ':camera-drone:' + index);
     this.startSide = index === 0 ? 1 : -1;
-    this.visitAt = 0;
-    this.scheduleVisit();
     this.exitLead = Math.min(340, world.config.viewDistance - 28);
     this.trackFrame = {};
+    this.reset();
+  }
+
+  reset() {
+    this.visitAt = 0;
+    this.scheduleVisit();
   }
 
   scheduleVisit() {

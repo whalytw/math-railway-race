@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {raceStandings} from '../src/straight-race.js';
 import {QuizLane,DEFAULT_CAPS} from '../src/quiz-race.js';
 const json=async f=>JSON.parse(await readFile(new URL('../question-bank/'+f+'.json',import.meta.url)));
 const books=await json('books'), pool=await json('number');
@@ -72,4 +73,12 @@ test('answer feedback reports the boost awarded immediately and ignores expired 
   assert.equal(result.tier, 1);
   assert.equal(lane.ends.at(-1), lane.clock + 45);
   assert.equal(lane.settle(lane.question.answer), undefined);
+});
+
+test('live ranks compare progress until each cart finishes and preserve ties', () => {
+  const ranks = (times, distances) => raceStandings(times, distances).map(({lane, rank}) => [lane, rank]);
+  assert.deepEqual(ranks([null, null, null], [0, 0, 0]), [[0, 1], [1, 1], [2, 1]]);
+  assert.deepEqual(ranks([null, null, null], [.45, .31, .47]), [[2, 1], [0, 2], [1, 3]]);
+  assert.deepEqual(ranks([null, 108, null], [.98, 1, .98]), [[1, 1], [0, 2], [2, 2]]);
+  assert.deepEqual(ranks([111.0001, 108, 111.0002], [1, 1, 1]), [[1, 1], [0, 2], [2, 2]]);
 });

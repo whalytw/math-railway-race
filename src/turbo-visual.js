@@ -51,7 +51,11 @@ export class TurboPair {
       return { side, mount, intake, mixer, exhaust, bracket };
     });
     world.group.add(this.root);
+    this.reset();
+  }
+  reset() {
     this.enabled = false; this.changedAt = 0; this.scale = 0; this.startScale = 0;
+    this.root.visible = false;
   }
   setTier(tier) {
     const materials=this.flames[tier-1];

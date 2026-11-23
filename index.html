@@ -16,14 +16,14 @@
   <link rel="stylesheet" href="./fleet-v11.css?v=13.0.0">
   <link rel="stylesheet" href="./straight-v13.css?v=13.0.0">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
-  <script type="module" src="./src/app.js?v=21"></script>
-<link rel="stylesheet" href="./quiz.css?v=21"></head>
+  <script type="module" src="./src/app.js?v=22"></script>
+<link rel="stylesheet" href="./quiz.css?v=22"></head>
 <body>
   <canvas id="scene" aria-label="三維軌道與地形場景"></canvas>
   <div class="vignette" aria-hidden="true"></div>
   <main id="title-screen" class="title-screen">
     <section class="setup-panel">
-      <header class="brand"><span class="brand-mark" aria-hidden="true">╫</span><span>LOOP<span class="brand-small">軌道試驗場</span></span><span class="edition">課堂競速<br>V21.0</span></header>
+      <header class="brand"><span class="brand-mark" aria-hidden="true">╫</span><span>LOOP<span class="brand-small">軌道試驗場</span></span><span class="edition">課堂競速<br>V22.0</span></header>
       <div class="intro"><h1>數學鐵道<br><b id="course-headline">心算競速</b></h1><p id="course-intro"></p></div>
       <form id="setup-form"><div class="scope-card"><button type="button" id="settings-open">教師設定 · 選題範圍</button><p id="scope-summary"></p></div>
         <div class="route-fields">
@@ -89,7 +89,7 @@
   </main>
 
   <section id="game-hud" class="game-hud" hidden aria-label="遊戲控制與儀表">
-    <div class="course-map"><div class="map-ends"><span>出發</span><span>終點 ⚑</span></div><div id="race-map"></div></div><div id="race-instruments"></div><div id="quiz-grid"></div><div id="quiz-effects" aria-hidden="true"></div><div id="fleet-status" class="fleet-status" aria-label="三車速度" hidden></div>
+    <div id="race-instruments"></div><div id="quiz-grid"></div><div id="quiz-effects" aria-hidden="true"></div><div id="fleet-status" class="fleet-status" aria-label="三車速度" hidden></div>
     <div class="run-brand"><span class="brand-mark">╫</span><span>LOOP<small>軌道試驗場</small></span></div>
     <div class="timer-panel"><span>行駛時間</span><strong id="timer">0.0</strong><small>SECONDS</small></div>
     <div class="fps-panel"><span class="live-dot"></span><strong id="fps">—</strong><span>FPS</span></div>
@@ -107,7 +107,11 @@
     <div id="race-results" class="race-results" role="status" hidden>
       <h2>全車完賽</h2>
       <p>依抵達終點的用時排名</p>
-      <ol id="race-standings"></ol><button type="button" id="again">再開一場</button>
+      <ol id="race-standings"></ol>
+      <div class="result-actions">
+        <button type="button" id="results-title">回標題畫面</button>
+        <button type="button" id="again">再開一場</button>
+      </div>
     </div>
   </section>
   <div id="countdown" class="countdown" hidden><small>準備出站</small><strong>3</strong></div>

@@ -14,11 +14,19 @@ export function checkRaceBoundary(view, beforeElapsed) {
   engine.holdAt(state, boundary);
 }
 
-export function raceStandings(finishTimes) {
-  const sorted = finishTimes.map((time, lane) => ({ time, lane })).sort((a, b) => a.time - b.time);
-  let rank;
-  return sorted.map((row, index) => {
-    if (index === 0 || row.time.toFixed(3) !== sorted[index - 1].time.toFixed(3)) rank = index + 1;
-    return { ...row, rank };
+export function raceStandings(finishTimes, distances = []) {
+  const sorted = finishTimes.map((time, lane) => ({
+    time, lane,
+    finishTime: time == null ? Infinity : Number(time.toFixed(3)),
+    distance: time == null ? (distances[lane] ?? 0) : 0,
+  })).sort((a, b) => {
+    if (a.finishTime !== b.finishTime) return a.finishTime - b.finishTime;
+    return b.distance - a.distance;
+  });
+  let rank = 1;
+  return sorted.map(({time, lane, finishTime, distance}, index) => {
+    const previous = sorted[index - 1];
+    if (previous && (previous.finishTime !== finishTime || previous.distance !== distance)) rank = index + 1;
+    return {time, lane, rank};
   });
 }

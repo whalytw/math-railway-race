@@ -1,11 +1,11 @@
-import {setupQuestions, startQuestions, drawQuestions, stopQuizEffects} from './quiz-ui.js?v=20';
+import {setupQuestions, startQuestions, drawQuestions, stopQuizEffects} from './quiz-ui.js?v=22';
 import {shakeAnswerCamera} from './answer-effects.js?v=20';
 import {setupRaceAudio, prepareRaceAudio, startRaceAudio, playRaceSound, pauseRaceAudio, stopRaceAudio} from './race-audio.js?v=20';
 import { COAST_SECONDS } from './quiz-race.js?v=18';
 import * as THREE from 'three';
-import { Airshow } from './airshow.js?v=21';
-import { CameraDrone } from './camera-drone.js?v=21';
-import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=21';
+import { Airshow } from './airshow.js?v=22';
+import { CameraDrone } from './camera-drone.js?v=22';
+import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=22';
 import { createPhysics, stepPhysics, FIXED_STEP, DEPARTURE_COUNTDOWN, clamp, lerp, wrap, resolveBiomes, randomGenerator, nextStation, biomeMix, createElevationProfile, leverReference, leverForSpeed, RATED_POWER, CART_MASS, MAX_GRADE, MIN_VERTICAL_RADIUS } from './core.js?v=13.0.0';
 import { riverProfile, riverPoint } from './route-features.js?v=13.0.0';
 import { copyMotion, interpolateMotion, zoomView, anchorCamera, partitionViewports } from './presentation.js?v=13.0.0';
@@ -15,10 +15,10 @@ import { MixControls } from './mix-controls.js?v=13.0.0';
 import { BIOME_COLORS, DEFAULT_MIX } from './biome-blend.js?v=13.0.0';
 import { initRapier, RapierRailPhysics, RAPIER_VERSION } from './rapier-rail.js?v=13.0.0';
 import { FLYOVER_RAIL_SEPARATION, turnIndexAt } from './circuit-route.js?v=13.0.0';
-import { checkRaceBoundary, raceStandings } from './straight-race.js?v=13.0.0';
+import { checkRaceBoundary, raceStandings } from './straight-race.js?v=22';
 
 const $ = id => document.getElementById(id);
-const GAME_VERSION = '21.0.0';
+const GAME_VERSION = '22.0.0';
 const flightSettings = {
   'camera-drone': 'cameraDrone',
   'drone-shadow': 'droneShadow',
@@ -94,7 +94,7 @@ function renderFrame(dt = 0, snap = false) {
   const updateVisibility = visibilityElapsed > 0.18 || snap;
   // Update airframes and carts before the shared scene's single matrix update.
   for (const view of views) view.drone?.update(world, view);
-  world.airshow?.draw(Math.max(0, physics.elapsed - DEPARTURE_COUNTDOWN), renderer.domElement.height);
+  world.airshow?.draw(Math.max(0, physics.elapsed - DEPARTURE_COUNTDOWN + finishAnimationTime), renderer.domElement.height);
   scene.updateMatrixWorld();
   const now = performance.now();
   for (const view of views) {
@@ -395,12 +395,7 @@ async function startGame(event) {
   mode = 'loading'; $('loading-title').textContent = `正在鋪設軌道 · ${courseLabel(config)}`;
   try {
     const loaded = await loadWorld(config, true); if (!loaded) return;
-    sessionConfig = config; lastCollisionCount = 0; accumulator = 0; lastTime = 0;
-    fpsHistory = []; frameSamples = []; metricTime = 0; metricFrames = 0; longFrameCount = 0;
-    hudElapsed = 0; countdownFinished = false; cameraMode = 'chase'; orbitYaw = 0; orbitPitch = 0.20; orbitDistance = 18; cabYaw = 0; cabPitch = 0;
-    lastImpactNs = 0;
-    menu.hidden = true; hud.hidden = false; loading.hidden = true; $('pause-overlay').hidden = true; $('race-results').hidden = true;
-    setDrivingEnabled(true);
+    sessionConfig = config;
     $('route-label').textContent = courseLabel(config);
     $('station-toast-label').textContent = world.route.lanes ? '直線競速' : '沿線下一站';
     $('biome-label').textContent = config.biomeMix.map(mixLabel).join(' / ');
@@ -412,18 +407,57 @@ async function startGame(event) {
     $('rapier-version').textContent = RAPIER_VERSION; $('clear-bumper').hidden = true; $('bumper-status').textContent = '沿軌受力、彈簧與碰撞求解';
     const nature=world.sceneryStats.naturePack;
     $('nature-count').textContent = `新模型 ${Object.keys(nature.modelCounts).length} / 63 款 · 依地形與水岸生境配置`;
-    $('instances').textContent = world.sceneryCount.toLocaleString(); $('pause-label').textContent = '暫停'; $('pause-icon').textContent = 'Ⅱ';
+    $('instances').textContent = world.sceneryCount.toLocaleString();
     $('model-variety').textContent = world.sceneryStats.uniqueModels.toLocaleString();
     const elevation = world.route.elevation;
     const elevationLabel = config.turns > 1 && !config.elevationLimit ? '含跨線' : `上限 ${config.elevationLimit} m`;
     $('relief-summary').textContent = `實際高差 ${elevation.range.toFixed(1)} m / ${elevationLabel}`;
-    mode = 'running'; startQuestions(views); setTurbo(false); setCamera('chase'); document.body.dataset.state='running'; resize();
-    updateHUD(); renderFrame(0, true);
-    startRaceAudio();
-    document.body.dataset.state = 'running'; document.body.dataset.ready = 'true'; document.body.dataset.driver = config.driver;
+    beginRound();
   } catch (error) { mode = 'title'; stopRaceAudio(); showError(error); }
   finally { startButton.disabled = false; }
 }
+
+function beginRound() {
+  lastCollisionCount = 0; lastImpactNs = 0; accumulator = 0; lastTime = 0;
+  fpsHistory = []; frameSamples = []; metricTime = 0; metricFrames = 0; longFrameCount = 0;
+  hudElapsed = 0; countdownFinished = false; finishAnimationTime = 0;
+  orbitYaw = 0; orbitPitch = 0.20; orbitDistance = 18; cabYaw = 0; cabPitch = 0;
+  menu.hidden = true; hud.hidden = false; loading.hidden = true;
+  $('pause-overlay').hidden = true; $('race-results').hidden = true; $('notification').hidden = true;
+  $('pause-label').textContent = '暫停'; $('pause-icon').textContent = 'Ⅱ';
+  setDrivingEnabled(true);
+  mode = 'running';
+  document.body.dataset.state = mode;
+  document.body.dataset.ready = 'true';
+  document.body.dataset.driver = sessionConfig.driver;
+  startQuestions(views);
+  setTurbo(false); setCamera('chase'); resize();
+  updateCartMotion(1); updateHUD(); renderFrame(0, true);
+  startRaceAudio();
+}
+
+function replayRound() {
+  if (mode !== 'finished') return;
+  prepareRaceAudio();
+  for (const view of views) {
+    const {state, rig, engine} = view;
+    Object.assign(state, createPhysics(), {distance: rig.departure});
+    engine.reset(state);
+    copyMotion(state, view.previous);
+    view.finishTime = null;
+    if (rig.smile) {
+      rig.smile.visible = false;
+      rig.driver.position.y = 0;
+    }
+    rig.turbo?.reset();
+    view.drone?.reset();
+  }
+  world.airshow?.reset();
+  world.showTestBumper(null);
+  $('clear-bumper').hidden = true;
+  beginRound();
+}
+
 function pauseGame(force) {
   if (!['running', 'paused'].includes(mode)) return;
   const paused = force ?? mode === 'running';
@@ -499,7 +533,6 @@ function setDrivingEnabled(enabled) {
 
 function showRaceResults() {
   mode = 'finished'; finishAnimationTime = 0;
-  world.airshow?.clear();
   stopRaceAudio(); stopQuizEffects(views);
   setTurbo(false); setThrottle(0); setDrivingEnabled(false);
   $('pause-overlay').hidden = true;
@@ -539,6 +572,8 @@ function leverFromPointer(event) {
 }
 function installControls() {
   $('setup-form').addEventListener('submit', startGame);
+  $('again').addEventListener('click', replayRound);
+  $('results-title').addEventListener('click', returnToTitle);
   $('pause-button').addEventListener('click', () => pauseGame()); $('resume-button').addEventListener('click', () => pauseGame(false));
   $('title-button').addEventListener('click', returnToTitle); $('neutral-button').addEventListener('click', () => setThrottle(0));
   $('turbo-toggle').addEventListener('click', () => {
@@ -971,10 +1006,10 @@ function frame(time) {
 
 async function boot() {
   if (location.protocol === 'file:') throw new Error('請透過 HTTP 開啟此專案：執行 START_LOCAL.cmd 後前往 http://127.0.0.1:4173，或使用 GitHub Pages 網址。');
-  const response = await fetch('./asset-manifest.json?v=21'); if (!response.ok) throw new Error(`找不到資產清單（HTTP ${response.status}）。請完整解壓縮 ZIP。`);
+  const response = await fetch('./asset-manifest.json?v=22'); if (!response.ok) throw new Error(`找不到資產清單（HTTP ${response.status}）。請完整解壓縮 ZIP。`);
   manifest = await response.json();
   loadingProgress(.02,'初始化本機 Rapier 物理引擎…'); await initRapier();
-  await setupQuestions(()=>mode==='running'); setupRaceAudio(); populateForm(); installControls(); $('again').onclick=returnToTitle;
+  await setupQuestions(()=>mode==='running'); setupRaceAudio(); populateForm(); installControls();
   renderer = new THREE.WebGLRenderer({ canvas: $('scene'), antialias: true, powerPreference: 'high-performance', alpha: false });
   renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;

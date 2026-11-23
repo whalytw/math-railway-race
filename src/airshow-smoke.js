@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
-const LIFE = 4.8;
-const SPACING = 0.045;
-const PAIRS = Math.ceil(LIFE / SPACING) + 1;
+export const SMOKE_LIFETIME = 5;
+const SPACING = 0.028;
+const PAIRS = Math.ceil(SMOKE_LIFETIME / SPACING) + 1;
 const COLORS = [new THREE.Color('#e32e38'), new THREE.Color('#ffd52c')];
 const origin = new THREE.Vector3();
 
@@ -30,7 +30,7 @@ export class AirshowSmoke {
       uniforms: {
         ...THREE.UniformsUtils.clone(THREE.UniformsLib.fog),
         clock: {value: 0},
-        lifetime: {value: LIFE},
+        lifetime: {value: SMOKE_LIFETIME},
         viewportHeight: {value: 360},
       },
       vertexShader: /* glsl */ `
@@ -49,7 +49,7 @@ export class AirshowSmoke {
           puff.y += elapsed * 0.27 * (seed - 0.5);
           vec4 mvPosition = modelViewMatrix * vec4(puff, 1.0);
           gl_Position = projectionMatrix * mvPosition;
-          float diameter = mix(1.65, 4.25, min(age, 1.0));
+          float diameter = mix(2.2, 4.8, min(age, 1.0));
           gl_PointSize = clamp(diameter * projectionMatrix[1][1] * viewportHeight * 0.5 / max(1.0, -mvPosition.z), 1.0, 42.0);
           #include <fog_vertex>
         }
@@ -61,7 +61,7 @@ export class AirshowSmoke {
         void main() {
           float circle = length(gl_PointCoord * 2.0 - 1.0);
           float edge = 1.0 - smoothstep(0.2 + 0.09 * seed, 1.0, circle);
-          float alpha = 0.67 * edge * (1.0 - smoothstep(0.03, 1.0, age));
+          float alpha = 0.52 * edge * (1.0 - smoothstep(0.03, 1.0, age));
           if (alpha < 0.007) discard;
           gl_FragColor = vec4(mix(tint, vec3(0.87), 0.17 * min(age, 1.0)), alpha);
           #include <tonemapping_fragment>
@@ -86,7 +86,7 @@ export class AirshowSmoke {
   }
 
   update(time, duration, viewportHeight, samplePose) {
-    if (time >= duration + LIFE) {
+    if (time >= duration + SMOKE_LIFETIME) {
       this.mesh.visible = false;
       return;
     }

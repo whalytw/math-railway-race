@@ -220,6 +220,7 @@ export function buildGirderBridge(world, span, turnIndex) {
     geometry.setIndex(indices);
     geometry.computeVertexNormals();
     register(new THREE.Mesh(geometry, material));
+    world.airspace?.addSurface(vertices, 4);
   }
   const edgeOffset = 2.92;
   girder(-3.13, 3.13, -0.67, -0.05, concrete);
@@ -317,6 +318,7 @@ export function buildTunnel(world) {
     const geometry = new THREE.BufferGeometry(); geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
     geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3)); geometry.setIndex(indices); geometry.computeVertexNormals();
     geometry.setAttribute('landGrass', new THREE.Float32BufferAttribute(grasses.map((v, i) => v * smoothstep(0.6, 0.94, Math.abs(geometry.attributes.normal.getY(i)))), 1));
+    world.airspace?.addSurface(vertices, columns.length);
     const hill = ownMesh(world, geometry, material); hill.name = `tunnel-mountain-${label}`; hill.receiveShadow = true; hill.castShadow = Boolean(world.config.sceneryShadows);
   }
   for (const localS of [0, tunnel.length]) {
@@ -341,6 +343,10 @@ export function buildTunnel(world) {
     }
     cap.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
     cap.computeVertexNormals();
+    if (world.airspace) {
+      cap.computeBoundingBox();
+      world.airspace.addBounds(cap.boundingBox);
+    }
     const rock = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, flatShading: true, side: THREE.DoubleSide });
     world.ownedMaterials.push(rock); const face = ownMesh(world, cap, rock); face.name = 'tunnel-cut-face'; face.receiveShadow = true; face.castShadow = Boolean(world.config.sceneryShadows);
   }
