@@ -8,6 +8,9 @@ const json=async f=>JSON.parse(await readFile(new URL('../question-bank/'+f+'.js
 const books=await json('books'), pool=await json('number');
 const newLane=i=>new QuizLane([{label:'數與數線',questions:pool}],45,DEFAULT_CAPS,i);
 const run=(lane,seconds,length=5000)=>{for(let i=0;i<Math.round(seconds*120);i++)lane.tick(1/120,length);};
+import {DEFAULT_RIFT_CHANCE, inRift, portalDistance, RIFT_CHANCES, RIFT_ENTRY, RIFT_EXIT, RiftDraw} from '../src/rift-rules.js';
+import {createRiftTracks} from '../src/rift-track.js';
+
 test('all 42 book units offer at least 36 distinct prompts at each level',async()=>{
   assert.equal(books.flatMap(b=>b.units).length,42);
   for(const unit of books.flatMap(b=>b.units)){const rows=await json(unit.topic);
@@ -153,4 +156,55 @@ test('cloud departures stay inside each progress window and move around tunnels'
   const approaching = {start: 1162, end: 1242, turnIndex: 0};
   assert.deepEqual(cloudLaunchDecision([cart(.25)], approaching, false, first, 14.6, 13.2),
     {status: 'launch', duration: 13.2});
+});
+
+test('rift chance is checked once at half distance and rerolled for a new round', () => {
+  assert.deepEqual(RIFT_CHANCES, [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]);
+  assert.equal(DEFAULT_RIFT_CHANCE, 20);
+  const samples = [.19, .20];
+  const draw = new RiftDraw(20, () => samples.shift());
+  assert.equal(draw.update(.49999), null);
+  assert.equal(samples.length, 2);
+  assert.equal(draw.update(.5), true);
+  assert.equal(draw.update(.8), true);
+  assert.equal(samples.length, 1);
+  draw.reset();
+  assert.equal(draw.update(.51), false);
+  assert.equal(draw.update(.95), false);
+  assert.equal(samples.length, 0);
+  assert.equal(new RiftDraw(0, () => assert.fail('0% should not draw')).update(.5), false);
+});
+
+test('rift tracks have the same measured length with separate lanes and aligned portal planes', () => {
+  for (const raceLength of [3000, 5000, 7000]) for (const count of [1, 3]) {
+    const rigs = Array.from({length: count}, (_, i) => ({raceLength, departure: i * 1423}));
+    for (const random of [() => .01, () => .99]) {
+      const tracks = createRiftTracks(rigs, random);
+      const exits = tracks.map(track => track.sample(track.start + track.length));
+      assert.ok(exits.every(point => Math.abs(point.z - exits[0].z) < 1e-6 && Math.abs(point.tx) < 1e-4 && Math.abs(point.ty) < 1e-4));
+      for (const track of tracks) {
+        let arc = 0;
+        for (let i = 1; i < track.points.length; i++) {
+          const a = track.points[i - 1], b = track.points[i];
+          arc += Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
+        }
+        assert.ok(Math.abs(arc - raceLength * .30) < 1e-7);
+        assert.ok(Math.max(...track.points.map(p => Math.abs(p.bank))) >= .55);
+      }
+      if (count === 3) for (let i = 0; i <= 100; i++) {
+        const positions = tracks.map(track => track.sample(track.start + track.length * i / 100));
+        for (const [a, b] of [[0,1],[0,2],[1,2]]) {
+          const x = positions[a], y = positions[b];
+          assert.ok(Math.hypot(x.x-y.x, x.y-y.y, x.z-y.z) > 17);
+        }
+      }
+    }
+    const entry = raceLength * RIFT_ENTRY, exit = raceLength * RIFT_EXIT;
+    assert.equal(inRift(entry - .001, raceLength), false);
+    assert.equal(inRift(entry, raceLength), true);
+    assert.equal(inRift(exit - .001, raceLength), true);
+    assert.equal(inRift(exit, raceLength), false);
+    assert.equal(portalDistance(entry, raceLength), 0);
+    assert.equal(portalDistance(exit, raceLength), 0);
+  }
 });

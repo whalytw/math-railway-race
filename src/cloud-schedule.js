@@ -26,15 +26,16 @@ function overlapsTunnel(tunnel, view, looping, delay, duration, rewardSeconds) {
   return from <= exit + lap * length || to >= entry + (lap + 1) * length;
 }
 
-export function cloudLaunchDecision(views, tunnel, looping, event, preferredSeconds, minimumSeconds = preferredSeconds) {
+export function cloudLaunchDecision(views, tunnel, looping, event, preferredSeconds, minimumSeconds = preferredSeconds, blocksFlight) {
   const leader = views.reduce((a, b) => cloudProgress(a) >= cloudProgress(b) ? a : b);
   const current = cloudProgress(leader);
   const nominal = event.progress;
   if (current > nominal + PROGRESS_MARGIN + EPS) return {status: 'skip'};
   if (current < nominal - PROGRESS_MARGIN - EPS) return {status: 'wait'};
 
-  const blocked = (delay, duration) => tunnel && views.some(view =>
-    overlapsTunnel(tunnel, view, looping, delay, duration, event.rewardSeconds));
+  const blocked = (delay, duration) => (tunnel && views.some(view =>
+    overlapsTunnel(tunnel, view, looping, delay, duration, event.rewardSeconds)))
+    || blocksFlight?.(delay, duration, event.rewardSeconds);
   if (blocked(0, minimumSeconds)) return {status: 'wait'};
   const preferredDelay = (nominal - current) * leader.rig.raceLength / Math.max(BASE_SPEED / 3.6, leader.state.speed);
   if (current + EPS < nominal && !blocked(preferredDelay, minimumSeconds)) return {status: 'wait'};

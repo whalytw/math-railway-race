@@ -64,7 +64,8 @@ export class CloudPath {
 
   clearanceAt(x, z) {
     const terrain = groundMaximum(this.world.terrainGrid, x, z, CLOUD_RADIUS);
-    return this.world.airspace.obstacleTop(x, z, CLOUD_RADIUS, terrain, 18) + CLOUD_CLEARANCE;
+    const altitude = this.world.airspace.obstacleTop(x, z, CLOUD_RADIUS, terrain, 18) + CLOUD_CLEARANCE;
+    return this.world.rift?.clearance(x, altitude, z, CLOUD_RADIUS) ?? altitude;
   }
 
   planClearance() {

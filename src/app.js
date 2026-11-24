@@ -3,10 +3,12 @@ import {shakeAnswerCamera} from './answer-effects.js?v=20';
 import {setupRaceAudio, prepareRaceAudio, startRaceAudio, playRaceSound, pauseRaceAudio, stopRaceAudio} from './race-audio.js?v=20';
 import { COAST_SECONDS } from './quiz-race.js?v=23';
 import * as THREE from 'three';
-import {CloudRide} from './cloud-ride.js?v=24';
-import { Airshow } from './airshow.js?v=24';
-import { CameraDrone } from './camera-drone.js?v=24';
-import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=24';
+import {CloudRide} from './cloud-ride.js?v=25';
+import {RaceRift} from './rift-world.js?v=25';
+import {DEFAULT_RIFT_CHANCE, RIFT_CHANCES} from './rift-rules.js?v=25';
+import { Airshow } from './airshow.js?v=25';
+import { CameraDrone } from './camera-drone.js?v=25';
+import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=25';
 import { createPhysics, stepPhysics, FIXED_STEP, DEPARTURE_COUNTDOWN, clamp, lerp, wrap, resolveBiomes, randomGenerator, nextStation, biomeMix, createElevationProfile, leverReference, leverForSpeed, RATED_POWER, CART_MASS, MAX_GRADE, MIN_VERTICAL_RADIUS } from './core.js?v=13.0.0';
 import { riverProfile, riverPoint } from './route-features.js?v=13.0.0';
 import { copyMotion, interpolateMotion, zoomView, anchorCamera, partitionViewports } from './presentation.js?v=13.0.0';
@@ -19,7 +21,7 @@ import { FLYOVER_RAIL_SEPARATION, turnIndexAt } from './circuit-route.js?v=13.0.
 import { checkRaceBoundary, raceStandings } from './straight-race.js?v=22';
 
 const $ = id => document.getElementById(id);
-const GAME_VERSION = '24.0.0';
+const GAME_VERSION = '25.0.0';
 const flightSettings = {
   'camera-drone': 'cameraDrone',
   'drone-shadow': 'droneShadow',
@@ -84,6 +86,7 @@ function setupViews(playable) {
   });
   world.airshow = playable && world.config.airshowPlane ? new Airshow(world) : null;
   world.cloudRide = playable && world.config.cloudRide ? new CloudRide(world, views) : null;
+  world.rift = playable && world.config.riftChance > 0 ? new RaceRift(world) : null;
   const main = views[Math.floor(views.length / 2)];
   physics = main.state; renderMotion = main.motion; camera = main.camera; railPhysics = main.engine;
 }
@@ -96,46 +99,58 @@ function renderFrame(dt = 0, snap = false) {
   const info = renderer.info.render;
   const split = views.length > 1;
   const updateVisibility = visibilityElapsed > 0.18 || snap;
-  // Update airframes and carts before the shared scene's single matrix update.
-  for (const view of views) view.drone?.update(world, view);
+  const rift = world.rift;
+  const outdoors = views.filter(view => !view.riftTrack);
   const raceSeconds = Math.max(0, physics.elapsed - DEPARTURE_COUNTDOWN + finishAnimationTime);
-  world.airshow?.draw(raceSeconds, renderer.domElement.height);
-  world.cloudRide?.draw(raceSeconds, renderer.domElement.height);
-  scene.updateMatrixWorld();
+  if (outdoors.length) {
+    for (const view of views) view.drone?.update(world, view);
+    world.airshow?.draw(raceSeconds, renderer.domElement.height);
+    world.cloudRide?.draw(raceSeconds, renderer.domElement.height);
+    scene.updateMatrixWorld();
+  }
   const now = performance.now();
   for (const view of views) {
     updateCamera(view, dt, snap);
     if (mode === 'running') shakeAnswerCamera(view, now);
   }
+  rift?.updateVisuals(views, raceSeconds, renderer.getPixelRatio());
   const shadowsEnabled = world.config.shadows || world.config.sceneryShadows;
-  const canShare = allowSharedShadows && shadowsEnabled && split && cameraMode === 'chase' && views.every(view => view.cartVisible);
+  const canShare = allowSharedShadows && shadowsEnabled && split && outdoors.length === views.length
+    && cameraMode === 'chase' && views.every(view => view.cartVisible);
   sharedShadowFrame = canShare
     ? atmosphere.sharedShadowFor(views.map(view => view.rig.root.position), renderer.capabilities.maxTextureSize)
     : null;
   atmosphere.setShadowFrame(sharedShadowFrame);
   renderer.shadowMap.autoUpdate = !sharedShadowFrame;
   renderer.shadowMap.needsUpdate = Boolean(sharedShadowFrame);
-  shadowPass.maps = shadowsEnabled ? (sharedShadowFrame ? 1 : views.length) : 0;
+  shadowPass.maps = shadowsEnabled ? (sharedShadowFrame ? 1 : outdoors.length) : 0;
   renderer.setScissorTest(split);
   for (const [index, view] of views.entries()) {
     const { x, y, width, height } = view.viewport;
     renderer.setViewport(x, y, width, height);
     if (split) renderer.setScissor(x, y, width, height);
-    applyViewEnvironment(view, shadowsEnabled);
-    world.updateTrackFilter(mode === 'running' ? view.motion.speed : 0, filteredFrameTime);
-    if (split || updateVisibility) world.setVisibility(view.camera, world.config.viewDistance, cameraMode === 'overview');
+    const inSpace = Boolean(view.riftTrack);
+    renderer.shadowMap.enabled = shadowsEnabled && !inSpace;
+    if (inSpace) rift.selectTracks(view);
+    else {
+      applyViewEnvironment(view, shadowsEnabled);
+      world.updateTrackFilter(mode === 'running' ? view.motion.speed : 0, filteredFrameTime);
+      if (split || updateVisibility) world.setVisibility(view.camera, world.config.viewDistance, cameraMode === 'overview');
+    }
     view.rig.root.visible = view.cartVisible;
     drawCallsBeforeShadow = info.calls;
     trianglesBeforeShadow = info.triangles;
     viewShadow.drawCalls = viewShadow.triangles = 0;
     shadowCasterViews = sharedShadowFrame && index === 0 ? views.map(peer => peer.camera) : null;
-    try { renderer.render(scene, view.camera); }
+    try { renderer.render(inSpace ? rift.scene : scene, view.camera); }
     finally { shadowCasterViews = null; view.rig.root.visible = true; }
     mainPass.calls += info.calls; mainPass.triangles += info.triangles;
     shadowPass.drawCalls += viewShadow.drawCalls; shadowPass.triangles += viewShadow.triangles;
     view.main.calls = info.calls; view.main.triangles = info.triangles;
     view.shadows.drawCalls = viewShadow.drawCalls; view.shadows.triangles = viewShadow.triangles;
+    rift?.drawTransition(renderer, view, raceSeconds);
   }
+  renderer.shadowMap.enabled = shadowsEnabled;
   if (updateVisibility) visibilityElapsed = 0;
   if (split) renderer.setScissorTest(false);
 }
@@ -235,6 +250,8 @@ async function updateTitleDriver() {
 }
 function formConfig() {
   const seed = seedValue();
+  const riftChance = Number($('rift-chance').value);
+  if (!RIFT_CHANCES.includes(riftChance)) throw new Error('請重新選擇異次元機率。');
   const routeFields = chooseStraight() ? ['race-length'] : ['race-length', 'track-turns'];
   for(const id of [...routeFields,'station-count','elevation-limit','density','view-distance','resolution','sleeper-spacing']) {
     if(!$(id).selectedOptions.length || !Number.isFinite(Number($(id).value))) throw new Error('設定值已失效，請重新選擇路線與畫面設定。');
@@ -243,7 +260,7 @@ function formConfig() {
   const fleet = chooseFleet() ? selectedFleet() : undefined;
   const leading = fleet?.[1] ?? { vehicle: selectedVehicle(), driver: titleDriverId(), driverChoice: selectedDriverChoice() };
   return { biomeMix, biomeA: biomeMix[0].biome, biomeB: biomeMix[1]?.biome || biomeMix[0].biome, ...course,
-    stations: Number($('station-count').value), ...leading, fleet, playable: true,
+    stations: Number($('station-count').value), ...leading, fleet, playable: true, riftChance,
     ...Object.fromEntries(Object.entries(flightSettings).map(([id, name]) => [name, $(id).checked])),
     density: Number($('density').value), viewDistance: Number($('view-distance').value), resolution: Number($('resolution').value),
     shadows: $('shadows').value === 'on', sceneryShadows: $('scenery-shadows').value === 'on', shadowQuality: $('shadow-quality').value,
@@ -253,7 +270,7 @@ function formConfig() {
 function savePreferences() {
   try {
     const values = Object.fromEntries(Object.keys(flightSettings).map(id => [id, $(id).checked]));
-    for (const id of ['route-mode', 'race-length', 'track-turns', 'station-count', 'elevation-limit', 'density', 'view-distance', 'resolution', 'shadows', 'scenery-shadows', 'shadow-quality', 'features', 'skyline', 'sleeper-filter', 'sleeper-spacing', 'seed', 'driver-select']) values[id] = $(id).value;
+    for (const id of ['route-mode', 'race-length', 'track-turns', 'station-count', 'elevation-limit', 'rift-chance', 'density', 'view-distance', 'resolution', 'shadows', 'scenery-shadows', 'shadow-quality', 'features', 'skyline', 'sleeper-filter', 'sleeper-spacing', 'seed', 'driver-select']) values[id] = $(id).value;
     for (const { vehicle, driver } of fleetFields) { values[vehicle.id] = vehicle.value; values[driver.id] = driver.value; }
     values.vehicle = selectedVehicle(); values.biomeMix = mixControls.value(); localStorage.setItem(preferencesKey, JSON.stringify(values));
   } catch { /* Private browsing may disable local storage. */ }
@@ -285,6 +302,11 @@ function populateForm() {
   for (let km = 3; km <= 7; km++) {
     const option = document.createElement('option'); option.value = String(km); option.textContent = `${km} 公里`; option.selected = km === 5; $('race-length').append(option);
   }
+  $('rift-chance').replaceChildren(...RIFT_CHANCES.map(chance => {
+    const option = document.createElement('option');
+    option.value = String(chance); option.textContent = chance + '%'; option.selected = chance === DEFAULT_RIFT_CHANCE;
+    return option;
+  }));
   for (let height = 0; height <= 500; height += 25) {
     const option = document.createElement('option'); option.value = String(height); option.textContent = height === 0 ? '0 m · 平坦' : `${height} 公尺`;
     option.selected = height === 75; $('elevation-limit').append(option);
@@ -460,6 +482,7 @@ function replayRound() {
   }
   world.airshow?.reset();
   world.cloudRide?.reset();
+  world.rift?.reset();
   world.showTestBumper(null);
   $('clear-bumper').hidden = true;
   beginRound();
@@ -676,7 +699,15 @@ function updateCamera(view, dt, snap = false) {
   const structure = playing ? world.structureAt(distanceAlong, 17, rig) : null;
   let targetFov;
   eyePosition.set(cart.x + p.tx3 * 0.35 + p.upX * 1.60, cart.y + p.ty * 0.35 + p.upY * 1.60, cart.z + p.tz3 * 0.35 + p.upZ * 1.60);
-  if (cameraMode === 'overview') {
+  if (view.riftTrack) {
+    const behind = view.riftTrack.sample(distanceAlong - 17);
+    const ahead = view.riftTrack.sample(distanceAlong + 14);
+    desiredCamera.set(behind.x + 4.8 * p.upX, behind.y + 6.5 * p.upY, behind.z + 4.8 * p.upZ);
+    lookTarget.set(ahead.x, ahead.y, ahead.z).lerp(cart, .31);
+    lookTarget.x += p.upX * 1.65; lookTarget.y += p.upY * 1.65; lookTarget.z += p.upZ * 1.65;
+    if (!world.rift.reducedMotion) camera.up.set(p.upX * .34, .66 + p.upY * .34, p.upZ * .34).normalize();
+    targetFov = 64; camera.far = 12000;
+  } else if (cameraMode === 'overview') {
     const d = world.route.squareSize, angle = orbitYaw * 0.25;
     if (views.length > 1) {
       desiredCamera.set(Math.sin(angle + p.yaw) * d * 0.32, d * 0.59, Math.cos(angle + p.yaw) * d * 0.32).add(cart);
@@ -719,12 +750,12 @@ function updateCamera(view, dt, snap = false) {
     lookTarget.lerp(viewDirection.multiplyScalar(45).add(eyePosition), eyeBlend); targetFov = lerp(targetFov, 72, eyeBlend);
   }
   const reset = snap || !view.snapped, blend = reset ? 1 : 1 - Math.exp(-dt * 12);
-  if (cameraMode === 'overview') {
+  if (cameraMode === 'overview' && !view.riftTrack) {
     camera.position.lerp(desiredCamera, blend); smoothLook.lerp(lookTarget, blend); camera.lookAt(smoothLook);
   } else anchorCamera(camera, cart, desiredCamera, lookTarget, offset, lookOffset, dt, reset, cameraMode === 'cab' ? 30 : 10);
   camera.fov = lerp(camera.fov, targetFov, blend); camera.updateProjectionMatrix();
   view.snapped = true;
-  view.cartVisible = cameraMode !== 'cab' && !(cameraMode === 'chase' && camera.position.distanceTo(cart) < 4.2);
+  view.cartVisible = Boolean(view.riftTrack) || (cameraMode !== 'cab' && !(cameraMode === 'chase' && camera.position.distanceTo(cart) < 4.2));
 }
 function applyViewEnvironment(view, shadowsEnabled) {
   const { camera, rig, motion } = view;
@@ -970,14 +1001,18 @@ function physicsTick() {
   }
   turboOn = views.some(v => v.quiz.tier > 0);
   const raceSeconds = physics.elapsed - DEPARTURE_COUNTDOWN;
+  world.rift?.updateRace(views);
   world.airshow?.updateRace(views, raceSeconds);
   if (world.cloudRide?.updateRace(views, raceSeconds)) hudElapsed = 1;
   if (views.every(view => view.quiz.coastTime >= COAST_SECONDS)) showRaceResults();
 }
 function updateCartMotion(alpha) {
-  for (const { state, previous, motion, rig } of views) {
+  for (const view of views) {
+    const {state, previous, motion, rig} = view;
     interpolateMotion(previous, state, alpha, motion);
-    world.updateCart(motion.distance, motion.odometer, state.throttle, motion.suspensionY, rig);
+    const track = world.rift?.routeFor(view) ?? rig.track;
+    world.rift?.placeCart(view, track);
+    world.updateCart(motion.distance, motion.odometer, state.throttle, motion.suspensionY, rig, track);
     rig.turbo?.update(state.elapsed, state.throttle >= 0 && state.speed >= -0.05);
   }
 }
@@ -1043,6 +1078,7 @@ async function boot() {
 window.__LOOP_TEST__ = {
   snapshot: () => ({
     mode, version: GAME_VERSION, physics: { ...physics }, renderMotion: { ...renderMotion },
+    rift: world?.rift?.draw.result ?? null,
     config: world?.config, biomes: world?.biomeReport, scenery: world?.sceneryStats, rapier: railPhysics?.diagnostics(), turboOn,
     cart: world?.cart?.position.toArray(),
     camera: camera ? { position: camera.position.toArray(), direction: camera.getWorldDirection(new THREE.Vector3()).toArray(),
@@ -1052,6 +1088,7 @@ window.__LOOP_TEST__ = {
       laneLength: view.rig.track.length, raceLength: view.rig.raceLength, finishSeconds: view.finishTime,
       state: { ...view.state }, position: view.rig.root.position.toArray(), viewport: view.viewport, camera: view.camera.position.toArray(),
       direction: view.camera.getWorldDirection(new THREE.Vector3()).toArray(), cartVisible: view.cartVisible,
+      inRift: Boolean(view.riftTrack),
       turboVisible: Boolean(view.rig.turbo?.root.visible),
       pods: view.rig.turbo?.pods.map(pod => ({ position: pod.mount.position.toArray(), scale: pod.mount.scale.x, exhaust: pod.exhaust.visible })) })),
     wheels: world?.wheels?.map(w => w.node.getWorldPosition(new THREE.Vector3()).toArray()),

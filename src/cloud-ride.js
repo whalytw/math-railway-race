@@ -4,8 +4,8 @@ import {shuffle} from './quiz-race.js?v=23';
 import {createCloudRider} from './drivers.js?v=23';
 import {AircraftShadow} from './aircraft-shadow.js?v=24';
 import {AirshowSmoke} from './airshow-smoke.js?v=23';
-import {CloudPath, cloudFlightDuration, chooseCloudManeuvers, MIN_CLOUD_FLIGHT_SECONDS} from './cloud-path.js?v=24';
-import {CLOUD_EVENTS, cloudLaunchDecision, cloudProgress} from './cloud-schedule.js?v=24';
+import {CloudPath, cloudFlightDuration, chooseCloudManeuvers, MIN_CLOUD_FLIGHT_SECONDS} from './cloud-path.js?v=25';
+import {CLOUD_EVENTS, cloudLaunchDecision, cloudProgress} from './cloud-schedule.js?v=25';
 import {CloudStars, STAR_COUNT, STAR_DROP_SECONDS, starReleaseDelay} from './cloud-stars.js?v=23';
 
 export const CLOUD_ASSET = 'CloudPlatform';
@@ -114,6 +114,8 @@ export class CloudRide {
 
   updateRace(views, seconds) {
     let rewarded = false;
+    const rift = this.world.rift;
+    if (this.burst && rift?.inside(this.burst.view)) this.burst = null;
     if (this.burst && seconds + 1e-8 >= this.burst.startsAt + STAR_DROP_SECONDS) {
       const {view, kmh, duration} = this.burst;
       if (view.quiz.finished === null) {
@@ -131,8 +133,9 @@ export class CloudRide {
       if (!event) return rewarded;
       const duration = this.plannedDuration ??= cloudFlightDuration(this.random);
       const tail = this.smoke.lifetime;
+      const blocksFlight = rift?.active ? (delay, duration, reward) => rift.blocksFlight(views, delay, duration, reward) : null;
       const decision = cloudLaunchDecision(views, this.world.features.tunnel, !this.world.route.lanes,
-        event, duration + tail, MIN_CLOUD_FLIGHT_SECONDS + tail);
+        event, duration + tail, MIN_CLOUD_FLIGHT_SECONDS + tail, blocksFlight);
       if (decision.status === 'wait') return rewarded;
       const rider = this.riders[this.next++];
       this.plannedDuration = null;
@@ -143,6 +146,7 @@ export class CloudRide {
     const gift = this.flight.gifts[this.flight.nextGift];
     if (gift && elapsed + 1e-8 >= gift.at) {
       this.flight.nextGift++;
+      if (rift?.inside(gift.view)) return rewarded;
       const origins = Array.from({length: STAR_COUNT}, (_, i) => {
         const point = new THREE.Vector3();
         this.flight.path.positionAt(gift.at + starReleaseDelay(i), elapsed, false, point);

@@ -1,14 +1,15 @@
 import {Airspace} from './airspace.js?v=23';
 import * as THREE from 'three';
-import {CLOUD_ASSET, pickCloudRiders} from './cloud-ride.js?v=24';
-import { BIPLANE_ASSET } from './airshow.js?v=24';
+import {CLOUD_ASSET, pickCloudRiders} from './cloud-ride.js?v=25';
+import {RIFT_ENTRY, RIFT_EXIT} from './rift-rules.js?v=25';
+import { BIPLANE_ASSET } from './airshow.js?v=25';
 import {createCartContactShadow, SUN_OFFSET, updateCartContactShadow} from './aircraft-shadow.js?v=24';
-import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=24';
+import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=25';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { TAU, lerp, clamp, wrap, smoothstep, randomGenerator, stationsFor, biomeMix, trackSegments } from './core.js?v=13.0.0';
 import { createCircuitRoute } from './circuit-route.js?v=17';
 import { createStraightRoute, straightStations } from './straight-route.js?v=17';
-import { sleeperLayout, sleeperFilter, planRouteFeatures, routeStructures, bridgeCoordinates, bridgeGroundHeight } from './route-features.js?v=17';
+import { sleeperLayout, sleeperFilter, planRouteFeatures, routeStructures, bridgeCoordinates, bridgeGroundHeight } from './route-features.js?v=25';
 import { buildMountainBackdrop, buildVariedClouds, updateClouds, buildBridgeAndRiver, buildTunnel, buildGirderBridge } from './scenery.js?v=24';
 import { fitGroundContact, prepareGroundedParts, groundBatchGeometry, renderedGroundHeight } from './grounding.js?v=24';
 import { planScenery, indexGroundPads, paddedHeight } from './scenery-plan.js?v=17';
@@ -129,7 +130,9 @@ export class RailWorld {
         return {...this.route.sample(distance), distance};
       });
     this.finishZones = finishZones;
-    this.features = config.features ? planRouteFeatures(this.route, this.stations, config.seed, finishZones) : { bridge: null, tunnel: null };
+    const portalZones = config.riftChance > 0 ? this.route.turnStarts.flatMap(start =>
+      [RIFT_ENTRY, RIFT_EXIT].map(progress => ({distance: wrap(start + raceMetres * progress, this.route.length)}))) : [];
+    this.features = config.features ? planRouteFeatures(this.route, this.stations, config.seed, finishZones, portalZones) : { bridge: null, tunnel: null };
     const { overpass, crossings } = this.route;
     if (overpass) {
       this.features.overpass = overpass;
@@ -866,9 +869,9 @@ export class RailWorld {
     const filter = sleeperFilter(speed, frameSeconds, this.sleeperPitch || 0.75, this.config.sleeperFilter !== false);
     this.sleeperUniforms.exposure.value = filter.exposure; this.sleeperUniforms.contrast.value = filter.contrastReduction; this.sleeperUniforms.enabled.value = filter.enabled;
   }
-  updateCart(distance, odometer, throttle, suspensionY = 0, rig = this.primaryCart) {
+  updateCart(distance, odometer, throttle, suspensionY = 0, rig = this.primaryCart, track = rig?.track ?? this.route) {
     const cart = rig?.root ?? this.cart;
-    const track = rig?.track ?? this.route;
+    const inSpace = track !== rig?.track && track !== this.route;
     const p = track.sample(distance, rig?.sample ?? this.cartSample);
     // Use a two-metre track chord for body attitude. The arc-table position is
     // exact; this removes tiny tangent jumps at successive polyline samples.
@@ -878,9 +881,13 @@ export class RailWorld {
     p.tx = dx / horizontal; p.tz = dz / horizontal; p.tx3 = dx / length; p.ty = dy / length; p.tz3 = dz / length;
     p.pitch = -Math.atan2(dy, horizontal); p.yaw = Math.atan2(dx, dz); p.nx = p.tz; p.nz = -p.tx;
     p.upX = -p.tx * p.ty; p.upY = horizontal / length; p.upZ = -p.tz * p.ty;
+    cart.quaternion.setFromEuler(rotationEuler.set(p.pitch, p.yaw, inSpace ? p.roll : 0, 'YXZ'));
+    if (inSpace) {
+      slopeNormal.copy(upAxis).applyQuaternion(cart.quaternion);
+      p.upX = slopeNormal.x; p.upY = slopeNormal.y; p.upZ = slopeNormal.z;
+    }
     const height=0.381+suspensionY;
     cart.position.set(p.x + height * p.upX, p.y + height * p.upY, p.z + height * p.upZ);
-    cart.quaternion.setFromEuler(rotationEuler.set(p.pitch, p.yaw, 0, 'YXZ'));
     q.setFromAxisAngle(new THREE.Vector3(1, 0, 0), distance / 0.346);
     for (const wheel of rig?.wheels ?? this.wheels) {
       wheel.node.quaternion.copy(wheel.original).multiply(q);
@@ -892,7 +899,7 @@ export class RailWorld {
       q.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -throttle * 0.35);
       rig.lever.quaternion.copy(rig.leverBase).multiply(q);
     }
-    if (rig?.contactShadow) updateCartContactShadow(this, rig, distance, p);
+    if (!inSpace && rig?.contactShadow) updateCartContactShadow(this, rig, distance, p);
     return p;
   }
   showTestBumper(distance) {
@@ -971,6 +978,7 @@ export class RailWorld {
   dispose() {
     this.disposed = true; ++this.driverRequest; this.driver = null;
     this.scene.remove(this.group);
+    this.rift?.dispose();
     for (const rig of this.carts) rig.turbo?.dispose();
     this.carts = []; this.primaryCart = null;
     this.group.traverse(node => { if (node.isInstancedMesh) node.dispose(); });

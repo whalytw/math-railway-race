@@ -1,6 +1,6 @@
 {
   "name": "math-railway-race",
-  "version": "24.0.0",
+  "version": "25.0.0",
   "private": true,
   "type": "module",
   "description": "五冊高中數學心算鐵道競速",

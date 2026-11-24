@@ -252,6 +252,7 @@ function makePose() {
 class BiplanePass {
   constructor(world) {
     const {root, bounds} = world.store.get(BIPLANE_ASSET);
+    this.world = world;
     this.model = root.clone(true);
     this.radius = Math.hypot(...bounds.max.toArray().map((v, axis) => Math.max(Math.abs(v), Math.abs(bounds.min.getComponent(axis)))));
     this.model.name = 'AirshowBiplane';
@@ -306,6 +307,12 @@ class BiplanePass {
     const end = Math.min(length, distance + HEADING_LOOKAHEAD);
     curve.getPointAt(start / length, this.before);
     curve.getPointAt(end / length, this.after);
+    const rift = this.world.rift;
+    if (rift?.active) {
+      for (const point of [position, this.before, this.after]) {
+        point.y = rift.clearance(point.x, point.y, point.z, this.radius + 2);
+      }
+    }
     return end - start;
   }
 
@@ -404,7 +411,7 @@ export class Airshow {
     if (!stage || seconds + 1e-8 < stage.seconds) return;
     if (!views.some(({quiz, rig}) => quiz.distance >= rig.raceLength * stage.progress)) return;
     const routine = this.routines[this.next++];
-    const active = views.filter(({quiz}) => quiz.finished === null);
+    const active = views.filter(view => view.quiz.finished === null && !this.world.rift?.inside(view));
     for (const group of nearbyGroup(active)) {
       let flight = this.flights.find(candidate => !candidate.plan || seconds >= candidate.endsAt);
       if (!flight) {

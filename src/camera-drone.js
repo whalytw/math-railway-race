@@ -55,7 +55,7 @@ export class CameraDrone {
     const {quiz, rig, motion, state} = view;
     this.root.visible = false;
     this.shadow?.hide();
-    if (quiz.finished !== null) return;
+    if (quiz.finished !== null || view.riftTrack) return;
 
     const time = quiz.clock;
     while (time >= this.visitAt + VISIT_LENGTH) this.scheduleVisit();
@@ -100,13 +100,14 @@ export class CameraDrone {
     const x = p.x + p.tx3 * padding + p.nx * across;
     const z = p.z + p.tz3 * padding + p.nz * across;
     const y = Math.max(p.y + p.ty * padding + altitude, world.groundHeight(x, z) + 2.25);
-    this.root.position.set(x, y, z);
-    this.root.rotation.set(pitch, p.yaw, Math.sin(time * 1.52) * 0.075);
+    this.root.position.set(x, world.rift?.clearance(x, y, z, 3) ?? y, z);
+    const climb = smoothstep(0, 20, this.root.position.y - y);
+    this.root.rotation.set(pitch - .28 * climb, p.yaw, Math.sin(time * 1.52) * .075 + side * .27 * climb);
     const cart = rig.root.position;
     const dx = cart.x - x, dz = cart.z - z;
     const targetYaw = Math.atan2(dx, dz) - p.yaw;
     this.gimbal.rotation.y = clamp(Math.atan2(Math.sin(targetYaw), Math.cos(targetYaw)), -1.2, 1.2) * aim;
-    this.gimbal.rotation.x = (Math.atan2(y - cart.y - 1.4, Math.hypot(dx, dz)) - pitch) * aim;
+    this.gimbal.rotation.x = (Math.atan2(this.root.position.y - cart.y - 1.4, Math.hypot(dx, dz)) - pitch) * aim;
     for (const [i, rotor] of this.rotors.entries()) {
       rotor.rotation.y = state.elapsed * (i % 2 ? -51 : 51) + i * 0.8;
     }

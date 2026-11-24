@@ -20,8 +20,8 @@ export function exposureCoverage(z, exposure, halfWidth = 0.15) {
 function stationClearance(distance, stations, length) {
   return Math.min(...stations.map(s => Math.abs(wrap(distance - s.distance + length / 2, length) - length / 2)));
 }
-export function planRouteFeatures(route, stations, seed = 'features', goals = []) {
-  if (route.turns > 1 || route.lanes) return planParallelFeatures(route, stations, seed, goals);
+export function planRouteFeatures(route, stations, seed = 'features', goals = [], portalZones = []) {
+  if (route.turns > 1 || route.lanes) return planParallelFeatures(route, stations, seed, goals, portalZones);
   const random = randomGenerator(`${seed}:features`);
   function choose(target, length, kind, previous) {
     let best = null, score = Infinity;
@@ -29,6 +29,7 @@ export function planRouteFeatures(route, stations, seed = 'features', goals = []
       const centre = target + i * 10;
       if (centre < 180 || centre > route.length - 180 || stationClearance(centre, [...stations, ...goals], route.length) < length / 2 + 100) continue;
       if (previous && Math.abs(centre - previous.centre) < 350) continue;
+      if (kind === 'tunnel' && stationClearance(centre, portalZones, route.length) < length / 2 + 98) continue;
       let error = 0;
       const module = kind === 'bridge' ? 8 : 4;
       for (let s = centre - length / 2; s < centre + length / 2; s += module) {
@@ -38,13 +39,13 @@ export function planRouteFeatures(route, stations, seed = 'features', goals = []
       const value = error * 1600 + Math.abs(centre - target) * 0.004;
       if (value < score) { score = value; best = { kind, centre, start: centre - length / 2, end: centre + length / 2, length, moduleDeviation: error, ...route.sample(centre) }; }
     }
-    if (!best) throw new Error('找不到避開車站的橋隧位置。');
+    if (!best && !(kind === 'tunnel' && portalZones.length)) throw new Error('找不到避開車站的橋隧位置。');
     return best;
   }
   const bridge = choose(route.length * (0.26 + random() * 0.015), 64, 'bridge');
   const tunnel = choose(route.length * (0.72 + random() * 0.015), 80, 'tunnel', bridge);
-  bridge.name = '河谷鋼橋'; tunnel.name = '山脈隧道';
-  tunnel.halfWidth = 58; tunnel.hillHeight = 24; tunnel.approachLength = 72;
+  bridge.name = '河谷鋼橋';
+  if (tunnel) Object.assign(tunnel, {name: '山脈隧道', halfWidth: 58, hillHeight: 24, approachLength: 72});
   // The river is a single continuous corridor shared by water, earthworks,
   // bank colouring, scenery exclusion and the minimap. Never tile straight
   // river models independently of the actual carved channel.
@@ -68,7 +69,7 @@ export function planRouteFeatures(route, stations, seed = 'features', goals = []
 // One river can be crossed on several turns. Each physical crossing gets its
 // own deck, so the river never removes the ground from a neighboring track.
 const CIRCUIT_BRIDGE_HALF_SPAN = 40;
-function planParallelFeatures(route, stations, seed, goals) {
+function planParallelFeatures(route, stations, seed, goals, portalZones) {
   const random = randomGenerator(`${seed}:circuit-water`);
   const count = route.lanes?.length ?? route.turns, midLane = Math.floor(count / 2);
   const turnIds = Array.from({ length: count }, (_, i) => i);
@@ -144,7 +145,8 @@ function planParallelFeatures(route, stations, seed, goals) {
   for (const lane of turnIds) for (let i = 0; i < 39; i++) {
     const u = 0.10 + i * 0.015, centre = distanceAtPhase(lane, u), start = centre - 40, end = centre + 40;
     if (u > lastPhase - 0.035 || end + approachLength + 10 >= distanceAtPhase(lane, lastPhase)
-      || stationClearance(centre, allPlatforms, route.length) < 115) continue;
+      || stationClearance(centre, allPlatforms, route.length) < 115
+      || stationClearance(centre, portalZones, route.length) < 106) continue;
     let available = 35;
     for (let s = start - approachLength - 6; s <= end + approachLength + 6; s += 5) {
       const p = sample(lane, s);
