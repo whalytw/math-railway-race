@@ -1,3 +1,4 @@
+import {footprintMaximum} from './grounding.js?v=24';
 import {AircraftShadow} from './aircraft-shadow.js?v=24';
 import * as THREE from 'three';
 import {clamp, lerp, randomGenerator, smoothstep} from './core.js?v=13.0.0';
@@ -12,10 +13,20 @@ const VISIT_LENGTH = APPROACH + FILM + FLY_AHEAD;
 const FOLLOW_BEHIND = -4.6;
 const FOLLOW_HEIGHT = 4.3;
 const SCALE = 2.45;
+const LOOK_AHEAD = [5, 12, 22, 36, 53];
 
 export class CameraDrone {
   constructor(world, index, camera) {
-    this.root = world.store.get(CAMERA_DRONE_ASSET).root.clone(true);
+    const asset = world.store.get(CAMERA_DRONE_ASSET);
+    this.root = asset.root.clone(true);
+    // A sphere around the model covers tilted rotors and the camera gimbal.
+    const bounds = asset.bounds;
+    this.radius = SCALE * Math.hypot(
+      Math.max(Math.abs(bounds.min.x), Math.abs(bounds.max.x)),
+      Math.max(Math.abs(bounds.min.y), Math.abs(bounds.max.y)),
+      Math.max(Math.abs(bounds.min.z), Math.abs(bounds.max.z)));
+    this.footprint = {min: [-this.radius, 0, -this.radius], max: [this.radius, 0, this.radius]};
+    this.groundPoint = {x: 0, z: 0, yaw: 0};
     this.root.name = 'CameraDrone_' + (index + 1);
     this.root.scale.setScalar(SCALE);
     this.root.rotation.order = 'YXZ';
@@ -38,11 +49,13 @@ export class CameraDrone {
     this.startSide = index === 0 ? 1 : -1;
     this.exitLead = Math.min(340, world.config.viewDistance - 28);
     this.trackFrame = {};
+    this.lookFrame = {};
     this.reset();
   }
 
   reset() {
     this.visitAt = 0;
+    this.lastFlightTime = null;
     this.scheduleVisit();
   }
 
@@ -51,17 +64,39 @@ export class CameraDrone {
     this.visitSide = (this.random() < 0.5 ? -1 : 1) * (4.0 + this.random() * 0.8);
   }
 
+  altitudeAt(world, x, z, exact = false) {
+    const radius = this.radius;
+    const point = this.groundPoint;
+    point.x = x; point.z = z;
+    const centre = world.groundHeight(x, z);
+    const ground = exact && world.terrainGrid
+      ? Math.max(centre, footprintMaximum(world.terrainGrid, point, this.footprint))
+      : Math.max(centre, world.groundHeight(x + radius, z), world.groundHeight(x - radius, z),
+        world.groundHeight(x, z + radius), world.groundHeight(x, z - radius));
+    // The indexed obstacle tops include tunnel portals, trees and structures.
+    return (world.airspace?.obstacleTop(x, z, radius, ground, exact ? 2.4 : 4.5) ?? ground) + radius + 1.25;
+  }
+
+  flightPoint(world, rig, distance, across, frame) {
+    rig.track.sample(distance, frame);
+    const padding = world.route.lanes ? distance - clamp(distance, 0, rig.track.length) : 0;
+    frame.flightX = frame.x + frame.tx3 * padding + frame.nx * across;
+    frame.flightY = frame.y + frame.ty * padding;
+    frame.flightZ = frame.z + frame.tz3 * padding + frame.nz * across;
+    return frame;
+  }
+
   update(world, view) {
     const {quiz, rig, motion, state} = view;
     this.root.visible = false;
     this.shadow?.hide();
-    if (quiz.finished !== null || view.riftTrack) return;
+    if (quiz.finished !== null || view.riftTrack) { this.lastFlightTime = null; return; }
 
     const time = quiz.clock;
     while (time >= this.visitAt + VISIT_LENGTH) this.scheduleVisit();
     const visitTime = time - this.visitAt;
     const opening = time < START_FOLLOW + FALL_BACK;
-    if (!opening && visitTime < 0) return;
+    if (!opening && visitTime < 0) { this.lastFlightTime = null; return; }
 
     let along = FOLLOW_BEHIND;
     let across = opening ? this.startSide * 4.35 : this.visitSide;
@@ -93,15 +128,23 @@ export class CameraDrone {
     altitude += Math.sin(time * 2.2) * 0.16;
 
     const distance = motion.distance + along;
-    const p = rig.track.sample(distance, this.trackFrame);
-    // Straight tracks clamp samples past their ends. Extrapolate the starting
-    // tangent so the drone can already be trailing when the cart is at rest.
-    const padding = world.route.lanes ? distance - clamp(distance, 0, rig.track.length) : 0;
-    const x = p.x + p.tx3 * padding + p.nx * across;
-    const z = p.z + p.tz3 * padding + p.nz * across;
-    const y = Math.max(p.y + p.ty * padding + altitude, world.groundHeight(x, z) + 2.25);
-    this.root.position.set(x, world.rift?.clearance(x, y, z, 3) ?? y, z);
-    const climb = smoothstep(0, 20, this.root.position.y - y);
+    const p = this.flightPoint(world, rig, distance, across, this.trackFrame);
+    const {flightX: x, flightZ: z} = p;
+    const baseline = p.flightY + altitude;
+    const floor = this.altitudeAt(world, x, z, true);
+    // Follow a sloped clearance envelope upstream of steep ground instead of
+    // lifting as soon as the drone intersects the shape of a hillside.
+    let goal = Math.max(baseline, floor);
+    for (const ahead of LOOK_AHEAD) {
+      const probe = this.flightPoint(world, rig, distance + ahead, across, this.lookFrame);
+      goal = Math.max(goal, this.altitudeAt(world, probe.flightX, probe.flightZ) - ahead * .48);
+    }
+    goal = world.rift?.clearance(x, goal, z, this.radius + 2) ?? goal;
+    const dt = this.lastFlightTime === null ? 1 : clamp(time - this.lastFlightTime, 0, .25);
+    this.lastFlightTime = time;
+    const y = Math.max(goal, this.root.position.y - 13 * dt);
+    this.root.position.set(x, dt === 1 ? goal : y, z);
+    const climb = smoothstep(0, 20, this.root.position.y - baseline);
     this.root.rotation.set(pitch - .28 * climb, p.yaw, Math.sin(time * 1.52) * .075 + side * .27 * climb);
     const cart = rig.root.position;
     const dx = cart.x - x, dz = cart.z - z;

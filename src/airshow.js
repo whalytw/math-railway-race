@@ -17,6 +17,7 @@ const ARC_SAMPLES = 8;
 const HEADING_LOOKAHEAD = 29;
 const BANK_STEP = 0.10;
 const BANK_RATE = 1.4;
+const PLANNING_BUDGET_MS = 3;
 const SMOOTHING = [1, 8, 28, 56, 70, 56, 28, 8, 1];
 
 function ease(t) {
@@ -138,7 +139,7 @@ function smoothClearance(points) {
   }
 }
 
-function planPass(world, group, stage, routine, aircraftRadius) {
+function* planPass(world, group, stage, routine, aircraftRadius) {
   const reference = group[Math.floor(group.length / 2)];
   const {track} = reference.rig, start = reference.state.distance;
   const p = track.sample(start);
@@ -212,7 +213,10 @@ function planPass(world, group, stage, routine, aircraftRadius) {
   segment(sweepEnd, end);
 
   const halfWindow = Math.floor(SMOOTHING.length / 2);
-  const path = points.map(({x, z, railHeight, lift}, index) => {
+  const path = [];
+  for (const [index, point] of points.entries()) {
+    let {x, z} = point;
+    const {railHeight, lift} = point;
     // Smooth the track chord and lane offsets before measuring flight clearance.
     if (index >= halfWindow && index < points.length - halfWindow) {
       x = 0; z = 0;
@@ -228,8 +232,9 @@ function planPass(world, group, stage, routine, aircraftRadius) {
     const objectTop = world.airspace.obstacleTop(x, z, radius);
     const clearance = Math.max(terrainTop, objectTop) + aircraftRadius + 1.5;
     const preferredHeight = Math.max(ground, railHeight) + routine.height + lift;
-    return new THREE.Vector3(x, Math.max(clearance, preferredHeight), z);
-  });
+    path.push(new THREE.Vector3(x, Math.max(clearance, preferredHeight), z));
+    yield;
+  }
   smoothClearance(path);
 
   const curve = new THREE.CatmullRomCurve3(path);
@@ -268,6 +273,7 @@ class BiplanePass {
       node.receiveShadow = false;
       if (!this.materials.has(node.material)) {
         const material = node.material.clone();
+        material.transparent = true;
         this.materials.set(node.material, material);
         world.ownedMaterials.push(material);
       }
@@ -283,10 +289,13 @@ class BiplanePass {
     this.sampleTrail = time => this.sample(time, this.trailPose);
   }
 
-  start(world, group, seconds, stage, routine) {
-    this.clear();
-    this.plan = planPass(world, group, stage, routine, this.radius);
-    this.bankHistory = this.buildBankHistory();
+  *prepare(world, group, stage, routine) {
+    this.plan = yield* planPass(world, group, stage, routine, this.radius);
+    this.bankHistory = yield* this.buildBankHistory();
+  }
+
+  start(group, seconds) {
+    this.preparing = false;
     this.startsAt = seconds;
     this.endsAt = seconds + this.plan.duration + SMOKE_LIFETIME;
     const mask = group.reduce((layers, view) => layers | (view.camera.layers.mask & ~1), 0);
@@ -316,7 +325,7 @@ class BiplanePass {
     return end - start;
   }
 
-  buildBankHistory() {
+  *buildBankHistory() {
     const {duration, pace, accelerateAt, length} = this.plan;
     const values = new Float32Array(Math.ceil(duration / BANK_STEP) + 1);
     const position = new THREE.Vector3();
@@ -335,6 +344,7 @@ class BiplanePass {
       const desired = -0.85 * Math.tanh(2 * speed ** 2 * turn / (0.85 * GRAVITY * width)) * strength;
       // Rate-limit banking to avoid abrupt rolls at changes in path curvature.
       values[i] = values[i - 1] + clamp((desired - values[i - 1]) * .55, -limit, limit);
+      if (i % 8 === 0) yield;
     }
     return values;
   }
@@ -357,6 +367,7 @@ class BiplanePass {
   }
 
   clear() {
+    this.preparing = false;
     this.plan = null;
     this.model.visible = false;
     this.shadow?.hide();
@@ -364,7 +375,7 @@ class BiplanePass {
   }
 
   update(world, seconds, viewportHeight) {
-    if (!this.plan) return;
+    if (this.preparing || !this.plan) return;
     if (seconds >= this.endsAt) {
       this.clear();
       return;
@@ -378,14 +389,7 @@ class BiplanePass {
       this.model.position.copy(pose.position);
       this.model.quaternion.copy(pose.rotation);
       this.propeller.rotation.z = time * 48;
-      for (const material of this.materials.values()) {
-        const transparent = pose.fade < 1;
-        if (material.transparent !== transparent) {
-          material.transparent = transparent;
-          material.needsUpdate = true;
-        }
-        material.opacity = pose.fade;
-      }
+      for (const material of this.materials.values()) material.opacity = pose.fade;
       this.shadow?.update(world, pose.position, pose.yaw, pose.fade);
     }
     this.smoke.update(time, duration, viewportHeight, this.sampleTrail);
@@ -396,12 +400,13 @@ export class Airshow {
   constructor(world, random = Math.random) {
     this.world = world;
     this.random = random;
-    this.flights = [];
+    this.flights = world.carts.map(() => new BiplanePass(world));
     this.reset();
   }
 
   reset() {
     this.next = 0;
+    this.pending = [];
     this.routines = SHOW.map(({routines}) => routines[Math.floor(this.random() * routines.length)]);
     for (const flight of this.flights) flight.clear();
   }
@@ -413,16 +418,27 @@ export class Airshow {
     const routine = this.routines[this.next++];
     const active = views.filter(view => view.quiz.finished === null && !this.world.rift?.inside(view));
     for (const group of nearbyGroup(active)) {
-      let flight = this.flights.find(candidate => !candidate.plan || seconds >= candidate.endsAt);
+      let flight = this.flights.find(candidate => !candidate.preparing && (!candidate.plan || seconds >= candidate.endsAt));
       if (!flight) {
         flight = new BiplanePass(this.world);
         this.flights.push(flight);
       }
-      flight.start(this.world, group, seconds, stage, routine);
+      flight.clear();
+      flight.preparing = true;
+      this.pending.push({flight, group, steps: flight.prepare(this.world, group, stage, routine)});
     }
   }
 
   draw(seconds, viewportHeight) {
+    const until = performance.now() + PLANNING_BUDGET_MS;
+    while (this.pending.length && performance.now() < until) {
+      const {flight, group, steps} = this.pending[0];
+      if (!steps.next().done) continue;
+      this.pending.shift();
+      const visibleTo = group.filter(view => view.quiz.finished === null && !this.world.rift?.inside(view));
+      if (visibleTo.length) flight.start(visibleTo, seconds);
+      else flight.clear();
+    }
     for (const flight of this.flights) flight.update(this.world, seconds, viewportHeight);
   }
 }

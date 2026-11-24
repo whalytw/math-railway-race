@@ -54,10 +54,12 @@ function gateFrame(sample) {
   return {origin, forward, basis};
 }
 
+const mappedRotation = new THREE.Quaternion();
+
 function mapCamera(source, transform, destination, space) {
   destination.copy(source, false);
   destination.position.applyMatrix4(transform);
-  destination.quaternion.premultiply(new THREE.Quaternion().setFromRotationMatrix(transform));
+  destination.quaternion.premultiply(mappedRotation.setFromRotationMatrix(transform));
   destination.far = space ? 12000 : 18000;
   destination.updateProjectionMatrix();
   destination.updateMatrixWorld();
@@ -71,20 +73,24 @@ export function linkPortal(outdoorSample, spaceSample, outdoor, space, entering)
 }
 
 export class RiftPortals {
-  constructor(own) {
+  constructor(own, count) {
     this.geometry = own(new THREE.PlaneGeometry(2, 2));
-    this.target = own(new THREE.WebGLRenderTarget(1, 1, {type: THREE.HalfFloatType}));
+    this.previews = Array.from({length: count}, () => ({
+      target: own(new THREE.WebGLRenderTarget(1, 1, {type: THREE.HalfFloatType})),
+      source: null, lastAt: -Infinity, nextAt: -Infinity,
+    }));
     this.clock = {value: 0};
     this.mappedCamera = new THREE.PerspectiveCamera();
     this.previewCamera = new THREE.PerspectiveCamera();
     this.clip = new THREE.Plane();
     this.frustum = new THREE.Frustum();
     this.projection = new THREE.Matrix4();
+    this.farBudget = 1;
   }
 
   add(parent, frame, radius, facesAhead, own, name) {
     const material = own(new THREE.ShaderMaterial({
-      uniforms: {clock: this.clock, previewMap: {value: this.target.texture},
+      uniforms: {clock: this.clock, previewMap: {value: null},
         previewReady: {value: 0}, transmission: {value: .56}},
       transparent: true, depthWrite: false,
       vertexShader: `
@@ -125,44 +131,103 @@ export class RiftPortals {
     return {camera, space, link};
   }
 
-  preview(renderer, renderView, viewport, configure, outdoors, indoors, viewDistance) {
+  sizePreview(renderer, preview, viewportWidth, windowHeight) {
+    const ratio = renderer.getPixelRatio();
+    const width = Math.max(112, Math.min(512, Math.round(viewportWidth * ratio * .66 / 8) * 8));
+    const height = Math.max(144, Math.min(480, Math.round(windowHeight * ratio * .39 / 8) * 8));
+    const {target} = preview;
+    if (width === target.width && height === target.height) return;
+    target.setSize(width, height);
+    preview.source = null;
+  }
+
+  beginFrame() { this.farBudget = 1; }
+
+  reset() {
+    for (const preview of this.previews) preview.source = null;
+  }
+
+  async prepare(renderer, viewportWidth, windowHeight, jobs) {
+    for (const preview of this.previews) {
+      this.sizePreview(renderer, preview, viewportWidth, windowHeight);
+      renderer.initRenderTarget(preview.target);
+    }
+    const previous = renderer.getRenderTarget(), planes = renderer.clippingPlanes, shadows = renderer.shadowMap.enabled;
+    renderer.shadowMap.enabled = false;
+    const compiled = new Set();
+    try {
+      for (const {scene, camera, gate, configure} of jobs) {
+        renderer.setRenderTarget(this.previews[0].target);
+        renderer.clippingPlanes = [this.clip.setFromNormalAndCoplanarPoint(gate.forward, gate.origin)];
+        configure();
+        // Real offscreen draws link programs with the destination clip plane.
+        renderer.render(scene, camera);
+        if (!compiled.has(scene)) await renderer.compileAsync(scene, camera);
+        renderer.clippingPlanes = [];
+        renderer.setRenderTarget(null);
+        // Exercise the real canvas pipeline as well. Its tone mapping and
+        // unclipped shaders differ from the half-float preview pipeline.
+        renderer.render(scene, camera);
+        if (!compiled.has(scene)) await renderer.compileAsync(scene, camera);
+        compiled.add(scene);
+      }
+    } finally {
+      renderer.setRenderTarget(previous);
+      renderer.clippingPlanes = planes;
+      renderer.shadowMap.enabled = shadows;
+    }
+  }
+
+  preview(renderer, renderView, index, viewportWidth, windowHeight, seconds, configure, outdoors, indoors, viewDistance) {
     const {camera, space, link} = renderView;
     if (!link || space === link.entering) return null;
     const source = space ? link.space : link.outdoor;
     const frame = space ? link.inside : link.outside;
     const depth = frame.forward.dot(frame.origin) - frame.forward.dot(camera.position);
-    if (depth < .01 || depth > viewDistance + source.radius) return null;
+    const usefulDistance = space ? Math.min(380, viewDistance) + source.radius * .35 : viewDistance + source.radius;
+    if (depth < .01 || depth > usefulDistance) return null;
     this.frustum.setFromProjectionMatrix(this.projection.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
     if (!this.frustum.intersectsSphere(source.bounds)) return null;
 
-    const destination = space ? link.outside : link.inside;
-    const portalCamera = mapCamera(camera, space ? link.outwards : link.inwards, this.previewCamera, !space);
-    // The same pixel rays continue from the gate into the destination scene.
-    // Clip only destination geometry on the approach side of that gate.
-    this.clip.setFromNormalAndCoplanarPoint(destination.forward, destination.origin);
-    const ratio = renderer.getPixelRatio() * .8;
-    this.target.setSize(Math.max(1, Math.round(viewport.width * ratio)), Math.max(1, Math.round(viewport.height * ratio)));
-    const target = renderer.getRenderTarget();
-    const clipPlanes = renderer.clippingPlanes, shadows = renderer.shadowMap.enabled;
-    renderer.shadowMap.enabled = false;
-    renderer.clippingPlanes = [this.clip];
-    const destinationPortal = space ? link.outdoor : link.space;
-    const visible = destinationPortal.mesh.visible;
-    destinationPortal.mesh.visible = false;
-    try {
-      renderer.setRenderTarget(this.target);
-      configure(portalCamera, !space);
-      renderer.render(space ? outdoors : indoors, portalCamera);
-    } finally {
-      destinationPortal.mesh.visible = visible;
-      renderer.setRenderTarget(target);
-      renderer.clippingPlanes = clipPlanes;
-      renderer.shadowMap.enabled = shadows;
+    const cached = this.previews[index];
+    this.sizePreview(renderer, cached, viewportWidth, windowHeight);
+    // A distant opening refreshes at 10–20 Hz, staggered across the views.
+    // The near view refreshes every frame, preserving rail alignment at the seam.
+    const interval = depth > 225 ? 1 / 10 : 1 / 20, phase = index * interval / this.previews.length;
+    const near = depth < 56;
+    const needsRefresh = cached.source !== source || (seconds !== cached.lastAt && (near || seconds >= cached.nextAt));
+    if (needsRefresh && (near || this.farBudget)) {
+      if (!near) this.farBudget--;
+      const destination = space ? link.outside : link.inside;
+      const portalCamera = mapCamera(camera, space ? link.outwards : link.inwards, this.previewCamera, !space);
+      this.clip.setFromNormalAndCoplanarPoint(destination.forward, destination.origin);
+      const target = renderer.getRenderTarget();
+      const clipPlanes = renderer.clippingPlanes, shadows = renderer.shadowMap.enabled;
+      renderer.shadowMap.enabled = false;
+      renderer.clippingPlanes = [this.clip];
+      const destinationPortal = space ? link.outdoor : link.space;
+      const visible = destinationPortal.mesh.visible;
+      destinationPortal.mesh.visible = false;
+      try {
+        renderer.setRenderTarget(cached.target);
+        configure(portalCamera, !space, destination);
+        renderer.render(space ? outdoors : indoors, portalCamera);
+      } finally {
+        destinationPortal.mesh.visible = visible;
+        renderer.setRenderTarget(target);
+        renderer.clippingPlanes = clipPlanes;
+        renderer.shadowMap.enabled = shadows;
+      }
+      cached.source = source;
+      cached.lastAt = seconds;
+      cached.nextAt = (Math.floor((seconds + phase) / interval) + 1) * interval - phase;
     }
 
+    if (cached.source !== source) return null;
     const {uniforms} = source.mesh.material;
+    uniforms.previewMap.value = cached.target.texture;
     uniforms.previewReady.value = 1;
     uniforms.transmission.value = THREE.MathUtils.lerp(.98, .56, THREE.MathUtils.smoothstep(depth, 1, 31));
-    return uniforms.previewReady;
+    return uniforms;
   }
 }

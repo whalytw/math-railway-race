@@ -1,3 +1,4 @@
+import {randomGenerator} from '../src/core.js';
 import {CLOUD_EVENTS, cloudLaunchDecision} from '../src/cloud-schedule.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -8,7 +9,7 @@ const json=async f=>JSON.parse(await readFile(new URL('../question-bank/'+f+'.js
 const books=await json('books'), pool=await json('number');
 const newLane=i=>new QuizLane([{label:'數與數線',questions:pool}],45,DEFAULT_CAPS,i);
 const run=(lane,seconds,length=5000)=>{for(let i=0;i<Math.round(seconds*120);i++)lane.tick(1/120,length);};
-import {chooseNebula, DEFAULT_RIFT_CHANCE, inRift, portalDistance, RIFT_CHANCES, RIFT_ENTRY, RIFT_EXIT, RIFT_NEBULAS, RiftDraw} from '../src/rift-rules.js';
+import {chooseNebula, DEFAULT_RIFT_CHANCE, inRift, portalDistance, RIFT_CHANCES, RIFT_ENTRY, RIFT_EXIT, RIFT_NEBULAS, RiftDraw, spaceEncounters} from '../src/rift-rules.js';
 import {createRiftTracks} from '../src/rift-track.js';
 
 test('all 42 book units offer at least 36 distinct prompts at each level',async()=>{
@@ -219,4 +220,29 @@ test('successful rift rounds draw a nebula from seven options and avoid an immed
   for (const previous of RIFT_NEBULAS) {
     assert.deepEqual(picks(previous, 6), RIFT_NEBULAS.filter(name => name !== previous));
   }
+});
+
+test('rift fleets are likely and each cart makes its own scout encounter roll', () => {
+  const random = randomGenerator('space-encounters');
+  let fleetCount = 0, probeCount = 0, mixed = 0;
+  for (let round = 0; round < 1500; round++) {
+    const encounters = spaceEncounters(3, random);
+    const seen = new Set();
+    for (const {fleet, probe} of encounters) {
+      if (fleet) {
+        fleetCount++;
+        assert.ok(fleet.count === 5 || fleet.count === 6);
+      }
+      if (probe) {
+        probeCount++;
+        assert.ok(probe.duration >= 10 && probe.duration <= 15);
+        assert.ok(!seen.has(probe.shape));
+        seen.add(probe.shape);
+      }
+    }
+    if (seen.size === 1 || seen.size === 2) mixed++;
+  }
+  assert.ok(Math.abs(fleetCount / 4500 - .92) < .03);
+  assert.ok(Math.abs(probeCount / 4500 - .60) < .04);
+  assert.ok(mixed > 800);
 });

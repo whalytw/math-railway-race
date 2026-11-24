@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import {RIFT_NEBULAS} from './rift-rules.js?v=27';
+import {RIFT_NEBULAS} from './rift-rules.js?v=28';
 
-const width = 1536;
-const height = 768;
+const width = 1024;
+const height = 512;
 const sourceRoot = new URL('../assets/textures/', import.meta.url);
 const original = new URL('rift-nebula-v25.jpg', sourceRoot);
 const atlas = new URL('rift-nebulas-v26.png', sourceRoot);
@@ -48,55 +48,51 @@ function paintNebula(context, plate, image, cell) {
 }
 
 export function nebulaTexture(own) {
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext('2d');
-  context.fillStyle = '#08091a';
-  context.fillRect(0, 0, width, height);
-  const map = own(new THREE.CanvasTexture(canvas));
-  map.colorSpace = THREE.SRGBColorSpace;
-  map.wrapS = THREE.RepeatWrapping;
-  map.anisotropy = 2;
-
-  const swatch = document.createElement('canvas');
-  swatch.width = 402;
-  swatch.height = 194;
-  const plate = swatch.getContext('2d');
-  const loader = new THREE.ImageLoader();
+  const maps = new Map();
   const focus = {value: centres[0]};
-  let atlasRequest, originalRequest, revision = 0;
+  const uniform = {value: null};
+  const swatch = document.createElement('canvas');
+  swatch.width = 268;
+  swatch.height = 129;
+  const plate = swatch.getContext('2d');
 
-  const loadAtlas = () => atlasRequest ??= loader.loadAsync(atlas.href).catch(error => {
-    atlasRequest = null;
-    throw error;
-  });
-  const paintOriginal = async stamp => {
-    originalRequest ??= loader.loadAsync(original.href).catch(error => {
-      originalRequest = null;
-      throw error;
-    });
-    const image = await originalRequest;
-    if (stamp !== revision) return;
-    paintNebula(context, plate, image, -1);
-    focus.value = centres[0];
-    map.needsUpdate = true;
-  };
-  async function show(name) {
-    const stamp = ++revision, cell = RIFT_NEBULAS.indexOf(name) - 1;
-    try {
-      if (cell < 0) await paintOriginal(stamp);
-      else {
-        const image = await loadAtlas();
-        if (stamp !== revision) return;
-        paintNebula(context, plate, image, cell);
-        focus.value = centres[cell + 1];
-        map.needsUpdate = true;
-      }
-    } catch {
-      if (cell >= 0 && stamp === revision) await paintOriginal(stamp).catch(() => {});
+  function texture(image, cell) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d');
+    if (image) paintNebula(context, plate, image, cell);
+    else {
+      context.fillStyle = '#08091a';
+      context.fillRect(0, 0, width, height);
     }
+    const map = own(new THREE.CanvasTexture(canvas));
+    map.colorSpace = THREE.SRGBColorSpace;
+    map.wrapS = THREE.RepeatWrapping;
+    map.anisotropy = 2;
+    return map;
   }
-  map.addEventListener('dispose', () => { revision++; });
-  return {map, show, focus};
+
+  async function prepare(renderer, isDisposed) {
+    const loader = new THREE.ImageLoader();
+    const [indigo, panels] = await Promise.all([loader.loadAsync(original.href).catch(() => null),
+      loader.loadAsync(atlas.href).catch(() => null)]);
+    if (isDisposed()) return;
+    const base = texture(indigo, -1);
+    maps.set(RIFT_NEBULAS[0], base);
+    renderer.initTexture(base);
+    for (let i = 1; panels && i < RIFT_NEBULAS.length; i++) {
+      const map = texture(panels, i - 1);
+      renderer.initTexture(map);
+      maps.set(RIFT_NEBULAS[i], map);
+    }
+    uniform.value = base;
+  }
+
+  function show(name) {
+    uniform.value = maps.get(name) ?? maps.get(RIFT_NEBULAS[0]);
+    focus.value = maps.has(name) ? centres[RIFT_NEBULAS.indexOf(name)] : centres[0];
+  }
+
+  return {uniform, prepare, show, focus};
 }

@@ -4,12 +4,13 @@ import {shuffle} from './quiz-race.js?v=23';
 import {createCloudRider} from './drivers.js?v=23';
 import {AircraftShadow} from './aircraft-shadow.js?v=24';
 import {AirshowSmoke} from './airshow-smoke.js?v=23';
-import {CloudPath, cloudFlightDuration, chooseCloudManeuvers, MIN_CLOUD_FLIGHT_SECONDS} from './cloud-path.js?v=25';
+import {CloudPath, cloudFlightDuration, chooseCloudManeuvers, MIN_CLOUD_FLIGHT_SECONDS} from './cloud-path.js?v=28';
 import {CLOUD_EVENTS, cloudLaunchDecision, cloudProgress} from './cloud-schedule.js?v=25';
 import {CloudStars, STAR_COUNT, STAR_DROP_SECONDS, starReleaseDelay} from './cloud-stars.js?v=23';
 
 export const CLOUD_ASSET = 'CloudPlatform';
 const SCALE = 2.48;
+const CLEARANCE_BUDGET_MS = 2;
 
 export function pickCloudRiders(drivers, activeDrivers, random = Math.random) {
   const used = new Set(activeDrivers);
@@ -97,7 +98,6 @@ export class CloudRide {
     const maneuvers = chooseCloudManeuvers(this.random);
     const side = this.random() < .5 ? -1 : 1;
     const path = new CloudPath(this.world, order, maneuvers, side, duration);
-    path.planClearance();
     const gifts = [{at: path.visits[0], view: order[0], kmh: 10}];
     if (order.length === 3 && this.random() < .60) gifts.push({at: path.visits[1], view: order[1], kmh: 5});
     if (this.rider) this.root.remove(this.rider);
@@ -109,7 +109,7 @@ export class CloudRide {
       for (const material of this.bindMaterials(this.rider)) this.activeMaterials.add(material);
     }
     this.smoke.clear();
-    this.flight = {startsAt: seconds, event, order, maneuvers, gifts, nextGift: 0, path};
+    this.flight = {startsAt: seconds, event, order, maneuvers, gifts, nextGift: 0, path, clearance: path.planClearance()};
   }
 
   updateRace(views, seconds) {
@@ -168,6 +168,12 @@ export class CloudRide {
 
   draw(seconds, viewportHeight) {
     if (!this.flight) return;
+    // The live footprint remains active while the early flyby builds its
+    // look-ahead envelope in short slices across successive frames.
+    const until = performance.now() + CLEARANCE_BUDGET_MS;
+    while (this.flight.clearance && performance.now() < until) {
+      if (this.flight.clearance.next().done) this.flight.clearance = null;
+    }
     const {path, startsAt} = this.flight;
     const time = Math.max(0, seconds - startsAt), {duration} = path;
     this.renderTime = time;

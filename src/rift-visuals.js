@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 import {TAU} from './core.js?v=13.0.0';
-import {nebulaTexture} from './rift-nebulas.js?v=27';
+import {nebulaTexture} from './rift-nebulas.js?v=28';
 
 export function addDeepSky(scene, length, random, own) {
   const sky = nebulaTexture(own);
   const clock = {value: 0};
   const globe = new THREE.Mesh(own(new THREE.SphereGeometry(5700, 32, 20)), own(new THREE.ShaderMaterial({
-    uniforms: {cloudMap: {value: sky.map}, clock, focus: sky.focus},
+    uniforms: {cloudMap: sky.uniform, clock, focus: sky.focus},
     side: THREE.BackSide, depthWrite: false, toneMapped: false, fog: false,
     vertexShader: `
       varying vec2 domeUV;
@@ -108,5 +108,5 @@ export function addDeepSky(scene, length, random, own) {
   stars.position.z = length * .5;
   stars.renderOrder = -80;
   scene.add(stars);
-  return {pixelRatio: material.uniforms.pixelRatio, show: sky.show, clock};
+  return {pixelRatio: material.uniforms.pixelRatio, show: sky.show, prepare: sky.prepare, clock};
 }

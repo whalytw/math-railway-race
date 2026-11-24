@@ -92,3 +92,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 - **RiftCorvette.glb** 來自 Shipyard 的 Corvette L，種子為 asteria-27，採 Navy 配色。遊戲版簡化為 5,440 個三角面。 [模型生成器與授權](https://exoticspices.github.io/shipyard/) · [生成器版本](https://github.com/exoticspices/shipyard/tree/5d9c3b8)
 - **RiftOrbitalStation.glb** 採用 Grab3D 的 ISS Style Space Station Light，從 20,438 個三角面簡化為 6,013 個。 [原始模型與授權](https://grab3d.com/models/sci-fi/iss/)
 - **RiftShuttle.glb** 採用 Grab3D 的 Sci-Fi Spaceship Light，從 17,009 個三角面簡化為 4,492 個。 [原始模型與授權](https://grab3d.com/models/sci-fi/sci-fi-spaceship/)
+
+## V28 異次元新增模型
+
+以下模型皆以 [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/) 釋出。三角面數為遊戲使用的 GLB。
+
+| 檔案 | 遊戲用途 | 三角面 | 來源 |
+| --- | --- | ---: | --- |
+| RiftDeepStation.glb | 大型軌道太空站 | 4,739 | [Innerscene Space station module cluster](https://www.innerscene.com/tools/library/3d-parts/space-station-module-cluster-431c6035) |
+| RiftRelay.glb | 通訊中繼設施 | 2,162 | [Grab3D Sci-Fi Antenna Array](https://grab3d.com/models/sci-fi/antenna-array/) |
+| RiftInterceptor.glb | 小型編隊飛船 | 1,318 | [Grab3D Space Fighter](https://grab3d.com/models/sci-fi/space-fighter/) |
+| RiftFreighter.glb | 貨運太空船 | 2,209 | [Grab3D Cargo Shuttle](https://grab3d.com/models/sci-fi/cargo-shuttle/) |
+| RiftProbeDome.glb | 圓頂飛碟 | 849 | [Pixor Flying Saucer](https://pixor.art/library/vehicles/ufo/) |
+| RiftProbeDisk.glb | 扁盤飛碟 | 192 | [Savino 的 UFO](https://opengameart.org/content/ufo) |
+| RiftProbeLens.glb | 透鏡飛碟 | 610 | [Agile Reaction 的 Low Poly 3D Flying Saucer](https://opengameart.org/content/low-poly-3d-flying-saucer-model) |
+
+遊戲版已減面或沿用適合即時繪製的低面數原型。模型已縮減大型貼圖並保留來源與授權欄位。

@@ -1,10 +1,10 @@
 import {Airspace} from './airspace.js?v=23';
 import * as THREE from 'three';
-import {CLOUD_ASSET, pickCloudRiders} from './cloud-ride.js?v=25';
+import {CLOUD_ASSET, pickCloudRiders} from './cloud-ride.js?v=28';
 import {RIFT_ENTRY, RIFT_EXIT} from './rift-rules.js?v=25';
-import { BIPLANE_ASSET } from './airshow.js?v=25';
+import { BIPLANE_ASSET } from './airshow.js?v=28';
 import {createCartContactShadow, SUN_OFFSET, updateCartContactShadow} from './aircraft-shadow.js?v=24';
-import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=25';
+import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=28';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { TAU, lerp, clamp, wrap, smoothstep, randomGenerator, stationsFor, biomeMix, trackSegments } from './core.js?v=13.0.0';
 import { createCircuitRoute } from './circuit-route.js?v=17';
@@ -148,7 +148,7 @@ export class RailWorld {
     this.groundProximities = Array.from({ length: this.route.lanes?.length ?? this.route.turns }, () => ({}));
     this.structures = routeStructures(this.features);
     this.group = new THREE.Group(); scene.add(this.group);
-    this.airspace = config.playable && (config.airshowPlane || config.cloudRide) ? new Airspace() : null;
+    this.airspace = config.playable && (config.airshowPlane || config.cloudRide || config.cameraDrone) ? new Airspace() : null;
     this.cullGroups = []; this.ownedGeometry = []; this.ownedMaterials = []; this.ownedTextures = [];
     this.instanceCount = 0; this.sceneryCount = 0; this.terrainChunks = 0;
     this.wheels = []; this.carts = []; this.waterMaterials = [];
@@ -912,10 +912,15 @@ export class RailWorld {
     const p=this.route.sample(distance);this.testBumper.position.set(p.x+p.upX*.405,p.y+p.upY*.405,p.z+p.upZ*.405);
     this.testBumper.quaternion.setFromEuler(rotationEuler.set(p.pitch,p.yaw,0,'YXZ'));this.testBumper.visible=true;
   }
-  setVisibility(camera, farDistance, overview = false) {
+  setVisibility(camera, farDistance, overview = false, gate = null) {
     const cx = camera.position.x, cz = camera.position.z;
     const radius = overview ? this.route.squareSize * 4 : farDistance;
     for (const item of this.cullGroups) {
+      if (gate) {
+        const ahead = (item.x - gate.origin.x) * gate.forward.x + (item.z - gate.origin.z) * gate.forward.z;
+        // Entire batches behind the destination plane need no preview draw.
+        if (ahead < -item.radius - 42) { item.group.visible = false; continue; }
+      }
       const distance = Math.hypot(cx - item.x, cz - item.z);
       const nearest = item.bounds ? distanceToXZBounds(item.bounds, cx, cz) : distance;
       if (item.kind === 'grass') {

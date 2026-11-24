@@ -3,12 +3,12 @@ import {shakeAnswerCamera} from './answer-effects.js?v=20';
 import {setupRaceAudio, prepareRaceAudio, startRaceAudio, playRaceSound, pauseRaceAudio, stopRaceAudio} from './race-audio.js?v=20';
 import { COAST_SECONDS } from './quiz-race.js?v=23';
 import * as THREE from 'three';
-import {CloudRide} from './cloud-ride.js?v=25';
-import {RaceRift} from './rift-world.js?v=27';
-import {DEFAULT_RIFT_CHANCE, RIFT_CHANCES} from './rift-rules.js?v=27';
-import { Airshow } from './airshow.js?v=25';
-import { CameraDrone } from './camera-drone.js?v=25';
-import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=25';
+import {CloudRide} from './cloud-ride.js?v=28';
+import {RaceRift} from './rift-world.js?v=28';
+import {DEFAULT_RIFT_CHANCE, RIFT_CHANCES} from './rift-rules.js?v=28';
+import { Airshow } from './airshow.js?v=28';
+import { CameraDrone } from './camera-drone.js?v=28';
+import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=28';
 import { createPhysics, stepPhysics, FIXED_STEP, DEPARTURE_COUNTDOWN, clamp, lerp, wrap, resolveBiomes, randomGenerator, nextStation, biomeMix, createElevationProfile, leverReference, leverForSpeed, RATED_POWER, CART_MASS, MAX_GRADE, MIN_VERTICAL_RADIUS } from './core.js?v=13.0.0';
 import { riverProfile, riverPoint } from './route-features.js?v=13.0.0';
 import { copyMotion, interpolateMotion, zoomView, anchorCamera, partitionViewports } from './presentation.js?v=13.0.0';
@@ -21,7 +21,7 @@ import { FLYOVER_RAIL_SEPARATION, turnIndexAt } from './circuit-route.js?v=13.0.
 import { checkRaceBoundary, raceStandings } from './straight-race.js?v=22';
 
 const $ = id => document.getElementById(id);
-const GAME_VERSION = '27.0.0';
+const GAME_VERSION = '28.0.0';
 const flightSettings = {
   'camera-drone': 'cameraDrone',
   'drone-shadow': 'droneShadow',
@@ -107,7 +107,7 @@ function renderFrame(dt = 0, snap = false) {
     world.airshow?.draw(raceSeconds, renderer.domElement.height);
     world.cloudRide?.draw(raceSeconds, renderer.domElement.height);
   }
-  if (outdoors.length || rift?.active) scene.updateMatrixWorld();
+  let outdoorMatricesReady = false;
   const now = performance.now();
   for (const view of views) {
     updateCamera(view, dt, snap);
@@ -129,16 +129,20 @@ function renderFrame(dt = 0, snap = false) {
   for (const [index, view] of views.entries()) {
     const renderView = rift?.cameraFor(view) ?? {camera: view.camera, space: false};
     const {camera: raceCamera, space: inSpace} = renderView;
-    const configureScene = (camera, space, shadows) => {
+    const configureScene = (camera, space, shadows, gate = null) => {
       if (space) rift.selectTracks(view);
       else {
+        if (!outdoorMatricesReady) {
+          scene.updateMatrixWorld();
+          outdoorMatricesReady = true;
+        }
         applyViewEnvironment(view, shadows, camera);
         world.updateTrackFilter(mode === 'running' ? view.motion.speed : 0, filteredFrameTime);
-        if (split || updateVisibility || renderView.link) world.setVisibility(camera, world.config.viewDistance, cameraMode === 'overview');
+        if (split || updateVisibility || renderView.link) world.setVisibility(camera, world.config.viewDistance, cameraMode === 'overview', gate);
       }
     };
-    const previewReady = rift?.drawPortal(renderer, renderView, {width: portalWidth, height: view.viewport.height},
-      (camera, space) => configureScene(camera, space, false));
+    const portalUniforms = rift?.drawPortal(renderer, renderView, index, portalWidth, innerHeight, raceSeconds,
+      (camera, space, gate) => configureScene(camera, space, false, gate));
     const { x, y, width, height } = view.viewport;
     renderer.setViewport(x, y, width, height);
     if (split) renderer.setScissor(x, y, width, height);
@@ -153,7 +157,10 @@ function renderFrame(dt = 0, snap = false) {
     finally {
       shadowCasterViews = null;
       view.rig.root.visible = true;
-      if (previewReady) previewReady.value = 0;
+      if (portalUniforms) {
+        portalUniforms.previewReady.value = 0;
+        portalUniforms.previewMap.value = null;
+      }
     }
     mainPass.calls += info.calls; mainPass.triangles += info.triangles;
     shadowPass.drawCalls += viewShadow.drawCalls; shadowPass.triangles += viewShadow.triangles;
@@ -419,6 +426,15 @@ async function loadWorld(config, showLoading = true) {
     atmosphere.setShadowProfile(world.shadowProfile);
     atmosphere.setTerrainHaze(world.skyColor());
     resetCameras(); titleTime = 0; resize();
+    if (world.rift) {
+      if (showLoading) loadingProgress(.98, '正在準備異次元與黑洞效果…');
+      await world.rift.prepare(renderer, views, Math.max(...views.map(view => view.viewport.width)), innerHeight, (view, camera, gate) => {
+        applyViewEnvironment(view, false, camera);
+        world.setVisibility(camera, world.config.viewDistance, false, gate);
+        scene.updateMatrixWorld();
+      });
+      if (epoch !== buildEpoch) return false;
+    }
     return true;
   } catch (error) { nextWorld.dispose(); throw error; }
 }

@@ -2,11 +2,10 @@ import * as THREE from 'three';
 import {lerp, randomGenerator, smoothstep} from './core.js?v=13.0.0';
 import {BASE_SPEED} from './quiz-race.js?v=23';
 import {createRiftTracks} from './rift-track.js?v=27';
-import {chooseNebula, inRift, PORTAL_APPROACH, portalDistance, RIFT_ENTRY, RIFT_EXIT, RiftDraw} from './rift-rules.js?v=27';
-import {addDeepSky} from './rift-visuals.js?v=27';
-import {linkPortal, RiftPortals} from './rift-portals.js?v=27';
-import {RiftVessels} from './rift-vessels.js?v=27';
-import {ZodiacSky} from './zodiac-space.js?v=26';
+import {chooseNebula, inRift, PORTAL_APPROACH, portalDistance, RIFT_ENTRY, RIFT_EXIT, RiftDraw} from './rift-rules.js?v=28';
+import {addDeepSky} from './rift-visuals.js?v=28';
+import {linkPortal, RiftPortals} from './rift-portals.js?v=28';
+import {RiftVessels} from './rift-vessels.js?v=28';
 
 const TRACK_PALETTES = ['#81dcec', '#ffd59c', '#b1b6ff'];
 const WOOD = new THREE.Color('#9d7256');
@@ -104,6 +103,8 @@ export class RaceRift {
     this.draw = new RiftDraw(world.config.riftChance, random);
     this.reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.resources = [];
+    this.round = 0;
+    this.disposed = false;
     this.own = resource => (this.resources.push(resource), resource);
     this.exterior = new THREE.Group();
     this.exterior.name = 'RiftPortals';
@@ -116,14 +117,14 @@ export class RaceRift {
   reset() {
     this.draw.reset();
     this.exterior.visible = false;
-    this.zodiac?.reset();
+    this.portals?.reset();
+    this.vessels?.reset(randomGenerator(this.world.config.seed + ':rift-traffic:' + this.round++));
   }
 
   updateRace(views) {
     if (this.draw.result !== null) return;
     const leader = Math.max(...views.map(({quiz, rig}) => quiz.distance / rig.raceLength));
     if (this.draw.update(leader)) {
-      if (!this.scene) this.build();
       this.nebula = chooseNebula(this.nebula, this.random);
       this.sky.show(this.nebula);
       this.exterior.visible = true;
@@ -152,7 +153,7 @@ export class RaceRift {
       material: own(new THREE.MeshStandardMaterial({color: '#ffffff', emissive: '#3b2d40', emissiveIntensity: .34, roughness: .87})),
     };
     this.chunks = tracks.flatMap((track, index) => spaceTrackMeshes(this.scene, track, index, world.sleeperPitch, sleepers, own));
-    this.portals = new RiftPortals(own);
+    this.portals = new RiftPortals(own, world.carts.length);
     this.outdoorPortals = [];
     this.links = new Map(world.carts.map(rig => [rig, []]));
     const outdoorSample = (rig, phase) => rig.track.sample(rig.departure + rig.raceLength * phase);
@@ -172,8 +173,48 @@ export class RaceRift {
         }
       }
     }
-    this.zodiac = new ZodiacSky(this.scene, own, this.random);
-    this.vessels = new RiftVessels(this.scene, tracks[0].points.at(-1).z);
+    this.vessels = new RiftVessels(this.scene, tracks, world.store, own);
+  }
+
+  async prepare(renderer, views, viewportWidth, windowHeight, configureOutdoor) {
+    this.build();
+    await Promise.all([this.sky.prepare(renderer, () => this.disposed), this.vessels.ready]);
+    if (this.disposed) return;
+    this.vessels.reset(randomGenerator(this.world.config.seed + ':rift-loading'), true);
+    this.vessels.warmTextures(renderer);
+    const view = views[Math.floor(views.length / 2)];
+    const [entry] = this.links.get(view.rig);
+    const inside = entry.inside;
+    const stagedCarts = views.map(({rig}, i) => {
+      const cart = rig.root.clone(true);
+      cart.position.copy(this.links.get(rig)[0].inside.origin);
+      cart.position.z += 8 + i * 1.2;
+      cart.rotation.set(0, 0, 0);
+      this.scene.add(cart);
+      return cart;
+    });
+    const cameraAt = (gate, far) => {
+      const camera = view.camera.clone();
+      camera.layers.enableAll();
+      camera.far = far;
+      camera.position.copy(gate.origin).addScaledVector(gate.forward, -19);
+      camera.position.y += 5.8;
+      camera.lookAt(gate.origin.clone().addScaledVector(gate.forward, 30));
+      camera.updateProjectionMatrix();
+      return camera;
+    };
+    const jobs = [{scene: this.scene, camera: cameraAt(inside, 12000), gate: inside, configure: () => {}}];
+    for (const peer of views) {
+      const gate = this.links.get(peer.rig)[1].outside;
+      const camera = cameraAt(gate, 18000);
+      jobs.push({scene: this.world.scene, camera, gate, configure: () => configureOutdoor(peer, camera, gate)});
+    }
+    try {
+      await this.portals.prepare(renderer, viewportWidth, windowHeight, jobs);
+    } finally {
+      for (const cart of stagedCarts) cart.removeFromParent();
+      this.scene.matrixWorldAutoUpdate = false;
+    }
   }
 
   inside(view, distance = view.quiz.distance) {
@@ -224,12 +265,12 @@ export class RaceRift {
 
   updateVisuals(views, seconds, pixelRatio) {
     if (!this.active) return;
+    this.portals.beginFrame();
     this.portals.clock.value = this.reducedMotion ? seconds * .26 : seconds;
     this.sky.clock.value = this.reducedMotion ? 0 : seconds;
-    this.vessels.update(this.reducedMotion ? 0 : seconds);
+    this.vessels.update(seconds, views, this.reducedMotion);
     this.sky.pixelRatio.value = pixelRatio;
-    const cameras = views.filter(view => view.riftTrack).map(view => view.camera);
-    this.zodiac.update(seconds, cameras, pixelRatio, this.reducedMotion);
+    this.scene.updateMatrixWorld();
   }
 
   selectTracks(view) {
@@ -251,13 +292,14 @@ export class RaceRift {
     return this.portals.cameraFor(view, offset > 42 ? null : link, offset);
   }
 
-  drawPortal(renderer, renderView, viewport, configure) {
+  drawPortal(renderer, renderView, index, viewportWidth, windowHeight, seconds, configure) {
     if (!renderView.link) return null;
-    return this.portals.preview(renderer, renderView, viewport, configure, this.world.scene, this.scene,
-      Math.max(450, this.world.config.viewDistance));
+    return this.portals.preview(renderer, renderView, index, viewportWidth, windowHeight, seconds,
+      configure, this.world.scene, this.scene, Math.max(450, this.world.config.viewDistance));
   }
 
   dispose() {
+    this.disposed = true;
     this.vessels?.dispose();
     this.exterior.removeFromParent();
     this.exterior.clear();

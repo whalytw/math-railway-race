@@ -68,16 +68,18 @@ export class CloudPath {
     return this.world.rift?.clearance(x, altitude, z, CLOUD_RADIUS) ?? altitude;
   }
 
-  planClearance() {
+  *planClearance() {
+    const initial = new Map(this.nodes.map(({view}) => [view, {distance: view.state.distance, speed: view.state.speed}]));
     const count = Math.ceil(this.duration / FLIGHT_SAMPLE_SECONDS);
     this.floorStep = this.duration / count;
     const point = new THREE.Vector3(), previous = new THREE.Vector3();
     const floors = new Float64Array(count + 1), steps = new Float64Array(count + 1);
     for (let i = 0; i <= count; i++) {
-      this.rawPosition(i * this.floorStep, 0, false, point);
+      this.rawPosition(i * this.floorStep, 0, false, point, initial);
       floors[i] = this.clearanceAt(point.x, point.z);
       steps[i] = Math.hypot(point.x - previous.x, point.z - previous.z);
       previous.copy(point);
+      yield;
     }
     // Use distance along the route so a ridge between separated carts does
     // not lift the cloud too early at either cart's low flyover.
@@ -86,9 +88,9 @@ export class CloudPath {
     this.floors = floors;
   }
 
-  readNode(node, delta, interpolated, out) {
+  readNode(node, delta, interpolated, out, initial) {
     const {view, along, across, height} = node, {track} = view.rig;
-    const cart = interpolated ? view.motion : view.state;
+    const cart = initial?.get(view) ?? (interpolated ? view.motion : view.state);
     const distance = cart.distance + along + delta * cart.speed;
     track.sample(distance, out);
     const extra = this.world.route.lanes ? distance - clamp(distance, 0, track.length) : 0;
@@ -97,13 +99,13 @@ export class CloudPath {
     out.y += out.ty * extra + height;
   }
 
-  rawPosition(time, now, interpolated, out) {
+  rawPosition(time, now, interpolated, out, initial) {
     const phase = this.phaseAt(time), t0 = this.times[phase], duration = this.times[phase + 1] - t0;
     const u = clamp((time - t0) / duration, 0, 1);
     const i = this.maneuvers[phase], [sway, lift] = MANEUVERS[phase][i];
     const a = this.a, b = this.b, from = this.nodes[phase], to = this.nodes[phase + 1];
-    this.readNode(from, time - now, interpolated, a);
-    this.readNode(to, time - now, interpolated, b);
+    this.readNode(from, time - now, interpolated, a, initial);
+    this.readNode(to, time - now, interpolated, b, initial);
     const mix = smooth(u), u3 = u ** 3, u4 = u3 * u, u5 = u4 * u;
     // The same endpoint position and velocity join every pair of maneuvers.
     const v0 = duration * (u - 6 * u3 + 8 * u4 - 3 * u5) * from.speed;
