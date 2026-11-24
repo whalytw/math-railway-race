@@ -3,7 +3,7 @@ export const RIFT_ENTRY = .65;
 export const RIFT_EXIT = .95;
 export const PORTAL_APPROACH = 25;
 export const RIFT_CHANCES = Array.from({length: 11}, (_, i) => i * 5);
-export const DEFAULT_RIFT_CHANCE = 20;
+export const DEFAULT_RIFT_CHANCE = 40;
 export const RIFT_NEBULAS = ['indigo', 'amber', 'ruby', 'turquoise', 'orchid', 'emerald', 'silver'];
 
 export function chooseNebula(previous, random = Math.random) {

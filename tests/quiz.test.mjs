@@ -160,7 +160,7 @@ test('cloud departures stay inside each progress window and move around tunnels'
 
 test('rift chance is checked once at half distance and rerolled for a new round', () => {
   assert.deepEqual(RIFT_CHANCES, [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]);
-  assert.equal(DEFAULT_RIFT_CHANCE, 20);
+  assert.equal(DEFAULT_RIFT_CHANCE, 40);
   const samples = [.19, .20];
   const draw = new RiftDraw(20, () => samples.shift());
   assert.equal(draw.update(.49999), null);
@@ -182,6 +182,8 @@ test('rift tracks have the same measured length with separate lanes and aligned 
       const tracks = createRiftTracks(rigs, random);
       const exits = tracks.map(track => track.sample(track.start + track.length));
       assert.ok(exits.every(point => Math.abs(point.z - exits[0].z) < 1e-6 && Math.abs(point.tx) < 1e-4 && Math.abs(point.ty) < 1e-4));
+      assert.ok(exits.every((point, index) => Math.abs(point.y) < 1e-6
+        && Math.abs(point.x - (index - (count - 1) / 2) * 24) < 1e-6));
       for (const track of tracks) {
         let arc = 0;
         for (let i = 1; i < track.points.length; i++) {

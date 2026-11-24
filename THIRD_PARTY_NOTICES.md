@@ -84,3 +84,11 @@ Redistribution and use in source and binary forms, with or without modification,
 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+## v27 異次元太空載具
+
+三個模型皆以 [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/) 釋出。
+
+- **RiftCorvette.glb** 來自 Shipyard 的 Corvette L，種子為 asteria-27，採 Navy 配色。遊戲版簡化為 5,440 個三角面。 [模型生成器與授權](https://exoticspices.github.io/shipyard/) · [生成器版本](https://github.com/exoticspices/shipyard/tree/5d9c3b8)
+- **RiftOrbitalStation.glb** 採用 Grab3D 的 ISS Style Space Station Light，從 20,438 個三角面簡化為 6,013 個。 [原始模型與授權](https://grab3d.com/models/sci-fi/iss/)
+- **RiftShuttle.glb** 採用 Grab3D 的 Sci-Fi Spaceship Light，從 17,009 個三角面簡化為 4,492 個。 [原始模型與授權](https://grab3d.com/models/sci-fi/sci-fi-spaceship/)

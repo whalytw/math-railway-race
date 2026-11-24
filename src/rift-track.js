@@ -1,8 +1,9 @@
 import {clamp, routeFromPolyline, TAU} from './core.js?v=13.0.0';
-import {RIFT_ENTRY, RIFT_EXIT} from './rift-rules.js?v=25';
+import {RIFT_ENTRY, RIFT_EXIT} from './rift-rules.js?v=27';
 
 const STEPS = 640;
-const RAIL_SEPARATION = 18;
+const BRAID_RADIUS = 18;
+const GATE_LANE_SPACING = 24;
 const ease = u => u ** 3 * (10 + u * (-15 + 6 * u));
 
 function phase(u, start, end) {
@@ -16,10 +17,10 @@ function hill(u) {
 export function createRiftTracks(rigs, random) {
   const length = rigs[0].raceLength * (RIFT_EXIT - RIFT_ENTRY);
   const handedness = random() < .5 ? -1 : 1;
-  const spread = .039 + random() * .014;
+  const spread = .051 + random() * .014;
   const rise = .033 + random() * .013;
   const twist = (random() < .5 ? -1 : 1) * TAU;
-  const laneRadius = rigs.length === 1 ? 0 : RAIL_SEPARATION;
+  const laneRadius = rigs.length === 1 ? 0 : BRAID_RADIUS;
   const pointsFor = (angle, single) => Array.from({length: STEPS + 1}, (_, i) => {
     const u = i / STEPS;
     const before = hill(phase(u, .03, .28)), after = hill(phase(u, .76, .98));
@@ -36,7 +37,7 @@ export function createRiftTracks(rigs, random) {
   });
 
   return rigs.map((rig, index) => {
-    const angle = -Math.PI / 6 + TAU * index / rigs.length;
+    const angle = 7 * Math.PI / 6 - TAU * index / rigs.length;
     const points = pointsFor(angle, rigs.length === 1);
     const distances = new Float64Array(points.length);
     for (let i = 1; i < points.length; i++) {
@@ -46,9 +47,15 @@ export function createRiftTracks(rigs, random) {
     // A common bend acts only while the lane offsets are fixed. During the
     // braid the three curves are rotations of each other about the same axis.
     const scale = length / distances.at(-1);
+    // A rigid translation places the three gate approaches on the outdoor
+    // rail spacing without changing the measured distance of each braid.
+    const shiftX = (index - (rigs.length - 1) / 2) * GATE_LANE_SPACING - points[0].x * scale;
+    const shiftY = -points[0].y * scale;
     for (let i = 0; i < points.length; i++) {
       const point = points[i];
-      point.x *= scale; point.y *= scale; point.z *= scale;
+      point.x = point.x * scale + shiftX;
+      point.y = point.y * scale + shiftY;
+      point.z *= scale;
       distances[i] *= scale;
     }
     distances[STEPS] = length;

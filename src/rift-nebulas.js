@@ -1,11 +1,12 @@
 import * as THREE from 'three';
-import {RIFT_NEBULAS} from './rift-rules.js?v=26';
+import {RIFT_NEBULAS} from './rift-rules.js?v=27';
 
 const width = 1536;
 const height = 768;
 const sourceRoot = new URL('../assets/textures/', import.meta.url);
 const original = new URL('rift-nebula-v25.jpg', sourceRoot);
 const atlas = new URL('rift-nebulas-v26.png', sourceRoot);
+const centres = [.256, .267, .293, .227, .244, .265, .261];
 
 function feather(context, w, h) {
   const sides = context.createLinearGradient(0, 0, w, 0);
@@ -22,27 +23,27 @@ function feather(context, w, h) {
   context.globalCompositeOperation = 'source-over';
 }
 
-function paintAtlas(context, plate, image, index) {
-  const column = index % 2, row = Math.floor(index / 2);
-  // Inset the cell so filtering never borrows the colour of a neighbouring panel.
-  const x = Math.round(image.width * column / 2) + 4, y = Math.round(image.height * row / 3) + 4;
-  const endX = Math.round(image.width * (column + 1) / 2) - 4, endY = Math.round(image.height * (row + 1) / 3) - 4;
+function paintNebula(context, plate, image, cell) {
   const w = plate.canvas.width, h = plate.canvas.height;
   plate.clearRect(0, 0, w, h);
-  plate.drawImage(image, x, y, endX - x, endY - y, 0, 0, w, h);
+  if (cell < 0) {
+    plate.drawImage(image, image.width * .13, image.height * .07, image.width * .68, image.height * .69, 0, 0, w, h);
+  } else {
+    const column = cell % 2, row = Math.floor(cell / 2);
+    // Inset each atlas cell so its edge cannot sample a neighbouring nebula.
+    const x = Math.round(image.width * column / 2) + 4, y = Math.round(image.height * row / 3) + 4;
+    const endX = Math.round(image.width * (column + 1) / 2) - 4, endY = Math.round(image.height * (row + 1) / 3) - 4;
+    plate.drawImage(image, x, y, endX - x, endY - y, 0, 0, w, h);
+  }
   feather(plate, w, h);
 
   context.fillStyle = '#08091a';
   context.fillRect(0, 0, width, height);
-  const centre = width * [.27, .29, .22, .24, .26, .26][index];
-  for (const turn of [-width, 0, width]) {
-    const start = centre - w / 2 + turn;
-    // A dim field on the far side keeps the entire dome continuous.
-    context.globalAlpha = .26;
-    context.drawImage(plate.canvas, start + width / 2, height * .12, w, h);
-    context.globalAlpha = .81;
-    context.drawImage(plate.canvas, start, height * .14, w, h);
-  }
+  const centre = width * centres[cell + 1];
+  context.globalAlpha = .92;
+  context.drawImage(plate.canvas, centre - w / 2, height * .251, w, h);
+  context.globalAlpha = .27;
+  context.drawImage(plate.canvas, centre + width / 2 - w * .40, height * .38, w * .80, h * .72);
   context.globalAlpha = 1;
 }
 
@@ -59,10 +60,11 @@ export function nebulaTexture(own) {
   map.anisotropy = 2;
 
   const swatch = document.createElement('canvas');
-  swatch.width = 1014;
-  swatch.height = 555;
+  swatch.width = 402;
+  swatch.height = 194;
   const plate = swatch.getContext('2d');
   const loader = new THREE.ImageLoader();
+  const focus = {value: centres[0]};
   let atlasRequest, originalRequest, revision = 0;
 
   const loadAtlas = () => atlasRequest ??= loader.loadAsync(atlas.href).catch(error => {
@@ -76,7 +78,8 @@ export function nebulaTexture(own) {
     });
     const image = await originalRequest;
     if (stamp !== revision) return;
-    context.drawImage(image, 0, 0, width, height);
+    paintNebula(context, plate, image, -1);
+    focus.value = centres[0];
     map.needsUpdate = true;
   };
   async function show(name) {
@@ -86,7 +89,8 @@ export function nebulaTexture(own) {
       else {
         const image = await loadAtlas();
         if (stamp !== revision) return;
-        paintAtlas(context, plate, image, cell);
+        paintNebula(context, plate, image, cell);
+        focus.value = centres[cell + 1];
         map.needsUpdate = true;
       }
     } catch {
@@ -94,5 +98,5 @@ export function nebulaTexture(own) {
     }
   }
   map.addEventListener('dispose', () => { revision++; });
-  return {map, show};
+  return {map, show, focus};
 }

@@ -1,9 +1,11 @@
 import * as THREE from 'three';
 import {lerp, randomGenerator, smoothstep} from './core.js?v=13.0.0';
 import {BASE_SPEED} from './quiz-race.js?v=23';
-import {createRiftTracks} from './rift-track.js?v=25';
-import {chooseNebula, inRift, PORTAL_APPROACH, portalDistance, RIFT_ENTRY, RIFT_EXIT, RiftDraw} from './rift-rules.js?v=26';
-import {addDeepSky, addPortal, portalResources, PortalTransition} from './rift-visuals.js?v=26';
+import {createRiftTracks} from './rift-track.js?v=27';
+import {chooseNebula, inRift, PORTAL_APPROACH, portalDistance, RIFT_ENTRY, RIFT_EXIT, RiftDraw} from './rift-rules.js?v=27';
+import {addDeepSky} from './rift-visuals.js?v=27';
+import {linkPortal, RiftPortals} from './rift-portals.js?v=27';
+import {RiftVessels} from './rift-vessels.js?v=27';
 import {ZodiacSky} from './zodiac-space.js?v=26';
 
 const TRACK_PALETTES = ['#81dcec', '#ffd59c', '#b1b6ff'];
@@ -150,21 +152,28 @@ export class RaceRift {
       material: own(new THREE.MeshStandardMaterial({color: '#ffffff', emissive: '#3b2d40', emissiveIntensity: .34, roughness: .87})),
     };
     this.chunks = tracks.flatMap((track, index) => spaceTrackMeshes(this.scene, track, index, world.sleeperPitch, sleepers, own));
-    this.portals = portalResources(own);
+    this.portals = new RiftPortals(own);
     this.outdoorPortals = [];
+    this.links = new Map(world.carts.map(rig => [rig, []]));
+    const outdoorSample = (rig, phase) => rig.track.sample(rig.departure + rig.raceLength * phase);
+    const spaceSample = (track, phase) => track.sample(track.rig.departure + track.rig.raceLength * phase);
     const groups = world.route.lanes ? [world.carts] : world.carts.map(rig => [rig]);
-    for (const [phase, name, facesAhead] of [[RIFT_ENTRY, 'Entrance', false], [RIFT_EXIT, 'Exit', true]]) {
+    for (const [phase, name, entering] of [[RIFT_ENTRY, 'Entrance', true], [RIFT_EXIT, 'Exit', false]]) {
+      const inside = portalFrame(tracks, phase, spaceSample);
+      const space = this.portals.add(this.scene, inside.frame, inside.radius, entering, own, 'SpaceRift' + name);
       for (const rigs of groups) {
-        const {frame, radius} = portalFrame(rigs, phase, (rig, progress) => rig.track.sample(rig.departure + rig.raceLength * progress));
-        const portal = addPortal(this.exterior, frame, radius, facesAhead, this.portals, 'OutdoorRift' + name);
-        if (!world.route.lanes) portal.mesh.layers.set(world.carts.indexOf(rigs[0]) + 1);
-        this.outdoorPortals.push(portal);
+        const outside = portalFrame(rigs, phase, outdoorSample);
+        const outdoor = this.portals.add(this.exterior, outside.frame, outside.radius, !entering, own, 'OutdoorRift' + name);
+        if (!world.route.lanes) outdoor.mesh.layers.set(world.carts.indexOf(rigs[0]) + 1);
+        this.outdoorPortals.push(outdoor);
+        for (const rig of rigs) {
+          const link = linkPortal(outdoorSample(rig, phase), spaceSample(this.tracks.get(rig), phase), outdoor, space, entering);
+          this.links.get(rig).push(link);
+        }
       }
-      const {frame, radius} = portalFrame(tracks, phase, (track, progress) => track.sample(track.rig.departure + track.rig.raceLength * progress));
-      addPortal(this.scene, frame, radius, !facesAhead, this.portals, 'SpaceRift' + name);
     }
-    this.transition = new PortalTransition(own);
     this.zodiac = new ZodiacSky(this.scene, own, this.random);
+    this.vessels = new RiftVessels(this.scene, tracks[0].points.at(-1).z);
   }
 
   inside(view, distance = view.quiz.distance) {
@@ -215,7 +224,9 @@ export class RaceRift {
 
   updateVisuals(views, seconds, pixelRatio) {
     if (!this.active) return;
-    this.portals.material.uniforms.clock.value = this.reducedMotion ? seconds * .26 : seconds;
+    this.portals.clock.value = this.reducedMotion ? seconds * .26 : seconds;
+    this.sky.clock.value = this.reducedMotion ? 0 : seconds;
+    this.vessels.update(this.reducedMotion ? 0 : seconds);
     this.sky.pixelRatio.value = pixelRatio;
     const cameras = views.filter(view => view.riftTrack).map(view => view.camera);
     this.zodiac.update(seconds, cameras, pixelRatio, this.reducedMotion);
@@ -226,13 +237,28 @@ export class RaceRift {
     for (const {group, centre} of this.chunks) group.visible = Math.abs(view.motion.odometer - centre) < span;
   }
 
-  drawTransition(renderer, view, seconds) {
-    if (!this.active) return;
-    this.transition.draw(renderer, portalDistance(view.motion.odometer, view.rig.raceLength),
-      view.viewport, seconds, PORTAL_APPROACH, this.reducedMotion);
+  cameraBlend(view) {
+    if (!this.active) return 0;
+    return 1 - smoothstep(32, 67, Math.abs(portalDistance(view.motion.odometer, view.rig.raceLength)));
+  }
+
+  cameraFor(view) {
+    if (!this.active) return {camera: view.camera, space: false};
+    const {odometer} = view.motion, {raceLength} = view.rig;
+    const [entry, exit] = this.links.get(view.rig);
+    const link = odometer < raceLength * RIFT_ENTRY + 42 ? entry : exit;
+    const offset = odometer - raceLength * (link.entering ? RIFT_ENTRY : RIFT_EXIT);
+    return this.portals.cameraFor(view, offset > 42 ? null : link, offset);
+  }
+
+  drawPortal(renderer, renderView, viewport, configure) {
+    if (!renderView.link) return null;
+    return this.portals.preview(renderer, renderView, viewport, configure, this.world.scene, this.scene,
+      Math.max(450, this.world.config.viewDistance));
   }
 
   dispose() {
+    this.vessels?.dispose();
     this.exterior.removeFromParent();
     this.exterior.clear();
     this.scene?.clear();

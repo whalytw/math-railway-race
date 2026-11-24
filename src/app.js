@@ -4,8 +4,8 @@ import {setupRaceAudio, prepareRaceAudio, startRaceAudio, playRaceSound, pauseRa
 import { COAST_SECONDS } from './quiz-race.js?v=23';
 import * as THREE from 'three';
 import {CloudRide} from './cloud-ride.js?v=25';
-import {RaceRift} from './rift-world.js?v=26';
-import {DEFAULT_RIFT_CHANCE, RIFT_CHANCES} from './rift-rules.js?v=26';
+import {RaceRift} from './rift-world.js?v=27';
+import {DEFAULT_RIFT_CHANCE, RIFT_CHANCES} from './rift-rules.js?v=27';
 import { Airshow } from './airshow.js?v=25';
 import { CameraDrone } from './camera-drone.js?v=25';
 import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=25';
@@ -21,7 +21,7 @@ import { FLYOVER_RAIL_SEPARATION, turnIndexAt } from './circuit-route.js?v=13.0.
 import { checkRaceBoundary, raceStandings } from './straight-race.js?v=22';
 
 const $ = id => document.getElementById(id);
-const GAME_VERSION = '26.0.0';
+const GAME_VERSION = '27.0.0';
 const flightSettings = {
   'camera-drone': 'cameraDrone',
   'drone-shadow': 'droneShadow',
@@ -41,7 +41,7 @@ let frameSamples = [], fpsHistory = [], metricTime = 0, metricFrames = 0, sessio
 let longFrameCount = 0, countdownFinished = false;
 let filteredFrameTime = 1 / 60;
 let titleDriver = null, driverUIRequest = 0, mixControls, railPhysics, lastCollisionCount = 0, lastImpactNs = 0;
-const desiredCamera = new THREE.Vector3(), lookTarget = new THREE.Vector3(), eyePosition = new THREE.Vector3(), viewDirection = new THREE.Vector3(), bufferSize = new THREE.Vector2();
+const desiredCamera = new THREE.Vector3(), lookTarget = new THREE.Vector3(), eyePosition = new THREE.Vector3(), viewDirection = new THREE.Vector3(), portalPosition = new THREE.Vector3(), portalLook = new THREE.Vector3(), bufferSize = new THREE.Vector2();
 const startButton = $('start-button'), loading = $('loading');
 const minimap = $('minimap'), mapContext = minimap.getContext('2d');
 const profileCanvas = $('elevation-profile'), profileContext = profileCanvas.getContext('2d'), slopeSample = {};
@@ -106,8 +106,8 @@ function renderFrame(dt = 0, snap = false) {
     for (const view of views) view.drone?.update(world, view);
     world.airshow?.draw(raceSeconds, renderer.domElement.height);
     world.cloudRide?.draw(raceSeconds, renderer.domElement.height);
-    scene.updateMatrixWorld();
   }
+  if (outdoors.length || rift?.active) scene.updateMatrixWorld();
   const now = performance.now();
   for (const view of views) {
     updateCamera(view, dt, snap);
@@ -125,30 +125,40 @@ function renderFrame(dt = 0, snap = false) {
   renderer.shadowMap.needsUpdate = Boolean(sharedShadowFrame);
   shadowPass.maps = shadowsEnabled ? (sharedShadowFrame ? 1 : outdoors.length) : 0;
   renderer.setScissorTest(split);
+  const portalWidth = Math.max(...views.map(view => view.viewport.width));
   for (const [index, view] of views.entries()) {
+    const renderView = rift?.cameraFor(view) ?? {camera: view.camera, space: false};
+    const {camera: raceCamera, space: inSpace} = renderView;
+    const configureScene = (camera, space, shadows) => {
+      if (space) rift.selectTracks(view);
+      else {
+        applyViewEnvironment(view, shadows, camera);
+        world.updateTrackFilter(mode === 'running' ? view.motion.speed : 0, filteredFrameTime);
+        if (split || updateVisibility || renderView.link) world.setVisibility(camera, world.config.viewDistance, cameraMode === 'overview');
+      }
+    };
+    const previewReady = rift?.drawPortal(renderer, renderView, {width: portalWidth, height: view.viewport.height},
+      (camera, space) => configureScene(camera, space, false));
     const { x, y, width, height } = view.viewport;
     renderer.setViewport(x, y, width, height);
     if (split) renderer.setScissor(x, y, width, height);
-    const inSpace = Boolean(view.riftTrack);
     renderer.shadowMap.enabled = shadowsEnabled && !inSpace;
-    if (inSpace) rift.selectTracks(view);
-    else {
-      applyViewEnvironment(view, shadowsEnabled);
-      world.updateTrackFilter(mode === 'running' ? view.motion.speed : 0, filteredFrameTime);
-      if (split || updateVisibility) world.setVisibility(view.camera, world.config.viewDistance, cameraMode === 'overview');
-    }
+    configureScene(raceCamera, inSpace, renderer.shadowMap.enabled);
     view.rig.root.visible = view.cartVisible;
     drawCallsBeforeShadow = info.calls;
     trianglesBeforeShadow = info.triangles;
     viewShadow.drawCalls = viewShadow.triangles = 0;
     shadowCasterViews = sharedShadowFrame && index === 0 ? views.map(peer => peer.camera) : null;
-    try { renderer.render(inSpace ? rift.scene : scene, view.camera); }
-    finally { shadowCasterViews = null; view.rig.root.visible = true; }
+    try { renderer.render(inSpace ? rift.scene : scene, raceCamera); }
+    finally {
+      shadowCasterViews = null;
+      view.rig.root.visible = true;
+      if (previewReady) previewReady.value = 0;
+    }
     mainPass.calls += info.calls; mainPass.triangles += info.triangles;
     shadowPass.drawCalls += viewShadow.drawCalls; shadowPass.triangles += viewShadow.triangles;
     view.main.calls = info.calls; view.main.triangles = info.triangles;
     view.shadows.drawCalls = viewShadow.drawCalls; view.shadows.triangles = viewShadow.triangles;
-    rift?.drawTransition(renderer, view, raceSeconds);
   }
   renderer.shadowMap.enabled = shadowsEnabled;
   if (updateVisibility) visibilityElapsed = 0;
@@ -749,6 +759,17 @@ function updateCamera(view, dt, snap = false) {
     viewDirection.set(p.tx3, p.ty, p.tz3);
     lookTarget.lerp(viewDirection.multiplyScalar(45).add(eyePosition), eyeBlend); targetFov = lerp(targetFov, 72, eyeBlend);
   }
+  const portalBlend = world.rift?.cameraBlend(view) ?? 0;
+  if (portalBlend > 0) {
+    const track = view.riftTrack ?? rig.track;
+    const behind = track.sample(distanceAlong - 17), ahead = track.sample(distanceAlong + 12);
+    portalPosition.set(behind.x, behind.y + 5.8, behind.z);
+    portalLook.set(ahead.x, ahead.y + 1.7, ahead.z);
+    desiredCamera.lerp(portalPosition, portalBlend);
+    lookTarget.lerp(portalLook, portalBlend);
+    camera.up.lerp(viewDirection.set(0, 1, 0), portalBlend).normalize();
+    targetFov = lerp(targetFov, 62, portalBlend);
+  }
   const reset = snap || !view.snapped, blend = reset ? 1 : 1 - Math.exp(-dt * 12);
   if (cameraMode === 'overview' && !view.riftTrack) {
     camera.position.lerp(desiredCamera, blend); smoothLook.lerp(lookTarget, blend); camera.lookAt(smoothLook);
@@ -757,8 +778,8 @@ function updateCamera(view, dt, snap = false) {
   view.snapped = true;
   view.cartVisible = Boolean(view.riftTrack) || (cameraMode !== 'cab' && !(cameraMode === 'chase' && camera.position.distanceTo(cart) < 4.2));
 }
-function applyViewEnvironment(view, shadowsEnabled) {
-  const { camera, rig, motion } = view;
+function applyViewEnvironment(view, shadowsEnabled, camera = view.camera) {
+  const {rig, motion} = view;
   const overview = cameraMode === 'overview', far = world.config.viewDistance;
   const playing = mode === 'running' || mode === 'paused';
   scene.fog.near = overview ? world.route.squareSize * 2.5 : far * 0.36;
