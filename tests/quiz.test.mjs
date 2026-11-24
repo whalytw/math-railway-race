@@ -159,21 +159,19 @@ test('cloud departures stay inside each progress window and move around tunnels'
     {status: 'launch', duration: 13.2});
 });
 
-test('rift chance is checked once at half distance and rerolled for a new round', () => {
+test('a rift is rolled once at the start of each round', () => {
   assert.deepEqual(RIFT_CHANCES, [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]);
   assert.equal(DEFAULT_RIFT_CHANCE, 40);
   const samples = [.19, .20];
   const draw = new RiftDraw(20, () => samples.shift());
-  assert.equal(draw.update(.49999), null);
-  assert.equal(samples.length, 2);
-  assert.equal(draw.update(.5), true);
-  assert.equal(draw.update(.8), true);
+  assert.equal(draw.result, null);
+  assert.equal(draw.roll(), true);
+  assert.equal(draw.result, true);
   assert.equal(samples.length, 1);
-  draw.reset();
-  assert.equal(draw.update(.51), false);
-  assert.equal(draw.update(.95), false);
+  assert.equal(draw.roll(), false);
+  assert.equal(draw.result, false);
   assert.equal(samples.length, 0);
-  assert.equal(new RiftDraw(0, () => assert.fail('0% should not draw')).update(.5), false);
+  assert.equal(new RiftDraw(0, () => assert.fail('0% should not draw')).roll(), false);
 });
 
 test('rift tracks have the same measured length with separate lanes and aligned portal planes', () => {
@@ -238,6 +236,14 @@ test('rift fleets are likely and each cart makes its own scout encounter roll', 
         assert.ok(probe.duration >= 10 && probe.duration <= 15);
         assert.ok(!seen.has(probe.shape));
         seen.add(probe.shape);
+        assert.equal(probe.waypoints[0].time, 0);
+        assert.ok(probe.waypoints.length >= 3);
+        for (let i = 1; i < probe.waypoints.length; i++) {
+          const prev = probe.waypoints[i - 1], next = probe.waypoints[i];
+          assert.ok(next.time - prev.time >= 2 && next.time - prev.time <= 4);
+          assert.ok(next.time < probe.duration - .85);
+          assert.ok(Math.sign(prev.azimuth) !== Math.sign(next.azimuth));
+        }
       }
     }
     if (seen.size === 1 || seen.size === 2) mixed++;

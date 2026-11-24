@@ -4,8 +4,8 @@ import {setupRaceAudio, prepareRaceAudio, startRaceAudio, playRaceSound, pauseRa
 import { COAST_SECONDS } from './quiz-race.js?v=23';
 import * as THREE from 'three';
 import {CloudRide} from './cloud-ride.js?v=28';
-import {RaceRift} from './rift-world.js?v=28';
-import {DEFAULT_RIFT_CHANCE, RIFT_CHANCES} from './rift-rules.js?v=28';
+import {RaceRift} from './rift-world.js?v=29';
+import {DEFAULT_RIFT_CHANCE, RIFT_CHANCES} from './rift-rules.js?v=29';
 import { Airshow } from './airshow.js?v=28';
 import { CameraDrone } from './camera-drone.js?v=28';
 import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=28';
@@ -21,7 +21,7 @@ import { FLYOVER_RAIL_SEPARATION, turnIndexAt } from './circuit-route.js?v=13.0.
 import { checkRaceBoundary, raceStandings } from './straight-race.js?v=22';
 
 const $ = id => document.getElementById(id);
-const GAME_VERSION = '28.0.0';
+const GAME_VERSION = '29.0.0';
 const flightSettings = {
   'camera-drone': 'cameraDrone',
   'drone-shadow': 'droneShadow',
@@ -426,15 +426,6 @@ async function loadWorld(config, showLoading = true) {
     atmosphere.setShadowProfile(world.shadowProfile);
     atmosphere.setTerrainHaze(world.skyColor());
     resetCameras(); titleTime = 0; resize();
-    if (world.rift) {
-      if (showLoading) loadingProgress(.98, '正在準備異次元與黑洞效果…');
-      await world.rift.prepare(renderer, views, Math.max(...views.map(view => view.viewport.width)), innerHeight, (view, camera, gate) => {
-        applyViewEnvironment(view, false, camera);
-        world.setVisibility(camera, world.config.viewDistance, false, gate);
-        scene.updateMatrixWorld();
-      });
-      if (epoch !== buildEpoch) return false;
-    }
     return true;
   } catch (error) { nextWorld.dispose(); throw error; }
 }
@@ -466,13 +457,29 @@ async function startGame(event) {
     const elevation = world.route.elevation;
     const elevationLabel = config.turns > 1 && !config.elevationLimit ? '含跨線' : `上限 ${config.elevationLimit} m`;
     $('relief-summary').textContent = `實際高差 ${elevation.range.toFixed(1)} m / ${elevationLabel}`;
-    beginRound();
+    await beginRound();
   } catch (error) { mode = 'title'; stopRaceAudio(); showError(error); }
   finally { startButton.disabled = false; }
 }
 
-function beginRound() {
-  world.rift?.reset();
+async function beginRound() {
+  const raceWorld = world;
+  const rift = raceWorld.rift;
+  if (rift?.rollRound()) {
+    if (!rift.prepared) {
+      mode = 'loading';
+      loading.hidden = false;
+      loadingProgress(.98, '準備賽道與畫面…');
+      await rift.prepare(renderer, views, Math.max(...views.map(view => view.viewport.width)), innerHeight, (view, camera, gate) => {
+        applyViewEnvironment(view, false, camera);
+        raceWorld.setVisibility(camera, raceWorld.config.viewDistance, false, gate);
+        scene.updateMatrixWorld();
+      });
+      if (world !== raceWorld || rift.disposed) return;
+    }
+    rift.configureRound();
+  }
+
   lastCollisionCount = 0; lastImpactNs = 0; accumulator = 0; lastTime = 0;
   fpsHistory = []; frameSamples = []; metricTime = 0; metricFrames = 0; longFrameCount = 0;
   hudElapsed = 0; countdownFinished = false; finishAnimationTime = 0;
@@ -491,7 +498,7 @@ function beginRound() {
   startRaceAudio();
 }
 
-function replayRound() {
+async function replayRound() {
   if (mode !== 'finished') return;
   prepareRaceAudio();
   for (const view of views) {
@@ -511,7 +518,15 @@ function replayRound() {
   world.cloudRide?.reset();
   world.showTestBumper(null);
   $('clear-bumper').hidden = true;
-  beginRound();
+  $('loading-title').textContent = '準備下一場競速';
+  try {
+    await beginRound();
+  } catch (error) {
+    mode = 'finished';
+    loading.hidden = true;
+    stopRaceAudio();
+    showError(error);
+  }
 }
 
 function pauseGame(force) {

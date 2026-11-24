@@ -8,6 +8,8 @@ const FLIGHT_SECONDS = 7.6;
 const FORMATION = [[0, 0, 0], [-5.4, -.7, -6.5], [5.4, .8, -6.5], [-10.6, -1.8, -12], [10.6, .8, -12], [0, 2.2, -17]];
 const TRAIL_COLOURS = ['#69dcff', '#a8faff', '#ffbf87', '#dfacff'];
 const UP = new THREE.Vector3(0, 1, 0);
+const PROBE_RADIUS = 14.5;
+const PROBE_SHIFT_SECONDS = .12;
 
 function fleetPose(camera, side, t, position) {
   const depth = 32 + 37 * t + 94 * t * t;
@@ -159,7 +161,7 @@ export class ReconnaissanceProbe {
     this.models = models;
     for (const model of models) if (model) this.root.add(model);
     this.root.traverse(node => node.layers.set(layer));
-    this.frame = {};
+    this.offset = new THREE.Vector3();
   }
 
   reset(plan) {
@@ -179,20 +181,21 @@ export class ReconnaissanceProbe {
 
     const margin = Math.min(.95, plan.duration * .10);
     const encounter = smoothstep(0, margin, age) * (1 - smoothstep(plan.duration - margin, plan.duration, age));
-    const cycle = Math.max(0, age - 2.55) / 2.85;
-    const hop = Math.floor(cycle), step = cycle - hop;
-    const move = smoothstep(0, reducedMotion ? .50 : .063, step);
-    const polarity = plan.side * (hop % 2 ? -1 : 1);
-    const side = age < 2.55 ? -plan.side : polarity * lerp(-1, 1, move);
-    const swing = Math.sin(age * 1.7 + plan.phase);
-    const dart = age > 2.55 ? Math.sin(Math.PI * move) : 0;
-    const along = 10.8 + Math.cos(age * 1.15 + plan.phase) * 3.8 + dart * 4.2;
-    const lane = track.sample(view.motion.distance + along, this.frame);
-    const across = side * (11 + 6 * (1 - encounter)) + 1.8 * swing;
-    root.position.set(lane.x + lane.tz * across,
-      Math.max(lane.y, view.rig.root.position.y - 4) + 6 + 3 * swing + dart * 3.1 + 3 * (1 - encounter),
-      lane.z - lane.tx * across);
-    root.rotation.set(.12 * Math.cos(age * 1.5), lane.yaw + plan.phase + age * .55, .24 * swing + .22 * dart * side, 'YXZ');
+    const {waypoints} = plan;
+    const index = waypoints.findLastIndex(point => point.time <= age);
+    const to = waypoints[index], from = waypoints[Math.max(0, index - 1)];
+    const shift = smoothstep(0, reducedMotion ? .42 : PROBE_SHIFT_SECONDS, age - to.time);
+    const azimuth = lerp(from.azimuth, to.azimuth, shift);
+    const elevation = lerp(from.elevation, to.elevation, shift);
+    const horizontal = PROBE_RADIUS * Math.cos(elevation);
+    const {sample, root: cart} = view.rig;
+
+    // Fixed angles in the cart's heading frame keep the probe level and at a
+    // constant radius as the cart accelerates, climbs or banks.
+    this.offset.set(Math.sin(azimuth) * horizontal, Math.sin(elevation) * PROBE_RADIUS,
+      Math.cos(azimuth) * horizontal).applyAxisAngle(UP, sample.yaw);
+    root.position.copy(cart.position).add(this.offset);
+    root.rotation.set(.12, sample.yaw + azimuth, 0, 'YXZ');
     root.scale.setScalar(Math.max(.02, encounter));
     root.visible = true;
   }

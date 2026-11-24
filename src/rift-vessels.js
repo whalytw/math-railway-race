@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {GLTFLoader} from '../vendor/GLTFLoader.js';
-import {spaceEncounters} from './rift-rules.js?v=28';
-import {FlightFormation, ReconnaissanceProbe} from './rift-encounters.js?v=28';
+import {spaceEncounters} from './rift-rules.js?v=29';
+import {FlightFormation, ReconnaissanceProbe} from './rift-encounters.js?v=29';
 
 const BACKDROP = [
   {name: 'RiftOrbitalStation', size: 68, height: 41, drift: 3},

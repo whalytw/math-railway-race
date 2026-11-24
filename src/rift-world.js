@@ -2,10 +2,10 @@ import * as THREE from 'three';
 import {lerp, randomGenerator, smoothstep} from './core.js?v=13.0.0';
 import {BASE_SPEED} from './quiz-race.js?v=23';
 import {createRiftTracks} from './rift-track.js?v=27';
-import {chooseNebula, inRift, PORTAL_APPROACH, portalDistance, RIFT_ENTRY, RIFT_EXIT, RiftDraw} from './rift-rules.js?v=28';
+import {chooseNebula, inRift, PORTAL_APPROACH, portalDistance, RIFT_ENTRY, RIFT_EXIT, RIFT_REVEAL, RiftDraw} from './rift-rules.js?v=29';
 import {addDeepSky} from './rift-visuals.js?v=28';
 import {linkPortal, RiftPortals} from './rift-portals.js?v=28';
-import {RiftVessels} from './rift-vessels.js?v=28';
+import {RiftVessels} from './rift-vessels.js?v=29';
 
 const TRACK_PALETTES = ['#81dcec', '#ffd59c', '#b1b6ff'];
 const WOOD = new THREE.Color('#9d7256');
@@ -112,23 +112,23 @@ export class RaceRift {
     world.group.add(this.exterior);
   }
 
-  get active() { return this.draw.result === true; }
+  get active() { return this.exterior.visible; }
 
-  reset() {
-    this.draw.reset();
+  rollRound() {
     this.exterior.visible = false;
     this.portals?.reset();
-    this.vessels?.reset(randomGenerator(this.world.config.seed + ':rift-traffic:' + this.round++));
+    return this.draw.roll();
+  }
+
+  configureRound() {
+    this.nebula = chooseNebula(this.nebula, this.random);
+    this.sky.show(this.nebula);
+    this.vessels.reset(randomGenerator(this.world.config.seed + ':rift-traffic:' + this.round++));
   }
 
   updateRace(views) {
-    if (this.draw.result !== null) return;
-    const leader = Math.max(...views.map(({quiz, rig}) => quiz.distance / rig.raceLength));
-    if (this.draw.update(leader)) {
-      this.nebula = chooseNebula(this.nebula, this.random);
-      this.sky.show(this.nebula);
-      this.exterior.visible = true;
-    }
+    if (!this.draw.result || this.active) return;
+    if (views.some(({quiz, rig}) => quiz.distance >= RIFT_REVEAL * rig.raceLength)) this.exterior.visible = true;
   }
 
   build() {
@@ -177,7 +177,7 @@ export class RaceRift {
   }
 
   async prepare(renderer, views, viewportWidth, windowHeight, configureOutdoor) {
-    this.build();
+    if (!this.scene) this.build();
     await Promise.all([this.sky.prepare(renderer, () => this.disposed), this.vessels.ready]);
     if (this.disposed) return;
     this.vessels.reset(randomGenerator(this.world.config.seed + ':rift-loading'), true);
@@ -187,6 +187,7 @@ export class RaceRift {
     const inside = entry.inside;
     const stagedCarts = views.map(({rig}, i) => {
       const cart = rig.root.clone(true);
+      if (rig.turbo) cart.add(rig.turbo.root.clone(true));
       cart.position.copy(this.links.get(rig)[0].inside.origin);
       cart.position.z += 8 + i * 1.2;
       cart.rotation.set(0, 0, 0);
@@ -211,6 +212,7 @@ export class RaceRift {
     }
     try {
       await this.portals.prepare(renderer, viewportWidth, windowHeight, jobs);
+      this.prepared = true;
     } finally {
       for (const cart of stagedCarts) cart.removeFromParent();
       this.scene.matrixWorldAutoUpdate = false;
@@ -230,7 +232,9 @@ export class RaceRift {
     const inside = track !== view.rig.track;
     if (Boolean(view.riftTrack) === inside) return;
     view.riftTrack = inside ? track : null;
-    (inside ? this.scene : this.world.group).add(view.rig.root);
+    const parent = inside ? this.scene : this.world.group;
+    parent.add(view.rig.root);
+    if (view.rig.turbo) parent.add(view.rig.turbo.root);
     if (view.rig.contactShadow) view.rig.contactShadow.mesh.visible = !inside;
     view.snapped = false;
     view.camera.up.copy(worldAxis);
