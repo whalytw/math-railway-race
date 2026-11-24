@@ -4,8 +4,8 @@ import {setupRaceAudio, prepareRaceAudio, startRaceAudio, playRaceSound, pauseRa
 import { COAST_SECONDS } from './quiz-race.js?v=23';
 import * as THREE from 'three';
 import {CloudRide} from './cloud-ride.js?v=25';
-import {RaceRift} from './rift-world.js?v=25';
-import {DEFAULT_RIFT_CHANCE, RIFT_CHANCES} from './rift-rules.js?v=25';
+import {RaceRift} from './rift-world.js?v=26';
+import {DEFAULT_RIFT_CHANCE, RIFT_CHANCES} from './rift-rules.js?v=26';
 import { Airshow } from './airshow.js?v=25';
 import { CameraDrone } from './camera-drone.js?v=25';
 import { AssetStore, RailWorld, createAtmosphere, PALETTES } from './world.js?v=25';
@@ -21,7 +21,7 @@ import { FLYOVER_RAIL_SEPARATION, turnIndexAt } from './circuit-route.js?v=13.0.
 import { checkRaceBoundary, raceStandings } from './straight-race.js?v=22';
 
 const $ = id => document.getElementById(id);
-const GAME_VERSION = '25.0.0';
+const GAME_VERSION = '26.0.0';
 const flightSettings = {
   'camera-drone': 'cameraDrone',
   'drone-shadow': 'droneShadow',
@@ -446,6 +446,7 @@ async function startGame(event) {
 }
 
 function beginRound() {
+  world.rift?.reset();
   lastCollisionCount = 0; lastImpactNs = 0; accumulator = 0; lastTime = 0;
   fpsHistory = []; frameSamples = []; metricTime = 0; metricFrames = 0; longFrameCount = 0;
   hudElapsed = 0; countdownFinished = false; finishAnimationTime = 0;
@@ -482,7 +483,6 @@ function replayRound() {
   }
   world.airshow?.reset();
   world.cloudRide?.reset();
-  world.rift?.reset();
   world.showTestBumper(null);
   $('clear-bumper').hidden = true;
   beginRound();
@@ -1079,6 +1079,7 @@ window.__LOOP_TEST__ = {
   snapshot: () => ({
     mode, version: GAME_VERSION, physics: { ...physics }, renderMotion: { ...renderMotion },
     rift: world?.rift?.draw.result ?? null,
+    nebula: world?.rift?.active ? world.rift.nebula : null,
     config: world?.config, biomes: world?.biomeReport, scenery: world?.sceneryStats, rapier: railPhysics?.diagnostics(), turboOn,
     cart: world?.cart?.position.toArray(),
     camera: camera ? { position: camera.position.toArray(), direction: camera.getWorldDirection(new THREE.Vector3()).toArray(),

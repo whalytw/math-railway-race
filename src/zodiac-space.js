@@ -96,8 +96,9 @@ class ZodiacSlot {
 
   start(card, variant, camera, seconds, random) {
     const depth = lerp(240, 420, random());
-    const size = lerp(18, 33, random()) * (depth / 320) ** .36;
-    const side = (this.index - 1) * .225 + (random() - .5) * .13;
+    const halfWidth = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect;
+    const size = Math.min(lerp(28, 50, random()) * (depth / 320) ** .36, depth * halfWidth * .25);
+    const side = ((this.index - 1) * .49 + (random() - .5) * .12) * halfWidth;
     const elevation = lerp(.21, .37, random()) - .14 * (this.index % 2);
     this.drift.set(0, 1, 0).applyQuaternion(camera.quaternion);
     this.anchor.set(side * depth, elevation * depth, -depth).applyQuaternion(camera.quaternion).add(camera.position);
@@ -155,7 +156,7 @@ class ZodiacSlot {
     for (const [x, y] of lines) this.outline.setXYZ(i++, x, y, .02);
     this.outline.needsUpdate = true;
 
-    this.lineMaterial.opacity = alpha * (.55 + .11 * pulse(wave + 1));
+    this.lineMaterial.opacity = alpha * (.63 + .13 * pulse(wave + 1));
     const uniforms = this.starMaterial.uniforms;
     uniforms.alpha.value = alpha * (.84 + .16 * pulse(wave));
     uniforms.ratio.value = ratio;

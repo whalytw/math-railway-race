@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import {clamp, smoothstep, TAU} from './core.js?v=13.0.0';
+import {nebulaTexture} from './rift-nebulas.js?v=26';
 
 export function addDeepSky(scene, length, random, own) {
-  const map = own(new THREE.TextureLoader().load(new URL('../assets/textures/rift-nebula-v25.jpg', import.meta.url).href));
-  map.colorSpace = THREE.SRGBColorSpace;
+  const sky = nebulaTexture(own);
   const globe = new THREE.Mesh(own(new THREE.SphereGeometry(5700, 32, 20)), own(new THREE.MeshBasicMaterial({
-    map, side: THREE.BackSide, depthWrite: false, toneMapped: false, fog: false,
+    map: sky.map, side: THREE.BackSide, depthWrite: false, toneMapped: false, fog: false,
   })));
+  globe.name = 'NebulaDome';
   globe.position.z = length * .5;
   globe.renderOrder = -100;
   scene.add(globe);
@@ -21,7 +22,8 @@ export function addDeepSky(scene, length, random, own) {
     const hot = random();
     colour.copy(white).lerp(hot < .77 ? cool : warm, random() * .75);
     colours.push(colour.r, colour.g, colour.b);
-    luminosity.push(.15 + random() ** 3 * .69 + (i % 107 === 0 ? .48 : 0));
+    const brightness = random();
+    luminosity.push(i % 49 === 0 ? .96 + .19 * brightness : .17 + .65 * brightness ** 2.6);
   }
   const geometry = own(new THREE.BufferGeometry());
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(coordinates, 3));
@@ -37,7 +39,8 @@ export function addDeepSky(scene, length, random, own) {
       void main() {
         starColor = tint; bright = light;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.);
-        gl_PointSize = max(1.25, pixelRatio * (1.4 + 3.8 * light * light));
+        float brilliant = smoothstep(.82, 1.07, light);
+        gl_PointSize = max(1.35, pixelRatio * (1.6 + 4.2 * light * light + 3.0 * brilliant));
       }
     `,
     fragmentShader: `
@@ -45,18 +48,23 @@ export function addDeepSky(scene, length, random, own) {
       void main(){
         vec2 p=gl_PointCoord*2.0-1.0;
         float r=length(p);
-        float glow=exp(-7.0*r*r)*(1.0-smoothstep(.68,1.0,r));
-        float flare=max(exp(-18.*abs(p.x))*exp(-3.7*abs(p.y)),exp(-18.*abs(p.y))*exp(-3.7*abs(p.x)));
-        gl_FragColor=vec4(starColor, min(1.,bright*(glow+.55*flare*smoothstep(.83,1.04,bright))));
+        float brightStar = smoothstep(.82, 1.06, bright);
+        float rim = 1.0 - smoothstep(.7, 1.0, r);
+        float core = exp(-7.2 * r * r);
+        float halo = .28 * exp(-3.9 * r * r);
+        float spikes = exp(-23.0 * min(abs(p.x), abs(p.y)) - 2.6 * r);
+        float alpha = rim * bright * (core + brightStar * (halo + .82 * spikes));
+        gl_FragColor = vec4(mix(starColor, vec3(1.), .38 * brightStar), min(1., alpha));
         #include <colorspace_fragment>
       }
     `,
   }));
   const stars = new THREE.Points(geometry, material);
+  stars.name = 'DistantStars';
   stars.position.z = length * .5;
   stars.renderOrder = -80;
   scene.add(stars);
-  return material.uniforms.pixelRatio;
+  return {pixelRatio: material.uniforms.pixelRatio, show: sky.show};
 }
 
 const portalFragment = `

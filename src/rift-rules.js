@@ -4,6 +4,12 @@ export const RIFT_EXIT = .95;
 export const PORTAL_APPROACH = 25;
 export const RIFT_CHANCES = Array.from({length: 11}, (_, i) => i * 5);
 export const DEFAULT_RIFT_CHANCE = 20;
+export const RIFT_NEBULAS = ['indigo', 'amber', 'ruby', 'turquoise', 'orchid', 'emerald', 'silver'];
+
+export function chooseNebula(previous, random = Math.random) {
+  const options = RIFT_NEBULAS.filter(name => name !== previous);
+  return options[Math.floor(random() * options.length)];
+}
 
 export class RiftDraw {
   constructor(chance, random = Math.random) {

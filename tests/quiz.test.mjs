@@ -8,7 +8,7 @@ const json=async f=>JSON.parse(await readFile(new URL('../question-bank/'+f+'.js
 const books=await json('books'), pool=await json('number');
 const newLane=i=>new QuizLane([{label:'數與數線',questions:pool}],45,DEFAULT_CAPS,i);
 const run=(lane,seconds,length=5000)=>{for(let i=0;i<Math.round(seconds*120);i++)lane.tick(1/120,length);};
-import {DEFAULT_RIFT_CHANCE, inRift, portalDistance, RIFT_CHANCES, RIFT_ENTRY, RIFT_EXIT, RiftDraw} from '../src/rift-rules.js';
+import {chooseNebula, DEFAULT_RIFT_CHANCE, inRift, portalDistance, RIFT_CHANCES, RIFT_ENTRY, RIFT_EXIT, RIFT_NEBULAS, RiftDraw} from '../src/rift-rules.js';
 import {createRiftTracks} from '../src/rift-track.js';
 
 test('all 42 book units offer at least 36 distinct prompts at each level',async()=>{
@@ -206,5 +206,15 @@ test('rift tracks have the same measured length with separate lanes and aligned 
     assert.equal(inRift(exit, raceLength), false);
     assert.equal(portalDistance(entry, raceLength), 0);
     assert.equal(portalDistance(exit, raceLength), 0);
+  }
+});
+
+test('successful rift rounds draw a nebula from seven options and avoid an immediate repeat', () => {
+  assert.equal(new Set(RIFT_NEBULAS).size, 7);
+  const picks = (previous, count) => Array.from({length: count}, (_, i) =>
+    chooseNebula(previous, () => (i + .5) / count));
+  assert.deepEqual(picks(null, 7), RIFT_NEBULAS);
+  for (const previous of RIFT_NEBULAS) {
+    assert.deepEqual(picks(previous, 6), RIFT_NEBULAS.filter(name => name !== previous));
   }
 });

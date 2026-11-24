@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import {lerp, randomGenerator, smoothstep} from './core.js?v=13.0.0';
 import {BASE_SPEED} from './quiz-race.js?v=23';
 import {createRiftTracks} from './rift-track.js?v=25';
-import {inRift, PORTAL_APPROACH, portalDistance, RIFT_ENTRY, RIFT_EXIT, RiftDraw} from './rift-rules.js?v=25';
-import {addDeepSky, addPortal, portalResources, PortalTransition} from './rift-visuals.js?v=25';
-import {ZodiacSky} from './zodiac-space.js?v=25';
+import {chooseNebula, inRift, PORTAL_APPROACH, portalDistance, RIFT_ENTRY, RIFT_EXIT, RiftDraw} from './rift-rules.js?v=26';
+import {addDeepSky, addPortal, portalResources, PortalTransition} from './rift-visuals.js?v=26';
+import {ZodiacSky} from './zodiac-space.js?v=26';
 
 const TRACK_PALETTES = ['#81dcec', '#ffd59c', '#b1b6ff'];
 const WOOD = new THREE.Color('#9d7256');
@@ -122,6 +122,8 @@ export class RaceRift {
     const leader = Math.max(...views.map(({quiz, rig}) => quiz.distance / rig.raceLength));
     if (this.draw.update(leader)) {
       if (!this.scene) this.build();
+      this.nebula = chooseNebula(this.nebula, this.random);
+      this.sky.show(this.nebula);
       this.exterior.visible = true;
     }
   }
@@ -142,7 +144,7 @@ export class RaceRift {
 
     const tracks = createRiftTracks(world.carts, routeRandom);
     this.tracks = new Map(tracks.map(track => [track.rig, track]));
-    this.starRatio = addDeepSky(this.scene, tracks[0].length, randomGenerator(world.config.seed + ':rift-sky'), own);
+    this.sky = addDeepSky(this.scene, tracks[0].length, randomGenerator(world.config.seed + ':rift-sky'), own);
     const sleepers = {
       geometry: own(new THREE.BoxGeometry(2.76, .16, .28)),
       material: own(new THREE.MeshStandardMaterial({color: '#ffffff', emissive: '#3b2d40', emissiveIntensity: .34, roughness: .87})),
@@ -214,7 +216,7 @@ export class RaceRift {
   updateVisuals(views, seconds, pixelRatio) {
     if (!this.active) return;
     this.portals.material.uniforms.clock.value = this.reducedMotion ? seconds * .26 : seconds;
-    this.starRatio.value = pixelRatio;
+    this.sky.pixelRatio.value = pixelRatio;
     const cameras = views.filter(view => view.riftTrack).map(view => view.camera);
     this.zodiac.update(seconds, cameras, pixelRatio, this.reducedMotion);
   }
