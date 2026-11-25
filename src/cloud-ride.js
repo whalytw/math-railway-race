@@ -4,7 +4,7 @@ import {shuffle} from './quiz-race.js?v=23';
 import {createCloudRider} from './drivers.js?v=23';
 import {AircraftShadow} from './aircraft-shadow.js?v=24';
 import {AirshowSmoke} from './airshow-smoke.js?v=23';
-import {CloudPath, cloudFlightDuration, chooseCloudManeuvers, MIN_CLOUD_FLIGHT_SECONDS} from './cloud-path.js?v=28';
+import {CloudPath, cloudFlightDuration, chooseCloudManeuvers, MIN_CLOUD_FLIGHT_SECONDS} from './cloud-path.js?v=30';
 import {CLOUD_EVENTS, cloudLaunchDecision, cloudProgress} from './cloud-schedule.js?v=25';
 import {CloudStars, STAR_COUNT, STAR_DROP_SECONDS, starReleaseDelay} from './cloud-stars.js?v=23';
 
@@ -51,7 +51,7 @@ export class CloudRide {
     this.shadow = world.config.cloudShadow ? new AircraftShadow(world, 5.5, 5.0, 'cloud') : null;
     this.pose = makePose();
     this.trailPose = makePose();
-    this.sampleTrail = time => this.flight.path.sample(time, this.renderTime, true, this.trailPose);
+    this.sampleTrail = time => this.flight.path.sample(time, this.trailPose);
   }
 
   bindMaterials(root) {
@@ -91,7 +91,7 @@ export class CloudRide {
     }).catch(() => {});
   }
 
-  start(views, seconds, event, riderId, duration) {
+  start(views, event, riderId, duration) {
     const order = shuffle(views.filter(({quiz}) => quiz.finished === null), this.random)
       .sort((a, b) => cloudProgress(a) - cloudProgress(b));
     if (!order.length) return;
@@ -109,7 +109,7 @@ export class CloudRide {
       for (const material of this.bindMaterials(this.rider)) this.activeMaterials.add(material);
     }
     this.smoke.clear();
-    this.flight = {startsAt: seconds, event, order, maneuvers, gifts, nextGift: 0, path, clearance: path.planClearance()};
+    this.flight = {startsAt: null, event, order, maneuvers, gifts, nextGift: 0, path, clearance: path.planClearance()};
   }
 
   updateRace(views, seconds) {
@@ -124,6 +124,7 @@ export class CloudRide {
       }
       this.burst = null;
     }
+    if (this.flight?.startsAt === null) return rewarded;
     if (this.flight && seconds >= this.flight.startsAt + this.flight.path.duration + this.smoke.lifetime) {
       this.flight = null;
       this.hide();
@@ -133,13 +134,13 @@ export class CloudRide {
       if (!event) return rewarded;
       const duration = this.plannedDuration ??= cloudFlightDuration(this.random);
       const tail = this.smoke.lifetime;
-      const blocksFlight = rift?.active ? (delay, duration, reward) => rift.blocksFlight(views, delay, duration, reward) : null;
+      const blocksFlight = rift?.draw.result ? (delay, duration, reward) => rift.blocksFlight(views, delay, duration, reward) : null;
       const decision = cloudLaunchDecision(views, this.world.features.tunnel, !this.world.route.lanes,
         event, duration + tail, MIN_CLOUD_FLIGHT_SECONDS + tail, blocksFlight);
       if (decision.status === 'wait') return rewarded;
       const rider = this.riders[this.next++];
       this.plannedDuration = null;
-      if (decision.status === 'launch') this.start(views, seconds, event, rider, decision.duration - tail);
+      if (decision.status === 'launch') this.start(views, event, rider, decision.duration - tail);
       return rewarded;
     }
     const elapsed = seconds - this.flight.startsAt;
@@ -149,7 +150,7 @@ export class CloudRide {
       if (rift?.inside(gift.view)) return rewarded;
       const origins = Array.from({length: STAR_COUNT}, (_, i) => {
         const point = new THREE.Vector3();
-        this.flight.path.positionAt(gift.at + starReleaseDelay(i), elapsed, false, point);
+        this.flight.path.positionAt(gift.at + starReleaseDelay(i), point);
         point.y += this.deck * .44;
         return point;
       });
@@ -159,7 +160,7 @@ export class CloudRide {
   }
 
   flyoverFraming(view) {
-    if (!this.flight) return 0;
+    if (!this.flight || this.flight.startsAt === null) return 0;
     const visit = this.flight.path.visits[this.flight.order.indexOf(view)];
     if (visit === undefined) return 0;
     const t = this.renderTime;
@@ -168,18 +169,20 @@ export class CloudRide {
 
   draw(seconds, viewportHeight) {
     if (!this.flight) return;
-    // The live footprint remains active while the early flyby builds its
-    // look-ahead envelope in short slices across successive frames.
+    // Finish the surveyed route before showing the cloud. Small work slices
+    // keep planning from interrupting the race.
     const until = performance.now() + CLEARANCE_BUDGET_MS;
     while (this.flight.clearance && performance.now() < until) {
       if (this.flight.clearance.next().done) this.flight.clearance = null;
     }
+    if (this.flight.clearance) return;
+    this.flight.startsAt ??= seconds;
     const {path, startsAt} = this.flight;
     const time = Math.max(0, seconds - startsAt), {duration} = path;
     this.renderTime = time;
     this.root.visible = time < duration;
     if (this.root.visible) {
-      const pose = path.sample(time, time, true, this.pose);
+      const pose = path.sample(time, this.pose);
       this.root.position.copy(pose.position);
       this.root.quaternion.copy(pose.rotation);
       const fade = 1 - smoothstep(duration - 1.45, duration, time);

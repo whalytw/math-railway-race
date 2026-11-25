@@ -16,18 +16,18 @@
   <link rel="stylesheet" href="./fleet-v11.css?v=13.0.0">
   <link rel="stylesheet" href="./straight-v13.css?v=13.0.0">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
-  <script type="module" src="./src/app.js?v=29"></script>
+  <script type="module" src="./src/app.js?v=30"></script>
 <link rel="stylesheet" href="./quiz.css?v=23"></head>
 <body>
   <canvas id="scene" aria-label="三維軌道與地形場景"></canvas>
   <div class="vignette" aria-hidden="true"></div>
   <main id="title-screen" class="title-screen">
     <section class="setup-panel">
-      <header class="brand"><span class="brand-mark" aria-hidden="true">╫</span><span>LOOP<span class="brand-small">軌道試驗場</span></span><span class="edition">課堂競速<br>V29.0</span></header>
+      <header class="brand"><span class="brand-mark" aria-hidden="true">╫</span><span>LOOP<span class="brand-small">軌道試驗場</span></span><span class="edition">課堂競速<br>V30.0</span></header>
       <div class="intro"><h1>數學鐵道<br><b id="course-headline">心算競速</b></h1><p id="course-intro"></p></div>
       <form id="setup-form"><div class="scope-card"><button type="button" id="settings-open">教師設定 · 選題範圍</button><p id="scope-summary"></p></div>
         <div class="route-fields">
-          <label class="course-field">軌道模式<select id="route-mode" aria-label="軌道模式"><option value="loop">環形競速</option><option value="straight" selected>直線競速 · 三車</option></select></label>
+          <label class="course-field">軌道模式<select id="route-mode" aria-label="軌道模式"><option value="loop" selected>環形競速</option><option value="straight">直線競速 · 三車</option></select></label>
           <label id="ring-turns-field">軌道圈數<select id="track-turns" aria-label="軌道圈數" aria-describedby="relief-hint"><option value="1">單車 · 一圈路線</option><option value="3" selected>三車 · 三圈路線</option></select></label>
           <label>競賽軌道長度<select id="race-length" aria-label="競賽軌道長度"></select></label>
           <label>沿線車站<select id="station-count" aria-label="車站數量"><option value="3">3 座車站</option><option value="2">2 座車站</option></select></label>

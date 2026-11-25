@@ -13,8 +13,9 @@ export function buildGoals(world) {
     arch.scale.set(1.12, 1.18, 1);
     const sign = world.makeLabel('GOAL', world.carts.length === 1 ? '終 點' : ['一號車終點', '二號車終點', '三號車終點'][rig.laneIndex]);
     sign.position.set(0, 4.85, 0); sign.scale.set(5, 1.6, 1);
-    if (world.airspace) world.airspace.addBounds(new THREE.Box3().setFromObject(arch));
-    arch.add(sign); world.group.add(arch);
+    arch.add(sign);
+    world.airspace?.addBounds(new THREE.Box3().setFromObject(arch));
+    world.group.add(arch);
     return {...goal, finish: true};
   });
 }

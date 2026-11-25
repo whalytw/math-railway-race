@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {clamp, GRAVITY, lerp, smoothstep, TAU} from './core.js?v=13.0.0';
-import {footprintMaximum} from './grounding.js?v=24';
+import {groundMaximum} from './grounding.js?v=24';
+import {flightElevations, flightSample} from './flight-clearance.js?v=30';
 import {AircraftShadow} from './aircraft-shadow.js?v=24';
 import {AirshowSmoke, SMOKE_LIFETIME} from './airshow-smoke.js?v=23';
 
@@ -125,20 +126,6 @@ function timeForDistance(distanceAt, distance, minSpeed) {
   return (low + high) / 2;
 }
 
-function smoothClearance(points) {
-  for (const direction of [-1, 1]) {
-    for (let i = direction > 0 ? 1 : points.length - 2; i >= 0 && i < points.length; i += direction) {
-      const a = points[i - direction], b = points[i];
-      b.y = Math.max(b.y, a.y - MAX_GRADE * Math.hypot(a.x - b.x, a.z - b.z));
-    }
-  }
-  const heights = points.map(p => p.y);
-  for (let i = 2; i < points.length - 2; i++) {
-    const eased = (heights[i - 2] + 4 * heights[i - 1] + 6 * heights[i] + 4 * heights[i + 1] + heights[i + 2]) / 16;
-    points[i].y = Math.max(points[i].y, eased);
-  }
-}
-
 function* planPass(world, group, stage, routine, aircraftRadius) {
   const reference = group[Math.floor(group.length / 2)];
   const {track} = reference.rig, start = reference.state.distance;
@@ -159,9 +146,7 @@ function* planPass(world, group, stage, routine, aircraftRadius) {
   const sweepStart = stage.lead + Math.max(0, fastest - 18) * 3.8;
   const sweepEnd = sweepStart + Math.max(routine.span, (right - left) * 3.65);
   const end = sweepEnd + Math.max(470, Math.min(800, world.config.viewDistance * 1.04));
-  const radius = aircraftRadius + 4;
-  const footprint = {min: [-radius, 0, -radius], max: [radius, 0, radius]};
-  const groundPoint = {x: 0, z: 0, yaw: 0};
+  const radius = aircraftRadius + 7;
   const points = [], exit = {}, frame = {}, before = {}, after = {};
   const [sweepFrom, sweepTo] = routine.sweep ?? [0, 1];
 
@@ -226,16 +211,18 @@ function* planPass(world, group, stage, routine, aircraftRadius) {
         z += point.z * weight / 256;
       }
     }
-    groundPoint.x = x; groundPoint.z = z;
     const ground = world.groundHeight(x, z);
-    const terrainTop = footprintMaximum(world.terrainGrid, groundPoint, footprint);
-    const objectTop = world.airspace.obstacleTop(x, z, radius);
-    const clearance = Math.max(terrainTop, objectTop) + aircraftRadius + 1.5;
+    const terrainTop = groundMaximum(world.terrainGrid, x, z, radius);
+    const objectTop = world.airspace.obstacleTop(x, z, radius, terrainTop);
+    const clearance = objectTop + aircraftRadius + 2;
     const preferredHeight = Math.max(ground, railHeight) + routine.height + lift;
-    path.push(new THREE.Vector3(x, Math.max(clearance, preferredHeight), z));
+    const altitude = Math.max(clearance, preferredHeight);
+    path.push(new THREE.Vector3(x, world.rift?.clearance(x, altitude, z, radius) ?? altitude, z));
     yield;
   }
-  smoothClearance(path);
+  const steps = path.map((p, i) => i ? Math.hypot(p.x - path[i - 1].x, p.z - path[i - 1].z) : 0);
+  const heights = flightElevations(path.map(p => p.y), MAX_GRADE, .20, steps);
+  for (let i = 0; i < path.length; i++) path[i].y = flightSample(heights, i);
 
   const curve = new THREE.CatmullRomCurve3(path);
   curve.arcLengthDivisions = (points.length - 1) * ARC_SAMPLES;
@@ -257,7 +244,6 @@ function makePose() {
 class BiplanePass {
   constructor(world) {
     const {root, bounds} = world.store.get(BIPLANE_ASSET);
-    this.world = world;
     this.model = root.clone(true);
     this.radius = Math.hypot(...bounds.max.toArray().map((v, axis) => Math.max(Math.abs(v), Math.abs(bounds.min.getComponent(axis)))));
     this.model.name = 'AirshowBiplane';
@@ -316,12 +302,6 @@ class BiplanePass {
     const end = Math.min(length, distance + HEADING_LOOKAHEAD);
     curve.getPointAt(start / length, this.before);
     curve.getPointAt(end / length, this.after);
-    const rift = this.world.rift;
-    if (rift?.active) {
-      for (const point of [position, this.before, this.after]) {
-        point.y = rift.clearance(point.x, point.y, point.z, this.radius + 2);
-      }
-    }
     return end - start;
   }
 

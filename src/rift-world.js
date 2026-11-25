@@ -2,10 +2,10 @@ import * as THREE from 'three';
 import {lerp, randomGenerator, smoothstep} from './core.js?v=13.0.0';
 import {BASE_SPEED} from './quiz-race.js?v=23';
 import {createRiftTracks} from './rift-track.js?v=27';
-import {chooseNebula, inRift, PORTAL_APPROACH, portalDistance, RIFT_ENTRY, RIFT_EXIT, RIFT_REVEAL, RiftDraw} from './rift-rules.js?v=29';
+import {chooseNebula, inRift, PORTAL_APPROACH, portalDistance, RIFT_ENTRY, RIFT_EXIT, RIFT_REVEAL, RiftDraw} from './rift-rules.js?v=30';
 import {addDeepSky} from './rift-visuals.js?v=28';
 import {linkPortal, RiftPortals} from './rift-portals.js?v=28';
-import {RiftVessels} from './rift-vessels.js?v=29';
+import {RiftVessels} from './rift-vessels.js?v=30';
 
 const TRACK_PALETTES = ['#81dcec', '#ffd59c', '#b1b6ff'];
 const WOOD = new THREE.Color('#9d7256');
@@ -241,7 +241,7 @@ export class RaceRift {
   }
 
   clearance(x, y, z, padding) {
-    if (!this.active) return y;
+    if (!this.draw.result || !this.outdoorPortals) return y;
     let safest = y;
     for (const {mesh, radius, tx, tz} of this.outdoorPortals) {
       const dx = x - mesh.position.x, dz = z - mesh.position.z;
@@ -255,7 +255,7 @@ export class RaceRift {
   }
 
   blocksFlight(views, delay, duration, rewardSeconds) {
-    if (!this.active) return false;
+    if (!this.draw.result) return false;
     return views.some(view => {
       if (view.quiz.finished !== null) return false;
       const {rig, state, quiz} = view;

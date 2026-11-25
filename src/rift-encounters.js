@@ -20,6 +20,21 @@ function fleetPose(camera, side, t, position) {
     .applyQuaternion(camera.quaternion).add(camera.position);
 }
 
+export function vesselInstances(parent, source, count, own) {
+  source.root.updateMatrixWorld(true);
+  const trim = new THREE.Matrix4().makeScale(1 / source.span, 1 / source.span, 1 / source.span)
+    .multiply(new THREE.Matrix4().makeTranslation(-source.centre.x, -source.centre.y, -source.centre.z));
+  const parts = [];
+  source.root.traverse(node => {
+    if (!node.isMesh) return;
+    const geometry = own(node.geometry.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(trim, node.matrixWorld)));
+    const mesh = own(new THREE.InstancedMesh(geometry, node.material, count));
+    parts.push(mesh);
+    parent.add(mesh);
+  });
+  return parts;
+}
+
 export class FlightFormation {
   constructor(parent, source, bounds, layer, own) {
     this.group = new THREE.Group();
@@ -27,20 +42,12 @@ export class FlightFormation {
     this.group.layers.set(layer);
     this.group.visible = false;
     parent.add(this.group);
-    source.root.updateMatrixWorld(true);
-    const trim = new THREE.Matrix4().makeScale(1 / source.span, 1 / source.span, 1 / source.span)
-      .multiply(new THREE.Matrix4().makeTranslation(-source.centre.x, -source.centre.y, -source.centre.z));
-    this.parts = [];
-    source.root.traverse(node => {
-      if (!node.isMesh) return;
-      const geometry = own(node.geometry.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(trim, node.matrixWorld)));
-      const mesh = own(new THREE.InstancedMesh(geometry, node.material, MAX_SHIPS));
+    this.parts = vesselInstances(this.group, source, MAX_SHIPS, own);
+    for (const mesh of this.parts) {
       mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
       mesh.frustumCulled = false;
       mesh.layers.set(layer);
-      this.parts.push(mesh);
-      this.group.add(mesh);
-    });
+    }
 
     const points = MAX_SHIPS * TRAIL_STEPS * 2;
     const trails = own(new THREE.BufferGeometry());

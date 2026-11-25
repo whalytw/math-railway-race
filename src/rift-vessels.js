@@ -1,17 +1,17 @@
 import * as THREE from 'three';
 import {GLTFLoader} from '../vendor/GLTFLoader.js';
-import {spaceEncounters} from './rift-rules.js?v=29';
-import {FlightFormation, ReconnaissanceProbe} from './rift-encounters.js?v=29';
+import {spaceEncounters} from './rift-rules.js?v=30';
+import {FlightFormation, ReconnaissanceProbe, vesselInstances} from './rift-encounters.js?v=30';
+import {SpacecraftEscort} from './rift-flyby.js?v=30';
 
 const BACKDROP = [
   {name: 'RiftOrbitalStation', size: 68, height: 41, drift: 3},
-  {name: 'RiftCorvette', size: 55, height: 34, drift: 14},
   {name: 'RiftShuttle', size: 24, height: 31, drift: 17},
   {name: 'RiftFreighter', size: 39, height: 30, drift: 11},
 ];
 const PROBES = ['RiftProbeDome', 'RiftProbeDisk', 'RiftProbeLens'];
 const STRUCTURES = ['RiftDeepStation', 'RiftRelay'];
-const ASSETS = [...STRUCTURES, ...BACKDROP.map(asset => asset.name), 'RiftInterceptor', ...PROBES];
+const ASSETS = [...STRUCTURES, ...BACKDROP.map(asset => asset.name), 'RiftCorvette', 'RiftInterceptor', ...PROBES];
 
 function release(model) {
   const resources = new Set();
@@ -77,6 +77,7 @@ export class RiftVessels {
         }))).then(() => {
       if (!this.active) return;
       this.createScenery(scene);
+      this.createBattleFleet(own);
       this.flights = this.tracks.map(({rig}, lane) => {
         const interceptor = this.sources.get('RiftInterceptor');
         const formation = interceptor ? new FlightFormation(this.group, interceptor, store.get(rig.vehicle).bounds, lane + 1, own) : null;
@@ -85,7 +86,8 @@ export class RiftVessels {
           return source ? mounted(source, 4.8 + index * .5) : null;
         });
         const probe = new ReconnaissanceProbe(this.group, probeModels, lane + 1);
-        return {formation, probe};
+        const escort = interceptor ? new SpacecraftEscort(this.group, mounted(interceptor, 6.3), lane + 1) : null;
+        return {formation, probe, escort};
       });
     });
   }
@@ -118,12 +120,45 @@ export class RiftVessels {
     scene.add(fill);
   }
 
+  createBattleFleet(own) {
+    const corvette = this.sources.get('RiftCorvette');
+    if (!corvette) return;
+    const group = new THREE.Group();
+    group.name = 'RiftBattleFleet';
+    this.group.add(group);
+    const parts = vesselInstances(group, corvette, 3, own);
+    const pose = new THREE.Object3D();
+    const fleet = [
+      {position: [0, 0, 0], scale: [217, 197, 247], colour: '#d9e3ff'},
+      {position: [-94, -32, 26], scale: [93, 87, 125], colour: '#97cfff'},
+      {position: [84, 23, -56], scale: [94, 86, 126], colour: '#a8dcff'},
+    ];
+    fleet.forEach(({position, scale, colour}, i) => {
+      pose.position.fromArray(position);
+      pose.scale.fromArray(scale);
+      pose.updateMatrix();
+      for (const part of parts) {
+        part.setMatrixAt(i, pose.matrix);
+        part.setColorAt(i, new THREE.Color(colour));
+      }
+    });
+    for (const part of parts) part.computeBoundingSphere();
+    this.battleFleet = group;
+  }
+
   reset(random, show = false) {
     const plans = spaceEncounters(this.flights.length, random);
     for (let lane = 0; lane < this.flights.length; lane++) {
-      const {formation, probe} = this.flights[lane];
+      const {formation, probe, escort} = this.flights[lane];
       formation?.reset(plans[lane].fleet);
       probe.reset(plans[lane].probe);
+      escort?.reset(plans[lane].escort);
+    }
+    if (this.battleFleet) {
+      const z = Math.min(685, this.length * .64);
+      const band = railBand(this.tracks, z, 235);
+      this.battleFleet.position.set(band.right + 93, band.high + 102, z);
+      this.battleFleet.rotation.set(-.06, -.72, .03);
     }
     const distant = BACKDROP.map((asset, i) => ({asset, i, roll: random()}))
       .sort((a, b) => a.roll - b.roll).slice(0, 2).map(entry => entry.i);
@@ -167,6 +202,7 @@ export class RiftVessels {
       if (!flight) continue;
       flight.formation?.update(view, seconds);
       flight.probe.update(view, seconds, reducedMotion);
+      flight.escort?.update(view, seconds, reducedMotion);
     }
   }
 

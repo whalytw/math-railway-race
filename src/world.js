@@ -1,10 +1,10 @@
 import {Airspace} from './airspace.js?v=23';
 import * as THREE from 'three';
-import {CLOUD_ASSET, pickCloudRiders} from './cloud-ride.js?v=28';
+import {CLOUD_ASSET, pickCloudRiders} from './cloud-ride.js?v=30';
 import {RIFT_ENTRY, RIFT_EXIT} from './rift-rules.js?v=25';
-import { BIPLANE_ASSET } from './airshow.js?v=28';
+import { BIPLANE_ASSET } from './airshow.js?v=30';
 import {createCartContactShadow, SUN_OFFSET, updateCartContactShadow} from './aircraft-shadow.js?v=24';
-import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=28';
+import { CAMERA_DRONE_ASSET } from './camera-drone.js?v=30';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { TAU, lerp, clamp, wrap, smoothstep, randomGenerator, stationsFor, biomeMix, trackSegments } from './core.js?v=13.0.0';
 import { createCircuitRoute } from './circuit-route.js?v=17';
@@ -15,7 +15,7 @@ import { fitGroundContact, prepareGroundedParts, groundBatchGeometry, renderedGr
 import { planScenery, indexGroundPads, paddedHeight } from './scenery-plan.js?v=17';
 import { createBiomeLayout } from './biome-blend.js?v=13.0.0';
 import { shadowProfile, keepSceneryShadow } from './shadow-profile.js?v=13.0.0';
-import { buildFans, buildGoals, GOAL_ARCH, finishSmile } from './celebration.js?v=22';
+import { buildFans, buildGoals, GOAL_ARCH, finishSmile } from './celebration.js?v=30';
 import { createStandingDriver } from './drivers.js?v=23';
 import { TURBO_ASSET_ID, TurboPair, createTurboResources } from './turbo-visual.js?v=23';
 import { createGroundMaterial, grassHabitatAt, buildGrassCover, buildFarmland, GRASS_NEAR_DISTANCE, GRASS_DRAW_DISTANCE } from './ground-cover.js?v=13.0.0';

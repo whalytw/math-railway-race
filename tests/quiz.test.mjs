@@ -9,8 +9,9 @@ const json=async f=>JSON.parse(await readFile(new URL('../question-bank/'+f+'.js
 const books=await json('books'), pool=await json('number');
 const newLane=i=>new QuizLane([{label:'數與數線',questions:pool}],45,DEFAULT_CAPS,i);
 const run=(lane,seconds,length=5000)=>{for(let i=0;i<Math.round(seconds*120);i++)lane.tick(1/120,length);};
-import {chooseNebula, DEFAULT_RIFT_CHANCE, inRift, portalDistance, RIFT_CHANCES, RIFT_ENTRY, RIFT_EXIT, RIFT_NEBULAS, RiftDraw, spaceEncounters} from '../src/rift-rules.js';
+import {chooseNebula, DEFAULT_RIFT_CHANCE, ESCORT_EXITS, inRift, portalDistance, RIFT_CHANCES, RIFT_ENTRY, RIFT_EXIT, RIFT_NEBULAS, RiftDraw, spaceEncounters} from '../src/rift-rules.js';
 import {createRiftTracks} from '../src/rift-track.js';
+import {flightElevations, flightSample} from '../src/flight-clearance.js';
 
 test('all 42 book units offer at least 36 distinct prompts at each level',async()=>{
   assert.equal(books.flatMap(b=>b.units).length,42);
@@ -251,4 +252,35 @@ test('rift fleets are likely and each cart makes its own scout encounter roll', 
   assert.ok(Math.abs(fleetCount / 4500 - .92) < .03);
   assert.ok(Math.abs(probeCount / 4500 - .60) < .04);
   assert.ok(mixed > 800);
+});
+
+test('an isolated tall obstacle gives an early smooth climb and a gradual descent', () => {
+  const floor = new Float64Array(91);
+  floor.fill(3);
+  floor[44] = 26;
+  const heights = flightElevations(floor, .26, .21, 8);
+  assert.ok(flightSample(heights, 35) > 3);
+  assert.ok(flightSample(heights, 44) >= 26);
+  assert.ok(flightSample(heights, 51) > 3);
+  for (let i = 1; i <= 900; i++) {
+    const lift = flightSample(heights, i / 10) - flightSample(heights, (i - 1) / 10);
+    assert.ok(lift >= -.21 * .8 - 1e-9 && lift <= .26 * .8 + 1e-9);
+  }
+});
+
+test('escorts draw all eight exits and stay with their cart for five to ten seconds', () => {
+  const random = randomGenerator('escort-coverage');
+  const routes = new Set();
+  const count = 2400;
+  let flights = 0;
+  for (let i = 0; i < count / 3; i++) {
+    for (const {escort} of spaceEncounters(3, random)) {
+      if (!escort) continue;
+      flights++;
+      routes.add(escort.exit);
+      assert.ok(escort.follow >= 5 && escort.follow < 10);
+    }
+  }
+  assert.deepEqual([...routes].sort(), Object.values(ESCORT_EXITS));
+  assert.ok(Math.abs(flights / count - .90) < .03);
 });
